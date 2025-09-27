@@ -1,0 +1,12 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Unity files
+*.cs text diff=csharp
+*.shader text
+*.cginc text
+*.mat text
+*.prefab text
+*.unity text
+*.asset text
+*.meta text
