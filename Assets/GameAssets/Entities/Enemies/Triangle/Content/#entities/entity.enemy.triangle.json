@@ -1,0 +1,9 @@
+﻿{
+  "id": "entity.enemy.triangle",
+  "properties": [
+    {
+      "type": "VIEW",
+      "assetPath": "Assets/GameAssets/Entities/Enemies/Triangle/Prefabs/Triangle.prefab"
+    }
+  ]
+}

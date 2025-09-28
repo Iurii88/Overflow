@@ -1,0 +1,9 @@
+﻿{
+  "id": "entity.player",
+  "properties": [
+    {
+      "type": "VIEW",
+      "assetPath": "Assets/GameAssets/Entities/Player/Prefabs/Player.prefab"
+    }
+  ]
+}
