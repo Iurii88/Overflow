@@ -2,11 +2,13 @@
 using Game.Core.Content.Converters.Attributes;
 using Game.Core.Content.Converters.Interfaces;
 using Game.Core.Reflection;
+using Game.Core.Reflection.Attributes;
 using Newtonsoft.Json;
 using VContainer;
 
 namespace Game.Core.Content.Converters.Registry
 {
+    [AutoRegister]
     public class JsonConverterRegistry
     {
         [Inject] private readonly IReflectionManager m_reflectionManager;
@@ -24,7 +26,7 @@ namespace Game.Core.Content.Converters.Registry
 
         private JsonSerializerSettings CreateSettings()
         {
-            var converterTypes = m_reflectionManager.GetTypesWithAttribute<ContentConverterAttribute>();
+            var converterTypes = m_reflectionManager.GetByAttribute<ContentConverterAttribute>();
             var settings = new JsonSerializerSettings();
 
             foreach (var converterType in converterTypes)

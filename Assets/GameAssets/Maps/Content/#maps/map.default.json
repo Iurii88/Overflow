@@ -1,0 +1,8 @@
+﻿{
+  "id": "map.default",
+  "properties": [
+    {
+      "identifier": "WAVES_GENERATOR"
+    }
+  ]
+}

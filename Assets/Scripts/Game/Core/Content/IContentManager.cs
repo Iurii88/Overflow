@@ -1,10 +1,11 @@
 ﻿using System;
-using VContainer.Unity;
+using Game.Core.Bootstraps.Interfaces;
 
 namespace Game.Core.Content
 {
-    public interface IContentManager : IAsyncStartable, IDisposable
+    public interface IContentManager : IAsyncLoader, IDisposable
     {
+        public bool isInitialized { get; }
         T Get<T>(string id) where T : class;
         T[] GetAll<T>() where T : class;
     }

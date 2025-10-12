@@ -4,15 +4,18 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Game.Core.Content.Attributes;
+using Game.Core.Logging;
 using Game.Core.Reflection.Attributes;
-using UnityEngine;
-using VContainer.Unity;
+using VContainer;
 using ZLinq;
 
 namespace Game.Core.Reflection
 {
-    public sealed class ReflectionManager : IReflectionManager, IInitializable
+    public sealed class ReflectionManager : IReflectionManager
     {
+        [Inject]
+        private IObjectResolver m_objectResolver;
+
         private readonly Dictionary<Type, TypeInfo[]> m_derivedTypesCache = new();
         private readonly Dictionary<Type, TypeInfo[]> m_interfaceImplementersCache = new();
         private readonly Dictionary<Type, TypeInfo[]> m_attributeTypesCache = new();
@@ -49,12 +52,12 @@ namespace Game.Core.Reflection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TypeInfo[] GetInterfaceImplementers<T>() where T : class
+        public TypeInfo[] GetByInterface<T>() where T : class
         {
-            return GetInterfaceImplementers(typeof(T));
+            return GetByInterface(typeof(T));
         }
 
-        public TypeInfo[] GetInterfaceImplementers(Type interfaceType)
+        public TypeInfo[] GetByInterface(Type interfaceType)
         {
             if (m_interfaceImplementersCache.TryGetValue(interfaceType, out var cached))
                 return cached;
@@ -68,12 +71,12 @@ namespace Game.Core.Reflection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TypeInfo[] GetTypesWithAttribute<T>() where T : Attribute
+        public TypeInfo[] GetByAttribute<T>() where T : Attribute
         {
-            return GetTypesWithAttribute(typeof(T));
+            return GetByAttribute(typeof(T));
         }
 
-        public TypeInfo[] GetTypesWithAttribute(Type attributeType)
+        public TypeInfo[] GetByAttribute(Type attributeType)
         {
             if (m_attributeTypesCache.TryGetValue(attributeType, out var cached))
                 return cached;
@@ -101,10 +104,8 @@ namespace Game.Core.Reflection
                     continue;
 
                 if (m_identifierTypesCache.TryGetValue(identifierAttribute.identifier, out var value))
-                {
-                    Debug.LogWarning($"Duplicate IdentifierAttribute typeName '{identifierAttribute.identifier}' found. " +
-                                     $"Type {typeInfo.FullName} overrides {value.FullName}");
-                }
+                    GameLogger.Warning($"Duplicate IdentifierAttribute typeName '{identifierAttribute.identifier}' found. " +
+                                       $"Type {typeInfo.FullName} overrides {value.FullName}");
 
                 m_identifierTypesCache[identifierAttribute.identifier] = typeInfo.AsType();
             }

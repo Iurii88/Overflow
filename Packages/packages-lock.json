@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.cysharp.r3": {
+      "version": "https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.modules.imgui": "1.0.0"
+      },
+      "hash": "97debd29b7c6b0aa6b0121b754df0c9d337a74bf"
+    },
     "com.cysharp.unitask": {
       "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
       "depth": 0,
@@ -14,12 +23,19 @@
       "dependencies": {},
       "hash": "a7c6b49a0141a5bff9b1983e38137522ef61977d"
     },
+    "com.github.messagepack-csharp": {
+      "version": "https://github.com/MessagePack-CSharp/MessagePack-CSharp.git?path=src/MessagePack.UnityClient/Assets/Scripts/MessagePack",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "39e4a792100d19e7da6ed42ff12b3bc21aac28e8"
+    },
     "com.iurii88.unsafeecs": {
       "version": "https://github.com/Iurii88/UnsafeEcs.git",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "ed4068cc9f0ede58a66fd2fe7ffad76849fa89fd"
+      "hash": "81054b09e4f87221bb05cca7c38d96967f3a0ea2"
     },
     "com.unity.2d.animation": {
       "version": "12.0.2",

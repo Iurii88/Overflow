@@ -10,7 +10,7 @@ namespace Game.Core.Content.Converters
 {
     public class ContentConverter<T> : JsonConverter<T>, IInjectableConverter
     {
-        protected virtual string fieldName { get; } = "type";
+        protected virtual string fieldName { get; } = "identifier";
 
         private IReflectionManager m_reflectionManager;
 

@@ -5,6 +5,6 @@ namespace Game.Features.Movement.Components
 {
     public struct Velocity : IComponent
     {
-        public float2 valie;
+        public float2 value;
     }
 }
