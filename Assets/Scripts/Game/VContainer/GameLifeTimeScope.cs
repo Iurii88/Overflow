@@ -1,4 +1,5 @@
-﻿using VContainer;
+﻿using Game.Features.LoadingScreen;
+using VContainer;
 using VContainer.Unity;
 
 namespace Game.Scopes
@@ -8,6 +9,7 @@ namespace Game.Scopes
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterEntryPoint<GameManager>();
+            builder.RegisterComponentInHierarchy<LoadingScreen>();
         }
     }
 }

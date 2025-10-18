@@ -2,11 +2,13 @@
 using Game.Core.Addressables;
 using Game.Core.Content;
 using Game.Features.Entities.Content;
+using Game.Features.View.Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap.Attributes;
 using UnsafeEcs.Core.Entities;
@@ -25,7 +27,7 @@ namespace Game.Features.Movement.System
 
         [Inject]
         private IAddressableManager m_addressableManager;
-
+        
         public override void OnAwake()
         {
             m_query = CreateQuery();
@@ -39,6 +41,10 @@ namespace Game.Features.Movement.System
             var viewContentProperty = contentPlayer.GetProperty<ViewContentProperty>();
             var playerPrefab = await m_addressableManager.LoadAssetAsync<GameObject>(viewContentProperty.assetPath);
             var player = Object.Instantiate(playerPrefab);
+            var playerEntity = entityManagerWrapper.Value.CreateEntity();
+            playerEntity.AddComponent<ViewComponent>();
+            var managedRef = world.managedStorage.Add(player);
+            playerEntity.AddComponent(managedRef);
         }
 
         public override void OnUpdate()
