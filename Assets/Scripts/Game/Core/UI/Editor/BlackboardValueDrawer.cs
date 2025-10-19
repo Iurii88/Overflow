@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.Core.ViewComponents.Editor
 {
-    [CustomPropertyDrawer(typeof(BlackboardValue), true)]
+    [CustomPropertyDrawer(typeof(BlackboardVariable), true)]
     public class BlackboardValueDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -43,8 +43,22 @@ namespace Game.Core.ViewComponents.Editor
                     var valueRect = new Rect(position.x, position.y + EditorGUIUtility.singleLineHeight + 2,
                         position.width, valueHeight);
 
+                    EditorGUI.BeginChangeCheck();
+
                     // Unity can serialize this type, use standard PropertyField
                     EditorGUI.PropertyField(valueRect, valueProp, new GUIContent("Value"), true);
+
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        property.serializedObject.ApplyModifiedProperties();
+
+                        // Notify the Blackboard component
+                        var blackboard = property.serializedObject.targetObject as Blackboard;
+                        if (blackboard != null && keyProp != null)
+                        {
+                            blackboard.NotifyValueChangedInEditor(keyProp.stringValue);
+                        }
+                    }
                 }
                 else if (CustomBlackboardTypeDrawers.HasDrawer(valueType))
                 {
@@ -68,6 +82,13 @@ namespace Game.Core.ViewComponents.Editor
                                 valueField.SetValue(targetObject, newValue);
                                 property.serializedObject.ApplyModifiedProperties();
                                 EditorUtility.SetDirty(property.serializedObject.targetObject);
+
+                                // Notify the Blackboard component
+                                var blackboard = property.serializedObject.targetObject as Blackboard;
+                                if (blackboard != null && keyProp != null)
+                                {
+                                    blackboard.NotifyValueChangedInEditor(keyProp.stringValue);
+                                }
                             }
                         }
                     }

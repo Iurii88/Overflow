@@ -14,13 +14,21 @@ namespace Game.Core.ViewComponents
 
         protected override void Subscribe()
         {
-            ggg.OnValueChanged += OnOnValueChanged;
+            ggg.OnVariableChanged += OnVariableChanged;
+            v3.OnVariableChanged += OnVariableChangedV3;
+            v3.Value = new Vector3(1, 2, 3);
         }
 
-        private static void OnOnValueChanged(int obj)
+        private void OnVariableChangedV3(BlackboardVariable<Vector3> varV3)
         {
+            Debug.Log($"{varV3.value}");
         }
-        
+
+        private void OnVariableChanged(BlackboardVariable<int> variable)
+        {
+            
+        }
+
         private void Update()
         {
             ggg.Value = Time.frameCount % 9;

@@ -7,64 +7,20 @@ namespace Game.Core.ViewComponents
     public class Blackboard : MonoBehaviour
     {
         [SerializeReference]
-        private List<BlackboardValue> values = new();
+        private List<BlackboardVariable> values = new();
 
-        private Dictionary<string, BlackboardValue> m_cache;
-        private readonly Dictionary<string, object> m_previousValues = new();
+        private Dictionary<string, BlackboardVariable> m_cache;
 
-        public event Action<string, object> OnValueChanged;
+        public event Action<string, BlackboardVariable> OnVariableChanged;
 
         private void OnEnable()
         {
             RebuildCache();
-            CaptureCurrentValues();
-        }
-
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            if (m_cache == null)
-                RebuildCache();
-
-            CheckForChanges();
-        }
-#endif
-
-        private void CaptureCurrentValues()
-        {
-            m_previousValues.Clear();
-            if (m_cache == null)
-                return;
-
-            foreach (var kvp in m_cache)
-                m_previousValues[kvp.Key] = kvp.Value.GetObjectValue();
-        }
-
-        private void CheckForChanges()
-        {
-            if (m_cache == null)
-                return;
-
-            foreach (var kvp in m_cache)
-            {
-                var currentValue = kvp.Value.GetObjectValue();
-
-                if (m_previousValues.TryGetValue(kvp.Key, out var previousValue))
-                {
-                    if (Equals(currentValue, previousValue))
-                        continue;
-                    
-                    OnValueChanged?.Invoke(kvp.Key, currentValue);
-                    m_previousValues[kvp.Key] = currentValue;
-                }
-                else
-                    OnValueChanged?.Invoke(kvp.Key, currentValue);
-            }
         }
 
         private void RebuildCache()
         {
-            m_cache = new Dictionary<string, BlackboardValue>();
+            m_cache = new Dictionary<string, BlackboardVariable>();
             foreach (var val in values)
             {
                 if (val != null && !string.IsNullOrEmpty(val.key))
@@ -79,29 +35,29 @@ namespace Game.Core.ViewComponents
 
             if (m_cache.TryGetValue(key, out var existing))
             {
-                if (existing is BlackboardValue<T> typedValue)
+                if (existing is BlackboardVariable<T> typedValue)
                 {
-                    typedValue.value = value;
-                    m_previousValues[key] = value;
-                    OnValueChanged?.Invoke(key, value);
+                    if (!EqualityComparer<T>.Default.Equals(typedValue.value, value))
+                    {
+                        typedValue.value = value;
+                        OnVariableChanged?.Invoke(key, typedValue);
+                    }
                 }
                 else
                 {
-                    var newValue = new BlackboardValue<T>(key, value);
+                    var newValue = new BlackboardVariable<T>(key, value);
                     values.Remove(existing);
                     values.Add(newValue);
                     m_cache[key] = newValue;
-                    m_previousValues[key] = value;
-                    OnValueChanged?.Invoke(key, value);
+                    OnVariableChanged?.Invoke(key, newValue);
                 }
             }
             else
             {
-                var newValue = new BlackboardValue<T>(key, value);
+                var newValue = new BlackboardVariable<T>(key, value);
                 values.Add(newValue);
                 m_cache[key] = newValue;
-                m_previousValues[key] = value;
-                OnValueChanged?.Invoke(key, value);
+                OnVariableChanged?.Invoke(key, newValue);
             }
         }
 
@@ -110,7 +66,7 @@ namespace Game.Core.ViewComponents
             if (m_cache == null)
                 RebuildCache();
 
-            if (m_cache.TryGetValue(key, out var value) && value is BlackboardValue<T> typedValue)
+            if (m_cache.TryGetValue(key, out var value) && value is BlackboardVariable<T> typedValue)
                 return typedValue.value;
 
             return default;
@@ -121,7 +77,7 @@ namespace Game.Core.ViewComponents
             if (m_cache == null)
                 RebuildCache();
 
-            if (m_cache.TryGetValue(key, out var value) && value is BlackboardValue<T> typedValue)
+            if (m_cache.TryGetValue(key, out var value) && value is BlackboardVariable<T> typedValue)
             {
                 result = typedValue.value;
                 return true;
@@ -149,8 +105,7 @@ namespace Game.Core.ViewComponents
 
             values.Remove(value);
             m_cache.Remove(key);
-            m_previousValues.Remove(key);
-            OnValueChanged?.Invoke(key, null);
+            OnVariableChanged?.Invoke(key, null);
             return true;
         }
 
@@ -158,8 +113,20 @@ namespace Game.Core.ViewComponents
         {
             values.Clear();
             m_cache?.Clear();
-            m_previousValues.Clear();
-            OnValueChanged?.Invoke(null, null);
+            OnVariableChanged?.Invoke(null, null);
         }
+
+#if UNITY_EDITOR
+        public void NotifyValueChangedInEditor(string key)
+        {
+            if (m_cache == null)
+                RebuildCache();
+
+            if (m_cache.TryGetValue(key, out var value))
+            {
+                OnVariableChanged?.Invoke(key, value);
+            }
+        }
+#endif
     }
 }

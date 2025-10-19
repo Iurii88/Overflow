@@ -32,10 +32,10 @@ namespace Game.Features.Movement.System
         public override void OnUpdate()
         {
             base.OnUpdate();
-            m_query.ForEach((ref Entity entity, ref ManagedRef<GameObject> managedRef) =>
-            {
-                var playerGo = managedRef.Get(world);
-            });
+            // m_query.ForEach((ref Entity entity, ref ManagedRef<GameObject> managedRef) =>
+            // {
+            //     var playerGo = managedRef.Get(world);
+            // });
         }
     }
 }

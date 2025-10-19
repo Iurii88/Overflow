@@ -17,20 +17,20 @@ namespace Game.Core.ViewComponents
 
         private Blackboard m_blackboard;
 
-        public event Action<T> OnValueChanged;
+        public event Action<BlackboardVariable<T>> OnVariableChanged;
 
         public void Initialize(Blackboard bb)
         {
             m_blackboard = bb;
 
             if (m_blackboard != null && !string.IsNullOrEmpty(boundKey))
-                m_blackboard.OnValueChanged += OnBlackboardValueChanged;
+                m_blackboard.OnVariableChanged += OnBlackboardVariableChanged;
         }
 
-        private void OnBlackboardValueChanged(string key, object value)
+        private void OnBlackboardVariableChanged(string key, BlackboardVariable variable)
         {
-            if (key == boundKey && value is T typedValue)
-                OnValueChanged?.Invoke(typedValue);
+            if (key == boundKey && variable is BlackboardVariable<T> typedValue)
+                OnVariableChanged?.Invoke(typedValue);
         }
 
         public T Value
@@ -59,7 +59,7 @@ namespace Game.Core.ViewComponents
         public void Dispose()
         {
             if (m_blackboard != null)
-                m_blackboard.OnValueChanged -= OnBlackboardValueChanged;
+                m_blackboard.OnVariableChanged -= OnBlackboardVariableChanged;
         }
     }
 }

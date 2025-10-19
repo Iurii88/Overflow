@@ -3,7 +3,7 @@
 namespace Game.Core.ViewComponents
 {
     [Serializable]
-    public abstract class BlackboardValue
+    public abstract class BlackboardVariable
     {
         public string key;
         public abstract Type GetValueType();
@@ -11,15 +11,15 @@ namespace Game.Core.ViewComponents
     }
 
     [Serializable]
-    public class BlackboardValue<T> : BlackboardValue
+    public class BlackboardVariable<T> : BlackboardVariable
     {
         public T value;
 
-        public BlackboardValue()
+        public BlackboardVariable()
         {
         }
 
-        public BlackboardValue(string key, T value)
+        public BlackboardVariable(string key, T value)
         {
             this.key = key;
             this.value = value;

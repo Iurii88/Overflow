@@ -732,7 +732,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Core::Game.Scopes.GameLifeTimeScope
   parentReference:
-    TypeName: 
+    TypeName: Game.Core.VContainer.CoreLifeTimeScope
   autoRun: 1
   autoInjectGameObjects: []
 --- !u!114 &1470268503
@@ -748,7 +748,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Core::Core.Common.VContainer.GameLifeTimeScope
   parentReference:
-    TypeName: 
+    TypeName: Game.Core.VContainer.CoreEarlyLifeTimeScope
   autoRun: 1
   autoInjectGameObjects: []
 --- !u!114 &1470268504
@@ -879,7 +879,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1627982729}
-  - component: {fileID: 1627982732}
+  - component: {fileID: 1627982733}
   - component: {fileID: 1627982731}
   - component: {fileID: 1627982730}
   m_Layer: 5
@@ -1007,7 +1007,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1627982728}
   m_CullTransparentMesh: 1
---- !u!114 &1627982732
+--- !u!114 &1627982733
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1016,13 +1016,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1627982728}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 249f72a1cb934fdb81899f66d3ea443d, type: 3}
+  m_Script: {fileID: 11500000, guid: bfd0284765774915b570fded7fb2bbc8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Core::Game.Core.ViewComponents.ViewModules.LabelViewModule
-  blackboard: {fileID: 1930952087}
+  m_EditorClassIdentifier: Core::Game.Core.UI.ViewModules.Text.IntLabelViewModule
+  blackboard: {fileID: 0}
   label: {fileID: 1627982730}
   parameter:
-    boundKey: SSS
+    boundKey: GGG
 --- !u!1 &1796235271
 GameObject:
   m_ObjectHideFlags: 0
@@ -1105,20 +1105,20 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e59ed0fa2b434d0d94e5e9aafc125c8c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Core::Game.Core.Blackboard.TestViewComponent
-  blackboard: {fileID: 1930952087}
+  m_EditorClassIdentifier: Core::Game.Core.ViewComponents.TestViewComponent
+  blackboard: {fileID: 0}
   ggg:
     boundKey: GGG
   sss:
-    boundKey: SSS
+    boundKey: 
   v3:
-    boundKey: V3
+    boundKey: 
   v3Numerics:
-    boundKey: V3NUMERICS
+    boundKey: 
   v3List:
-    boundKey: V3LIST
+    boundKey: 
   v3Array:
-    boundKey: V3ARRAY
+    boundKey: 
 --- !u!114 &1930952087
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1131,22 +1131,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0da08b07f6194670804dafe2bcdfb5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::Game.Core.ViewComponents.Blackboard
-  values:
-  - rid: 4537498015998935121
-  - rid: 4537498015998935122
+  values: []
   references:
     version: 2
-    RefIds:
-    - rid: 4537498015998935121
-      type: {class: 'BlackboardValue`1[[System.Int32, mscorlib]]', ns: Game.Core.ViewComponents, asm: Core}
-      data:
-        key: GGG
-        value: 0
-    - rid: 4537498015998935122
-      type: {class: 'BlackboardValue`1[[System.String, mscorlib]]', ns: Game.Core.ViewComponents, asm: Core}
-      data:
-        key: SSS
-        value: 
+    RefIds: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
