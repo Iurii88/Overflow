@@ -10,13 +10,11 @@ namespace Game.Core.Blackboard.Editor
     public class AViewComponentEditor : UnityEditor.Editor
     {
         private readonly Dictionary<string, bool> m_foldouts = new();
-        private readonly Dictionary<string, int> m_selectedIndices = new();
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            // Draw default blackboard field
             EditorGUILayout.PropertyField(serializedObject.FindProperty("blackboard"));
 
             var viewComponent = target as AViewComponent;
@@ -32,7 +30,6 @@ namespace Game.Core.Blackboard.Editor
             EditorGUILayout.LabelField("Blackboard Parameters", EditorStyles.boldLabel);
             EditorGUILayout.Space(5);
 
-            // Find all BlackboardViewParameter fields
             var fields = target.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
             var hasParameters = false;
 
@@ -64,19 +61,24 @@ namespace Game.Core.Blackboard.Editor
             {
                 parameter = Activator.CreateInstance(field.FieldType);
                 field.SetValue(target, parameter);
+                EditorUtility.SetDirty(target);
             }
 
             var foldoutKey = field.Name;
             m_foldouts.TryAdd(foldoutKey, true);
 
-            // Get bound key
-            var boundKeyProp = field.FieldType.GetProperty("BoundKey");
-            var currentKey = boundKeyProp?.GetValue(parameter) as string;
+            var fieldProperty = serializedObject.FindProperty(field.Name);
+            if (fieldProperty == null)
+                return;
 
-            // Get available keys from blackboard
+            var boundKeyProperty = fieldProperty.FindPropertyRelative("boundKey");
+            if (boundKeyProperty == null)
+                return;
+
+            var currentKey = boundKeyProperty.stringValue;
+
             var availableKeys = GetBlackboardKeys(viewComponent.blackboard, field.FieldType);
 
-            // Main container
             var bgColor = EditorGUIUtility.isProSkin
                 ? new Color(0.25f, 0.25f, 0.25f, 1f)
                 : new Color(0.8f, 0.8f, 0.8f, 1f);
@@ -87,7 +89,6 @@ namespace Game.Core.Blackboard.Editor
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             GUI.backgroundColor = originalBg;
 
-            // Header with foldout
             EditorGUILayout.BeginHorizontal();
 
             var foldoutRect = GUILayoutUtility.GetRect(12, EditorGUIUtility.singleLineHeight, GUILayout.Width(12));
@@ -112,22 +113,18 @@ namespace Game.Core.Blackboard.Editor
             {
                 EditorGUILayout.Space(3);
 
-                // Bind to key dropdown
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("Bind to Key", GUILayout.Width(100));
 
                 if (availableKeys.Count > 0)
                 {
                     var currentIndex = string.IsNullOrEmpty(currentKey) ? 0 : Math.Max(0, availableKeys.IndexOf(currentKey));
-                    m_selectedIndices.TryAdd(foldoutKey, currentIndex);
 
-                    var newIndex = EditorGUILayout.Popup(m_selectedIndices[foldoutKey], availableKeys.ToArray());
-                    if (newIndex != m_selectedIndices[foldoutKey])
+                    var newIndex = EditorGUILayout.Popup(currentIndex, availableKeys.ToArray());
+                    if (newIndex != currentIndex)
                     {
-                        m_selectedIndices[foldoutKey] = newIndex;
                         var newKey = newIndex == 0 ? "" : availableKeys[newIndex];
-                        boundKeyProp?.SetValue(parameter, newKey);
-                        EditorUtility.SetDirty(target);
+                        boundKeyProperty.stringValue = newKey;
                     }
                 }
                 else
@@ -137,7 +134,6 @@ namespace Game.Core.Blackboard.Editor
 
                 EditorGUILayout.EndHorizontal();
 
-                // Create new key button (only if key doesn't exist)
                 var uppercaseFieldName = field.Name.ToUpper();
                 var keyExists = availableKeys.Contains(uppercaseFieldName);
 
@@ -150,7 +146,7 @@ namespace Game.Core.Blackboard.Editor
                     buttonStyle.fontSize = 11;
 
                     if (GUILayout.Button("+ Create New Key", buttonStyle, GUILayout.Height(22)))
-                        CreateNewKey(field, viewComponent, parameter, boundKeyProp);
+                        CreateNewKey(field, viewComponent, boundKeyProperty, uppercaseFieldName);
 
                     EditorGUILayout.EndHorizontal();
                 }
@@ -163,12 +159,8 @@ namespace Game.Core.Blackboard.Editor
         }
 
         private void CreateNewKey(FieldInfo field, AViewComponent viewComponent,
-            object parameter, PropertyInfo boundKeyProp)
+            SerializedProperty boundKeyProperty, string newKey)
         {
-            // Generate key name from field name (uppercase)
-            var newKey = field.Name.ToUpper();
-
-            // Force rebuild cache in blackboard before creating
             var rebuildCacheMethod = typeof(Blackboard).GetMethod("RebuildCache",
                 BindingFlags.NonPublic | BindingFlags.Instance);
             rebuildCacheMethod?.Invoke(viewComponent.blackboard, null);
@@ -176,22 +168,12 @@ namespace Game.Core.Blackboard.Editor
             var valueType = field.FieldType.GetGenericArguments()[0];
             var defaultValue = GetDefaultValue(valueType);
 
-            // Use reflection to call Set<T>
             var setMethod = typeof(Blackboard).GetMethod("Set").MakeGenericMethod(valueType);
             setMethod.Invoke(viewComponent.blackboard, new[] { newKey, defaultValue });
 
-            // Bind to new key
-            boundKeyProp?.SetValue(parameter, newKey);
-
-            // Update the selected index in dropdown
-            var foldoutKey = field.Name;
-            var availableKeys = GetBlackboardKeys(viewComponent.blackboard, field.FieldType);
-            var newIndex = availableKeys.IndexOf(newKey);
-            if (newIndex >= 0)
-                m_selectedIndices[foldoutKey] = newIndex;
+            boundKeyProperty.stringValue = newKey;
 
             EditorUtility.SetDirty(viewComponent.blackboard);
-            EditorUtility.SetDirty(target);
         }
 
         private static List<string> GetBlackboardKeys(Blackboard blackboard, Type parameterType)
@@ -199,7 +181,6 @@ namespace Game.Core.Blackboard.Editor
             var keys = new List<string> { "(None)" };
             var valueType = parameterType.GetGenericArguments()[0];
 
-            // Access private values field
             var valuesField = typeof(Blackboard).GetField("values",
                 BindingFlags.NonPublic | BindingFlags.Instance);
 

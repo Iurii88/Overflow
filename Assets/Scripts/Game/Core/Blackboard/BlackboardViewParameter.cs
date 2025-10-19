@@ -9,6 +9,12 @@ namespace Game.Core.Blackboard
         [SerializeField]
         private string boundKey;
 
+        public string BoundKey
+        {
+            get => boundKey;
+            set => boundKey = value;
+        }
+
         private Blackboard m_blackboard;
 
         public event Action<T> OnValueChanged;
