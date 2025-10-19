@@ -10,30 +10,21 @@ namespace Game.Core.Blackboard
         private string boundKey;
 
         private Blackboard m_blackboard;
-        private T m_cachedValue;
-        private bool m_hasCachedValue;
 
         public event Action<T> OnValueChanged;
 
         public void Initialize(Blackboard bb)
         {
             m_blackboard = bb;
-            m_hasCachedValue = false;
 
             if (m_blackboard != null && !string.IsNullOrEmpty(boundKey))
-            {
                 m_blackboard.OnValueChanged += OnBlackboardValueChanged;
-            }
         }
 
         private void OnBlackboardValueChanged(string key, object value)
         {
             if (key == boundKey && value is T typedValue)
-            {
-                m_cachedValue = typedValue;
-                m_hasCachedValue = true;
                 OnValueChanged?.Invoke(typedValue);
-            }
         }
 
         public T Value
@@ -43,13 +34,7 @@ namespace Game.Core.Blackboard
                 if (m_blackboard == null || string.IsNullOrEmpty(boundKey))
                     return default;
 
-                if (m_hasCachedValue)
-                    return m_cachedValue;
-
-                m_cachedValue = m_blackboard.Get<T>(boundKey);
-                m_hasCachedValue = true;
-
-                return m_cachedValue;
+                return m_blackboard.Get<T>(boundKey);
             }
             set
             {
@@ -57,14 +42,7 @@ namespace Game.Core.Blackboard
                     return;
 
                 m_blackboard.Set(boundKey, value);
-                m_cachedValue = value;
-                m_hasCachedValue = true;
             }
-        }
-
-        public void InvalidateCache()
-        {
-            m_hasCachedValue = false;
         }
 
         public Type GetValueType()
