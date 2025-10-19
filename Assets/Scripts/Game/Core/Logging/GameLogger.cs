@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Game.Core.Logging.Modules;
 
 namespace Game.Core.Logging
 {

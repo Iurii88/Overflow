@@ -1,5 +1,5 @@
 ﻿using System;
-using Game.Core.Bootstraps.Interfaces;
+using Game.Core.Initialization.Interfaces;
 
 namespace Game.Core.Content
 {

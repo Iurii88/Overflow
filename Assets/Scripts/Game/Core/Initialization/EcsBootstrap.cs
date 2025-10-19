@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Game.Core.Bootstraps.Interfaces;
+using Game.Core.Initialization.Interfaces;
 using Game.Core.Reflection.Attributes;
 using UnsafeEcs.Core.Bootstrap;
 using UnsafeEcs.Core.Worlds;
 using VContainer;
 
-namespace Game.Core.Bootstraps
+namespace Game.Core.Initialization
 {
     [AutoRegister]
     public class EcsBootstrap : IAsyncLoader, IDisposable

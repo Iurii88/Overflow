@@ -1,4 +1,4 @@
-namespace Game.Core.Logging
+namespace Game.Core.Logging.Modules
 {
     public interface ILogModule
     {
