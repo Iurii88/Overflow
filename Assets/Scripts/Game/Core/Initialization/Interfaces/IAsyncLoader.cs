@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace Game.Core.Bootstraps.Interfaces
+namespace Game.Core.Initialization.Interfaces
 {
     public interface IAsyncLoader
     {

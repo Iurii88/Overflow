@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game.Core.Blackboard
+namespace Game.Core.ViewComponents
 {
     public class TestViewComponent : AViewComponent
     {
@@ -14,14 +14,16 @@ namespace Game.Core.Blackboard
 
         protected override void Subscribe()
         {
-            ggg.OnValueChanged += GggOnOnValueChanged;
-
-            ggg.Value = 123;
+            ggg.OnValueChanged += OnOnValueChanged;
         }
 
-        private void GggOnOnValueChanged(int obj)
+        private static void OnOnValueChanged(int obj)
         {
-            Debug.Log($"Ggg: {obj}");
+        }
+        
+        private void Update()
+        {
+            ggg.Value = Time.frameCount % 9;
         }
     }
 }

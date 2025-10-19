@@ -4,7 +4,7 @@ using Game.Core.Reflection.Attributes;
 using VContainer;
 using VContainer.Unity;
 
-namespace Game.Core.Scopes
+namespace Game.Core.VContainer
 {
     public class CoreLifeTimeScope : LifetimeScope
     {

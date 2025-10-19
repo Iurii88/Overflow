@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Game.Core.Blackboard
+namespace Game.Core.ViewComponents
 {
     [Serializable]
     public class BlackboardViewParameter<T>

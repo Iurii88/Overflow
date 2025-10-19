@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Core.Blackboard.Editor
+namespace Game.Core.ViewComponents.Editor
 {
     [CustomPropertyDrawer(typeof(BlackboardValue), true)]
     public class BlackboardValueDrawer : PropertyDrawer

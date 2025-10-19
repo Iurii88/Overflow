@@ -4,7 +4,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Core.Blackboard.Editor
+namespace Game.Core.ViewComponents.Editor
 {
     [CustomEditor(typeof(AViewComponent), true)]
     public class AViewComponentEditor : UnityEditor.Editor
@@ -202,10 +202,8 @@ namespace Game.Core.Blackboard.Editor
                 var getValueTypeMethod = val.GetType().GetMethod("GetValueType");
                 var type = getValueTypeMethod?.Invoke(val, null) as Type;
 
-                if (!string.IsNullOrEmpty(key) && type == valueType)
-                {
+                if ((!string.IsNullOrEmpty(key) && type == valueType) || valueType == typeof(object))
                     keys.Add(key);
-                }
             }
 
             return keys;

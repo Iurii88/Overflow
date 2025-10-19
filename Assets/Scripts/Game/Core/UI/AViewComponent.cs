@@ -2,7 +2,7 @@
 using System.Reflection;
 using UnityEngine;
 
-namespace Game.Core.Blackboard
+namespace Game.Core.ViewComponents
 {
     public abstract class AViewComponent : MonoBehaviour
     {
@@ -19,9 +19,11 @@ namespace Game.Core.Blackboard
             DisposeParameters();
         }
 
-        public void Reset()
+        protected virtual void Reset()
         {
             blackboard = GetComponent<Blackboard>();
+            if (blackboard == null)
+                blackboard = GetComponentInParent<Blackboard>();
         }
 
         protected abstract void Subscribe();
