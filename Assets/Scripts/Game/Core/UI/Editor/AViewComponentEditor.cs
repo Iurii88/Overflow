@@ -9,19 +9,17 @@ namespace Game.Core.ViewComponents.Editor
     [CustomEditor(typeof(AViewComponent), true)]
     public class AViewComponentEditor : UnityEditor.Editor
     {
-        private readonly Dictionary<string, bool> m_foldouts = new();
-
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("blackboard"));
+            DrawPropertiesExcludingBlackboardParameters();
 
             var viewComponent = target as AViewComponent;
             if (viewComponent == null || viewComponent.blackboard == null)
             {
                 EditorGUILayout.Space(5);
-                EditorGUILayout.HelpBox("Assign a Blackboard to see parameter bindings.", MessageType.Info);
+                DrawBlackboardMissingButtons(viewComponent);
                 serializedObject.ApplyModifiedProperties();
                 return;
             }
@@ -48,6 +46,72 @@ namespace Game.Core.ViewComponents.Editor
             serializedObject.ApplyModifiedProperties();
         }
 
+        private void DrawBlackboardMissingButtons(AViewComponent viewComponent)
+        {
+            EditorGUILayout.HelpBox("No Blackboard assigned.", MessageType.Warning);
+
+            EditorGUILayout.BeginHorizontal();
+
+            if (GUILayout.Button("Find in Parent", GUILayout.Height(30)))
+            {
+                if (viewComponent != null)
+                {
+                    var blackboard = viewComponent.GetComponentInParent<Blackboard>();
+                    if (blackboard != null)
+                    {
+                        var blackboardProperty = serializedObject.FindProperty("blackboard");
+                        if (blackboardProperty != null)
+                        {
+                            blackboardProperty.objectReferenceValue = blackboard;
+                            serializedObject.ApplyModifiedProperties();
+                        }
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog("Not Found", "No Blackboard found in parent hierarchy.", "OK");
+                    }
+                }
+            }
+
+            if (GUILayout.Button("Create New", GUILayout.Height(30)))
+            {
+                if (viewComponent != null)
+                {
+                    var blackboard = viewComponent.gameObject.AddComponent<Blackboard>();
+                    var blackboardProperty = serializedObject.FindProperty("blackboard");
+                    if (blackboardProperty != null)
+                    {
+                        blackboardProperty.objectReferenceValue = blackboard;
+                        serializedObject.ApplyModifiedProperties();
+                    }
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawPropertiesExcludingBlackboardParameters()
+        {
+            var prop = serializedObject.GetIterator();
+            var enterChildren = true;
+
+            while (prop.NextVisible(enterChildren))
+            {
+                enterChildren = false;
+
+                if (prop.name == "m_Script")
+                    continue;
+
+                var field = target.GetType().GetField(prop.name,
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (field != null && IsBlackboardViewParameter(field.FieldType))
+                    continue;
+
+                EditorGUILayout.PropertyField(prop, true);
+            }
+        }
+
         private static bool IsBlackboardViewParameter(Type type)
         {
             return type.IsGenericType &&
@@ -63,9 +127,6 @@ namespace Game.Core.ViewComponents.Editor
                 field.SetValue(target, parameter);
                 EditorUtility.SetDirty(target);
             }
-
-            var foldoutKey = field.Name;
-            m_foldouts.TryAdd(foldoutKey, true);
 
             var fieldProperty = serializedObject.FindProperty(field.Name);
             if (fieldProperty == null)
@@ -91,68 +152,73 @@ namespace Game.Core.ViewComponents.Editor
 
             EditorGUILayout.BeginHorizontal();
 
-            var foldoutRect = GUILayoutUtility.GetRect(12, EditorGUIUtility.singleLineHeight, GUILayout.Width(12));
-            m_foldouts[foldoutKey] = EditorGUI.Foldout(foldoutRect, m_foldouts[foldoutKey], GUIContent.none, true);
+            GUILayout.Space(10);
 
-            var typeName = GetFriendlyTypeName(field.FieldType);
             var labelStyle = new GUIStyle(EditorStyles.label);
             labelStyle.fontStyle = FontStyle.Bold;
 
-            EditorGUILayout.LabelField($"{field.Name}", labelStyle, GUILayout.Width(150));
+            var typeName = GetFriendlyTypeName(field.FieldType);
 
-            var typeStyle = new GUIStyle(EditorStyles.miniLabel);
-            typeStyle.normal.textColor = EditorGUIUtility.isProSkin
-                ? new Color(0.7f, 0.7f, 0.7f)
-                : new Color(0.4f, 0.4f, 0.4f);
-            EditorGUILayout.LabelField($"({typeName})", typeStyle, GUILayout.Width(80));
+            EditorGUILayout.LabelField($"{field.Name} ({typeName})", labelStyle, GUILayout.MinWidth(100), GUILayout.MaxWidth(180));
 
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.LabelField("→", GUILayout.Width(15));
 
-            if (m_foldouts[foldoutKey])
+            if (availableKeys.Count > 0)
             {
-                EditorGUILayout.Space(3);
+                var currentIndex = string.IsNullOrEmpty(currentKey) ? 0 : Math.Max(0, availableKeys.IndexOf(currentKey));
 
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("Bind to Key", GUILayout.Width(100));
-
-                if (availableKeys.Count > 0)
+                var newIndex = EditorGUILayout.Popup(currentIndex, availableKeys.ToArray(), GUILayout.MinWidth(80), GUILayout.MaxWidth(120));
+                if (newIndex != currentIndex)
                 {
-                    var currentIndex = string.IsNullOrEmpty(currentKey) ? 0 : Math.Max(0, availableKeys.IndexOf(currentKey));
+                    var newKey = newIndex == 0 ? "" : availableKeys[newIndex];
+                    boundKeyProperty.stringValue = newKey;
+                }
+            }
+            else
+            {
+                EditorGUILayout.LabelField("(No keys)", EditorStyles.miniLabel, GUILayout.MinWidth(80), GUILayout.MaxWidth(100));
+            }
 
-                    var newIndex = EditorGUILayout.Popup(currentIndex, availableKeys.ToArray());
-                    if (newIndex != currentIndex)
+            if (string.IsNullOrEmpty(currentKey) || currentKey == "(None)")
+            {
+                if (GUILayout.Button("+", GUILayout.Width(25), GUILayout.Height(18)))
+                {
+                    var uppercaseFieldName = field.Name.ToUpper();
+                    var newKeyName = uppercaseFieldName;
+
+                    var inputDialog = EditorUtility.DisplayDialog(
+                        "Create New Key",
+                        $"Enter name for new key (suggested: {uppercaseFieldName})",
+                        "Create",
+                        "Cancel"
+                    );
+
+                    if (inputDialog)
                     {
-                        var newKey = newIndex == 0 ? "" : availableKeys[newIndex];
-                        boundKeyProperty.stringValue = newKey;
+                        newKeyName = EditorUtility.SaveFilePanel("", "", uppercaseFieldName, "");
+                        if (string.IsNullOrEmpty(newKeyName))
+                            newKeyName = uppercaseFieldName;
+                        else
+                            newKeyName = System.IO.Path.GetFileNameWithoutExtension(newKeyName);
+
+                        CreateNewKey(field, viewComponent, boundKeyProperty, newKeyName);
                     }
                 }
-                else
-                {
-                    EditorGUILayout.LabelField("(No matching keys)", EditorStyles.miniLabel);
-                }
-
-                EditorGUILayout.EndHorizontal();
-
-                var uppercaseFieldName = field.Name.ToUpper();
-                var keyExists = availableKeys.Contains(uppercaseFieldName);
-
-                if (!keyExists)
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    GUILayout.Space(104);
-
-                    var buttonStyle = new GUIStyle(GUI.skin.button);
-                    buttonStyle.fontSize = 11;
-
-                    if (GUILayout.Button("+ Create New Key", buttonStyle, GUILayout.Height(22)))
-                        CreateNewKey(field, viewComponent, boundKeyProperty, uppercaseFieldName);
-
-                    EditorGUILayout.EndHorizontal();
-                }
-
-                EditorGUILayout.Space(3);
             }
+
+            GUILayout.FlexibleSpace();
+
+            var currentValue = GetCurrentBlackboardValue(viewComponent.blackboard, currentKey);
+            if (currentValue != null)
+            {
+                var valueStyle = new GUIStyle(EditorStyles.miniLabel);
+                valueStyle.normal.textColor = EditorGUIUtility.isProSkin
+                    ? new Color(0.5f, 0.8f, 0.5f)
+                    : new Color(0.2f, 0.5f, 0.2f);
+                EditorGUILayout.LabelField($"= {currentValue}", valueStyle, GUILayout.MinWidth(50));
+            }
+
+            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.EndVertical();
             EditorGUILayout.Space(3);
@@ -161,6 +227,9 @@ namespace Game.Core.ViewComponents.Editor
         private void CreateNewKey(FieldInfo field, AViewComponent viewComponent,
             SerializedProperty boundKeyProperty, string newKey)
         {
+            if (string.IsNullOrWhiteSpace(newKey))
+                return;
+
             var rebuildCacheMethod = typeof(Blackboard).GetMethod("RebuildCache",
                 BindingFlags.NonPublic | BindingFlags.Instance);
             rebuildCacheMethod?.Invoke(viewComponent.blackboard, null);
@@ -174,6 +243,48 @@ namespace Game.Core.ViewComponents.Editor
             boundKeyProperty.stringValue = newKey;
 
             EditorUtility.SetDirty(viewComponent.blackboard);
+        }
+
+        private static string GetCurrentBlackboardValue(Blackboard blackboard, string key)
+        {
+            if (blackboard == null || string.IsNullOrEmpty(key))
+                return null;
+
+            var valuesField = typeof(Blackboard).GetField("values",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (valuesField == null)
+                return null;
+
+            var values = valuesField.GetValue(blackboard) as System.Collections.IList;
+            if (values == null)
+                return null;
+
+            foreach (var val in values)
+            {
+                if (val == null)
+                    continue;
+
+                var keyField = val.GetType().GetField("key");
+                var valueKey = keyField?.GetValue(val) as string;
+
+                if (valueKey == key)
+                {
+                    var valueField = val.GetType().GetField("value");
+                    var value = valueField?.GetValue(val);
+
+                    if (value == null)
+                        return "null";
+
+                    var valueStr = value.ToString();
+                    if (valueStr.Length > 30)
+                        return valueStr.Substring(0, 27) + "...";
+
+                    return valueStr;
+                }
+            }
+
+            return null;
         }
 
         private static List<string> GetBlackboardKeys(Blackboard blackboard, Type parameterType)
