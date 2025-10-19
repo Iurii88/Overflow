@@ -913,6 +913,7 @@ GameObject:
   - component: {fileID: 1930952083}
   - component: {fileID: 1930952087}
   - component: {fileID: 1930952086}
+  - component: {fileID: 1930952088}
   m_Layer: 5
   m_Name: TestWindow
   m_TagString: Untagged
@@ -954,9 +955,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Core::Game.Core.Blackboard.TestViewComponent
   blackboard: {fileID: 1930952087}
   ggg:
-    blackboardKey: testint
+    boundKey: GGG
   sss:
-    blackboardKey: str1
+    boundKey: SSS
+  v3:
+    boundKey: V3
+  v3Numerics:
+    boundKey: V3NUMERICS
+  v3List:
+    boundKey: V3LIST
+  v3Array:
+    boundKey: V3ARRAY
 --- !u!114 &1930952087
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -969,20 +978,66 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0da08b07f6194670804dafe2bcdfb5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::Game.Core.Blackboard.Blackboard
-  serializedVariables:
-  - key: 12313
-    typeName: System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
-    serializedValue: 
-  - key: testint
-    typeName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
-    serializedValue: '{}'
-  - key: v3
-    typeName: UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-    serializedValue: '{}'
-  - key: str1
-    typeName: System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
-    serializedValue: '{}'
+  values:
+  - rid: 4537497992632467554
+  - rid: 4537497992632467551
+  - rid: 4537497992632467552
+  - rid: 4537497992632467553
+  - rid: 4537497992632467555
+  - rid: 4537497992632467559
+  - rid: 4537497992632467560
+  references:
+    version: 2
+    RefIds:
+    - rid: 4537497992632467551
+      type: {class: 'BlackboardValue`1[[System.Int32, mscorlib]]', ns: Game.Core.Blackboard, asm: Core}
+      data:
+        key: GGG
+        value: 50
+    - rid: 4537497992632467552
+      type: {class: 'BlackboardValue`1[[System.String, mscorlib]]', ns: Game.Core.Blackboard, asm: Core}
+      data:
+        key: SSS
+        value: sdfsfsdf
+    - rid: 4537497992632467553
+      type: {class: 'BlackboardValue`1[[System.Int32, mscorlib]]', ns: Game.Core.Blackboard, asm: Core}
+      data:
+        key: GGG
+        value: 456
+    - rid: 4537497992632467554
+      type: {class: 'BlackboardValue`1[[UnityEngine.Vector3, UnityEngine.CoreModule]]', ns: Game.Core.Blackboard, asm: Core}
+      data:
+        key: V3
+        value: {x: 60, y: 50, z: 50}
+    - rid: 4537497992632467555
+      type: {class: 'BlackboardValue`1[[System.Numerics.Vector3, System.Numerics]]', ns: Game.Core.Blackboard, asm: Core}
+      data:
+        key: V3NUMERICS
+    - rid: 4537497992632467559
+      type: {class: 'BlackboardValue`1[[System.Collections.Generic.List`1[[UnityEngine.Vector3, UnityEngine.CoreModule]], mscorlib]]', ns: Game.Core.Blackboard, asm: Core}
+      data:
+        key: V3LIST
+        value:
+        - {x: 1, y: 2, z: 3}
+        - {x: 4, y: 5, z: 6}
+        - {x: 7, y: 8, z: 9}
+    - rid: 4537497992632467560
+      type: {class: 'BlackboardValue`1[[UnityEngine.Vector3[], UnityEngine.CoreModule]]', ns: Game.Core.Blackboard, asm: Core}
+      data:
+        key: V3ARRAY
+        value: []
+--- !u!114 &1930952088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1930952082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 687a3c0cdbca4e77bf97b474fbe0aa82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::Game.Core.Blackboard.BlackboardExample
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

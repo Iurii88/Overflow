@@ -119,8 +119,8 @@ namespace Game.Core.Blackboard.Editor
             {
                 if (element.Contains("["))
                 {
-                    var elementName = element.Substring(0, element.IndexOf("["));
-                    var index = Convert.ToInt32(element.Substring(element.IndexOf("[")).Replace("[", "").Replace("]", ""));
+                    var elementName = element.Substring(0, element.IndexOf("[", StringComparison.Ordinal));
+                    var index = Convert.ToInt32(element.Substring(element.IndexOf("[", StringComparison.Ordinal)).Replace("[", "").Replace("]", ""));
                     obj = GetValue_Imp(obj, elementName, index);
                 }
                 else
@@ -165,6 +165,7 @@ namespace Game.Core.Blackboard.Editor
             if (enumerable == null)
                 return null;
             var enm = enumerable.GetEnumerator();
+            using var enumerator = enm as IDisposable;
 
             for (var i = 0; i <= index; i++)
             {

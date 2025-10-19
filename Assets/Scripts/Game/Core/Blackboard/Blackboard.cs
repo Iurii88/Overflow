@@ -4,50 +4,62 @@ using UnityEngine;
 
 namespace Game.Core.Blackboard
 {
-    [Serializable]
-    public abstract class BlackboardValue
-    {
-        public string key;
-        public abstract Type GetValueType();
-        public abstract object GetObjectValue();
-    }
-
-    [Serializable]
-    public class BlackboardValue<T> : BlackboardValue
-    {
-        public T value;
-
-        public BlackboardValue()
-        {
-        }
-
-        public BlackboardValue(string key, T value)
-        {
-            this.key = key;
-            this.value = value;
-        }
-
-        public override Type GetValueType()
-        {
-            return typeof(T);
-        }
-
-        public override object GetObjectValue()
-        {
-            return value;
-        }
-    }
-
     public class Blackboard : MonoBehaviour
     {
         [SerializeReference]
         private List<BlackboardValue> values = new();
 
         private Dictionary<string, BlackboardValue> m_cache;
+        private readonly Dictionary<string, object> m_previousValues = new();
+
+        public event Action<string, object> OnValueChanged;
 
         private void OnEnable()
         {
             RebuildCache();
+            CaptureCurrentValues();
+        }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (m_cache == null)
+                RebuildCache();
+
+            CheckForChanges();
+        }
+#endif
+
+        private void CaptureCurrentValues()
+        {
+            m_previousValues.Clear();
+            if (m_cache == null)
+                return;
+
+            foreach (var kvp in m_cache)
+                m_previousValues[kvp.Key] = kvp.Value.GetObjectValue();
+        }
+
+        private void CheckForChanges()
+        {
+            if (m_cache == null)
+                return;
+
+            foreach (var kvp in m_cache)
+            {
+                var currentValue = kvp.Value.GetObjectValue();
+
+                if (m_previousValues.TryGetValue(kvp.Key, out var previousValue))
+                {
+                    if (Equals(currentValue, previousValue))
+                        continue;
+                    
+                    OnValueChanged?.Invoke(kvp.Key, currentValue);
+                    m_previousValues[kvp.Key] = currentValue;
+                }
+                else
+                    OnValueChanged?.Invoke(kvp.Key, currentValue);
+            }
         }
 
         private void RebuildCache()
@@ -68,13 +80,19 @@ namespace Game.Core.Blackboard
             if (m_cache.TryGetValue(key, out var existing))
             {
                 if (existing is BlackboardValue<T> typedValue)
+                {
                     typedValue.value = value;
+                    m_previousValues[key] = value;
+                    OnValueChanged?.Invoke(key, value);
+                }
                 else
                 {
                     var newValue = new BlackboardValue<T>(key, value);
                     values.Remove(existing);
                     values.Add(newValue);
                     m_cache[key] = newValue;
+                    m_previousValues[key] = value;
+                    OnValueChanged?.Invoke(key, value);
                 }
             }
             else
@@ -82,6 +100,8 @@ namespace Game.Core.Blackboard
                 var newValue = new BlackboardValue<T>(key, value);
                 values.Add(newValue);
                 m_cache[key] = newValue;
+                m_previousValues[key] = value;
+                OnValueChanged?.Invoke(key, value);
             }
         }
 
@@ -115,6 +135,7 @@ namespace Game.Core.Blackboard
         {
             if (m_cache == null)
                 RebuildCache();
+
             return m_cache.ContainsKey(key);
         }
 
@@ -123,20 +144,22 @@ namespace Game.Core.Blackboard
             if (m_cache == null)
                 RebuildCache();
 
-            if (m_cache.TryGetValue(key, out var value))
-            {
-                values.Remove(value);
-                m_cache.Remove(key);
-                return true;
-            }
+            if (!m_cache.TryGetValue(key, out var value))
+                return false;
 
-            return false;
+            values.Remove(value);
+            m_cache.Remove(key);
+            m_previousValues.Remove(key);
+            OnValueChanged?.Invoke(key, null);
+            return true;
         }
 
         public void Clear()
         {
             values.Clear();
             m_cache?.Clear();
+            m_previousValues.Clear();
+            OnValueChanged?.Invoke(null, null);
         }
     }
 }

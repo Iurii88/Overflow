@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using UnityEngine;
 
 namespace Game.Core.Blackboard
@@ -10,7 +11,20 @@ namespace Game.Core.Blackboard
         protected virtual void Awake()
         {
             InitializeParameters();
+            Subscribe();
         }
+
+        protected virtual void OnDestroy()
+        {
+            DisposeParameters();
+        }
+
+        public void Reset()
+        {
+            blackboard = GetComponent<Blackboard>();
+        }
+
+        protected abstract void Subscribe();
 
         private void InitializeParameters()
         {
@@ -21,27 +35,40 @@ namespace Game.Core.Blackboard
 
             foreach (var field in fields)
             {
-                if (IsBlackboardViewParameter(field.FieldType))
-                {
-                    var parameter = field.GetValue(this);
-                    if (parameter != null)
-                    {
-                        var initMethod = field.FieldType.GetMethod("Initialize");
-                        initMethod?.Invoke(parameter, new object[] { blackboard });
-                    }
-                }
+                if (!IsBlackboardViewParameter(field.FieldType))
+                    continue;
+
+                var parameter = field.GetValue(this);
+                if (parameter == null)
+                    continue;
+
+                var initMethod = field.FieldType.GetMethod("Initialize");
+                initMethod?.Invoke(parameter, new object[] { blackboard });
             }
         }
 
-        private bool IsBlackboardViewParameter(System.Type type)
+        private void DisposeParameters()
+        {
+            var fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+
+            foreach (var field in fields)
+            {
+                if (!IsBlackboardViewParameter(field.FieldType))
+                    continue;
+
+                var parameter = field.GetValue(this);
+                if (parameter == null)
+                    continue;
+
+                var disposeMethod = field.FieldType.GetMethod("Dispose");
+                disposeMethod?.Invoke(parameter, null);
+            }
+        }
+
+        private static bool IsBlackboardViewParameter(Type type)
         {
             return type.IsGenericType &&
                    type.GetGenericTypeDefinition() == typeof(BlackboardViewParameter<>);
-        }
-
-        public void Reset()
-        {
-            blackboard = GetComponent<Blackboard>();
         }
     }
 }

@@ -9,8 +9,8 @@ namespace Game.Core.Blackboard.Editor
     [CustomEditor(typeof(AViewComponent), true)]
     public class AViewComponentEditor : UnityEditor.Editor
     {
-        private readonly Dictionary<string, bool> foldouts = new();
-        private readonly Dictionary<string, int> selectedIndices = new();
+        private readonly Dictionary<string, bool> m_foldouts = new();
+        private readonly Dictionary<string, int> m_selectedIndices = new();
 
         public override void OnInspectorGUI()
         {
@@ -38,22 +38,20 @@ namespace Game.Core.Blackboard.Editor
 
             foreach (var field in fields)
             {
-                if (IsBlackboardViewParameter(field.FieldType))
-                {
-                    hasParameters = true;
-                    DrawBlackboardParameter(field, viewComponent);
-                }
+                if (!IsBlackboardViewParameter(field.FieldType))
+                    continue;
+
+                hasParameters = true;
+                DrawBlackboardParameter(field, viewComponent);
             }
 
             if (!hasParameters)
-            {
                 EditorGUILayout.HelpBox("No BlackboardViewParameter fields found in this component.", MessageType.Info);
-            }
 
             serializedObject.ApplyModifiedProperties();
         }
 
-        private bool IsBlackboardViewParameter(Type type)
+        private static bool IsBlackboardViewParameter(Type type)
         {
             return type.IsGenericType &&
                    type.GetGenericTypeDefinition() == typeof(BlackboardViewParameter<>);
@@ -69,8 +67,7 @@ namespace Game.Core.Blackboard.Editor
             }
 
             var foldoutKey = field.Name;
-            if (!foldouts.ContainsKey(foldoutKey))
-                foldouts[foldoutKey] = true;
+            m_foldouts.TryAdd(foldoutKey, true);
 
             // Get bound key
             var boundKeyProp = field.FieldType.GetProperty("BoundKey");
@@ -94,7 +91,7 @@ namespace Game.Core.Blackboard.Editor
             EditorGUILayout.BeginHorizontal();
 
             var foldoutRect = GUILayoutUtility.GetRect(12, EditorGUIUtility.singleLineHeight, GUILayout.Width(12));
-            foldouts[foldoutKey] = EditorGUI.Foldout(foldoutRect, foldouts[foldoutKey], GUIContent.none, true);
+            m_foldouts[foldoutKey] = EditorGUI.Foldout(foldoutRect, m_foldouts[foldoutKey], GUIContent.none, true);
 
             var typeName = GetFriendlyTypeName(field.FieldType);
             var labelStyle = new GUIStyle(EditorStyles.label);
@@ -111,7 +108,7 @@ namespace Game.Core.Blackboard.Editor
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
 
-            if (foldouts[foldoutKey])
+            if (m_foldouts[foldoutKey])
             {
                 EditorGUILayout.Space(3);
 
@@ -122,15 +119,12 @@ namespace Game.Core.Blackboard.Editor
                 if (availableKeys.Count > 0)
                 {
                     var currentIndex = string.IsNullOrEmpty(currentKey) ? 0 : Math.Max(0, availableKeys.IndexOf(currentKey));
+                    m_selectedIndices.TryAdd(foldoutKey, currentIndex);
 
-                    if (!selectedIndices.ContainsKey(foldoutKey))
-                        selectedIndices[foldoutKey] = currentIndex;
-
-                    var newIndex = EditorGUILayout.Popup(selectedIndices[foldoutKey], availableKeys.ToArray());
-
-                    if (newIndex != selectedIndices[foldoutKey])
+                    var newIndex = EditorGUILayout.Popup(m_selectedIndices[foldoutKey], availableKeys.ToArray());
+                    if (newIndex != m_selectedIndices[foldoutKey])
                     {
-                        selectedIndices[foldoutKey] = newIndex;
+                        m_selectedIndices[foldoutKey] = newIndex;
                         var newKey = newIndex == 0 ? "" : availableKeys[newIndex];
                         boundKeyProp?.SetValue(parameter, newKey);
                         EditorUtility.SetDirty(target);
@@ -156,30 +150,7 @@ namespace Game.Core.Blackboard.Editor
                     buttonStyle.fontSize = 11;
 
                     if (GUILayout.Button("+ Create New Key", buttonStyle, GUILayout.Height(22)))
-                    {
                         CreateNewKey(field, viewComponent, parameter, boundKeyProp);
-                    }
-
-                    EditorGUILayout.EndHorizontal();
-                }
-
-                // Show current value (read-only preview)
-                if (!string.IsNullOrEmpty(currentKey))
-                {
-                    EditorGUILayout.Space(5);
-
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField("Current Value", GUILayout.Width(100));
-
-                    var valueType = field.FieldType.GetGenericArguments()[0];
-
-                    // Get value directly from blackboard
-                    var getValue = typeof(Blackboard).GetMethod("Get").MakeGenericMethod(valueType);
-                    var value = getValue.Invoke(viewComponent.blackboard, new object[] { currentKey });
-
-                    GUI.enabled = false;
-                    DrawValueField(value, valueType);
-                    GUI.enabled = true;
 
                     EditorGUILayout.EndHorizontal();
                 }
@@ -217,15 +188,13 @@ namespace Game.Core.Blackboard.Editor
             var availableKeys = GetBlackboardKeys(viewComponent.blackboard, field.FieldType);
             var newIndex = availableKeys.IndexOf(newKey);
             if (newIndex >= 0)
-            {
-                selectedIndices[foldoutKey] = newIndex;
-            }
+                m_selectedIndices[foldoutKey] = newIndex;
 
             EditorUtility.SetDirty(viewComponent.blackboard);
             EditorUtility.SetDirty(target);
         }
 
-        private List<string> GetBlackboardKeys(Blackboard blackboard, Type parameterType)
+        private static List<string> GetBlackboardKeys(Blackboard blackboard, Type parameterType)
         {
             var keys = new List<string> { "(None)" };
             var valueType = parameterType.GetGenericArguments()[0];
@@ -234,65 +203,41 @@ namespace Game.Core.Blackboard.Editor
             var valuesField = typeof(Blackboard).GetField("values",
                 BindingFlags.NonPublic | BindingFlags.Instance);
 
-            if (valuesField != null)
+            if (valuesField == null)
+                return keys;
+
+            var values = valuesField.GetValue(blackboard) as System.Collections.IList;
+            if (values == null)
+                return keys;
+
+            foreach (var val in values)
             {
-                var values = valuesField.GetValue(blackboard) as System.Collections.IList;
-                if (values != null)
+                if (val == null)
+                    continue;
+
+                var keyField = val.GetType().GetField("key");
+                var key = keyField?.GetValue(val) as string;
+
+                var getValueTypeMethod = val.GetType().GetMethod("GetValueType");
+                var type = getValueTypeMethod?.Invoke(val, null) as Type;
+
+                if (!string.IsNullOrEmpty(key) && type == valueType)
                 {
-                    foreach (var val in values)
-                    {
-                        if (val != null)
-                        {
-                            var keyField = val.GetType().GetField("key");
-                            var key = keyField?.GetValue(val) as string;
-
-                            var getValueTypeMethod = val.GetType().GetMethod("GetValueType");
-                            var type = getValueTypeMethod?.Invoke(val, null) as Type;
-
-                            if (!string.IsNullOrEmpty(key) && type == valueType)
-                            {
-                                keys.Add(key);
-                            }
-                        }
-                    }
+                    keys.Add(key);
                 }
             }
 
             return keys;
         }
 
-        private object GetParameterValue(object parameter, Type parameterType)
-        {
-            var valueProp = parameterType.GetProperty("Value");
-            return valueProp?.GetValue(parameter);
-        }
-
-        private void DrawValueField(object value, Type type)
-        {
-            if (type == typeof(int))
-                EditorGUILayout.IntField(value != null ? (int)value : 0);
-            else if (type == typeof(float))
-                EditorGUILayout.FloatField(value != null ? (float)value : 0f);
-            else if (type == typeof(string))
-                EditorGUILayout.TextField(value as string ?? "");
-            else if (type == typeof(bool))
-                EditorGUILayout.Toggle(value != null && (bool)value);
-            else if (type == typeof(Vector3))
-                EditorGUILayout.Vector3Field(GUIContent.none, value != null ? (Vector3)value : Vector3.zero);
-            else if (type == typeof(Vector2))
-                EditorGUILayout.Vector2Field(GUIContent.none, value != null ? (Vector2)value : Vector2.zero);
-            else if (type == typeof(Color))
-                EditorGUILayout.ColorField(value != null ? (Color)value : Color.white);
-            else
-                EditorGUILayout.LabelField(value?.ToString() ?? "null");
-        }
-
         private static object GetDefaultValue(Type type)
         {
             if (type == typeof(string))
                 return "";
+
             if (type.IsValueType)
                 return Activator.CreateInstance(type);
+
             return null;
         }
 
