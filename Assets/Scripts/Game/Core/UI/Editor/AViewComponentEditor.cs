@@ -163,9 +163,11 @@ namespace Game.Core.ViewComponents.Editor
 
             EditorGUILayout.LabelField("→", GUILayout.Width(15));
 
+            var isKeyValid = !string.IsNullOrEmpty(currentKey) && currentKey != "(None)" && availableKeys.Contains(currentKey);
+
             if (availableKeys.Count > 0)
             {
-                var currentIndex = string.IsNullOrEmpty(currentKey) ? 0 : Math.Max(0, availableKeys.IndexOf(currentKey));
+                var currentIndex = isKeyValid ? availableKeys.IndexOf(currentKey) : 0;
 
                 var newIndex = EditorGUILayout.Popup(currentIndex, availableKeys.ToArray(), GUILayout.MinWidth(80), GUILayout.MaxWidth(120));
                 if (newIndex != currentIndex)
@@ -179,30 +181,19 @@ namespace Game.Core.ViewComponents.Editor
                 EditorGUILayout.LabelField("(No keys)", EditorStyles.miniLabel, GUILayout.MinWidth(80), GUILayout.MaxWidth(100));
             }
 
-            if (string.IsNullOrEmpty(currentKey) || currentKey == "(None)")
+            // Show [+] button when: no valid key is selected OR when there are no keys at all
+            if (!isKeyValid || availableKeys.Count <= 1) // Count <= 1 because "(None)" is always in the list
             {
                 if (GUILayout.Button("+", GUILayout.Width(25), GUILayout.Height(18)))
                 {
                     var uppercaseFieldName = field.Name.ToUpper();
-                    var newKeyName = uppercaseFieldName;
-
-                    var inputDialog = EditorUtility.DisplayDialog(
-                        "Create New Key",
-                        $"Enter name for new key (suggested: {uppercaseFieldName})",
-                        "Create",
-                        "Cancel"
-                    );
-
-                    if (inputDialog)
+                    KeyNameInputWindow.Show(uppercaseFieldName, newKeyName =>
                     {
-                        newKeyName = EditorUtility.SaveFilePanel("", "", uppercaseFieldName, "");
-                        if (string.IsNullOrEmpty(newKeyName))
-                            newKeyName = uppercaseFieldName;
-                        else
-                            newKeyName = System.IO.Path.GetFileNameWithoutExtension(newKeyName);
-
-                        CreateNewKey(field, viewComponent, boundKeyProperty, newKeyName);
-                    }
+                        if (!string.IsNullOrWhiteSpace(newKeyName))
+                        {
+                            CreateNewKey(field, viewComponent, boundKeyProperty, newKeyName);
+                        }
+                    });
                 }
             }
 
@@ -338,6 +329,79 @@ namespace Game.Core.ViewComponents.Editor
 
             var genericType = type.GetGenericArguments()[0];
             return genericType.Name;
+        }
+    }
+
+    public class KeyNameInputWindow : EditorWindow
+    {
+        private string m_keyName;
+        private Action<string> m_onConfirm;
+        private bool m_focusTextField;
+
+        public static void Show(string defaultName, Action<string> onConfirm)
+        {
+            var window = GetWindow<KeyNameInputWindow>(true, "Create New Key", true);
+            window.m_keyName = defaultName;
+            window.m_onConfirm = onConfirm;
+            window.m_focusTextField = true;
+            window.minSize = new Vector2(300, 100);
+            window.maxSize = new Vector2(400, 100);
+            window.ShowUtility();
+        }
+
+        private void OnGUI()
+        {
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField("Enter the name for the new Blackboard key:", EditorStyles.wordWrappedLabel);
+            EditorGUILayout.Space(5);
+
+            GUI.SetNextControlName("KeyNameField");
+            m_keyName = EditorGUILayout.TextField("Key Name:", m_keyName);
+
+            if (m_focusTextField)
+            {
+                EditorGUI.FocusTextInControl("KeyNameField");
+                m_focusTextField = false;
+            }
+
+            // Handle Enter key
+            if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return)
+            {
+                Confirm();
+                Event.current.Use();
+            }
+
+            // Handle Escape key
+            if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
+            {
+                Close();
+                Event.current.Use();
+            }
+
+            EditorGUILayout.Space(10);
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+
+            if (GUILayout.Button("Create", GUILayout.Width(80), GUILayout.Height(25)))
+            {
+                Confirm();
+            }
+
+            if (GUILayout.Button("Cancel", GUILayout.Width(80), GUILayout.Height(25)))
+            {
+                Close();
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void Confirm()
+        {
+            if (!string.IsNullOrWhiteSpace(m_keyName))
+            {
+                m_onConfirm?.Invoke(m_keyName);
+                Close();
+            }
         }
     }
 }
