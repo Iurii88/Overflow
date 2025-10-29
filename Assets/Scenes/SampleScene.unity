@@ -1111,7 +1111,7 @@ MonoBehaviour:
   ggg:
     boundKey: GGG
   sss:
-    boundKey: 
+    boundKey: SSS
   v3:
     boundKey: 
   v3Numerics:
@@ -1132,10 +1132,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0da08b07f6194670804dafe2bcdfb5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::Game.Core.ViewComponents.Blackboard
-  values: []
+  values:
+  - rid: 4537498248612937820
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 4537498248612937820
+      type: {class: 'BlackboardVariable`1[[System.Int32, mscorlib]]', ns: Game.Core.ViewComponents, asm: Core}
+      data:
+        key: GGG
+        value: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
