@@ -1019,10 +1019,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfd0284765774915b570fded7fb2bbc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::Game.Core.UI.ViewModules.Text.IntLabelViewModule
-  blackboard: {fileID: 0}
+  blackboard: {fileID: 1930952087}
   label: {fileID: 1627982730}
   parameter:
     boundKey: GGG
+  stringBuilderCapacity: 16
 --- !u!1 &1796235271
 GameObject:
   m_ObjectHideFlags: 0
@@ -1106,7 +1107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e59ed0fa2b434d0d94e5e9aafc125c8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::Game.Core.ViewComponents.TestViewComponent
-  blackboard: {fileID: 0}
+  blackboard: {fileID: 1930952087}
   ggg:
     boundKey: GGG
   sss:

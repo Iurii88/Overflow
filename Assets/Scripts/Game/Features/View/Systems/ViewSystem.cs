@@ -1,10 +1,7 @@
 ﻿using Game.Core.Addressables;
 using Game.Core.Content;
-using Game.Features.View.Components;
-using UnityEngine;
 using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap.Attributes;
-using UnsafeEcs.Core.Components.Managed;
 using UnsafeEcs.Core.Entities;
 using UnsafeEcs.Core.Systems;
 using VContainer;
@@ -26,7 +23,7 @@ namespace Game.Features.Movement.System
 
         public override void OnAwake()
         {
-            m_query = CreateQuery().With<ViewComponent>();
+            //m_query = CreateQuery().With<ViewComponent>();
         }
 
         public override void OnUpdate()

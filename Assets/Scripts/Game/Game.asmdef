@@ -25,7 +25,8 @@
         "MessagePack.Annotations.dll",
         "R3.dll",
         "Newtonsoft.Json.dll",
-        "ZLinq.dll"
+        "ZLinq.dll",
+        "ZString.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],

@@ -1,4 +1,5 @@
-﻿using Game.Core.ViewComponents;
+﻿using System.Text;
+using Game.Core.ViewComponents;
 using TMPro;
 using UnityEngine;
 
@@ -10,6 +11,11 @@ namespace Game.Core.UI.ViewModules.Text
         private TMP_Text label;
 
         public BlackboardViewParameter<T> parameter;
+
+        [SerializeField]
+        private int stringBuilderCapacity = 16;
+
+        private readonly StringBuilder m_stringBuilder = new(16);
 
         protected override void Reset()
         {
@@ -24,7 +30,9 @@ namespace Game.Core.UI.ViewModules.Text
 
         private void OnOnVariableChanged(BlackboardVariable<T> variable)
         {
-            label.text = $"{variable.value}";
+            m_stringBuilder.Clear();
+            m_stringBuilder.Append(variable.value);
+            label.SetText(m_stringBuilder);
         }
     }
 }

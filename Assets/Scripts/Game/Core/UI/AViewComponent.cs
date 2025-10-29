@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Reflection;
-using UnityEngine;
+using Game.Core.Common;
 
 namespace Game.Core.ViewComponents
 {
-    public abstract class AViewComponent : MonoBehaviour
+    public abstract class AViewComponent : BaseMonoBehaviour
     {
         public Blackboard blackboard;
 
-        protected virtual void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             InitializeParameters();
             Subscribe();
         }
 
-        protected virtual void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
             DisposeParameters();
         }
 
