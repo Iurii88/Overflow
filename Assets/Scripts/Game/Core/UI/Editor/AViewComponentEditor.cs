@@ -178,6 +178,9 @@ namespace Game.Core.UI.Editor
                     var newGuid = newIndex == 0 ? "" : availableVariables.variables[newIndex - 1].Guid;
                     boundGuidProperty.stringValue = newGuid;
 
+                    // Apply property changes immediately so the new GUID is set
+                    serializedObject.ApplyModifiedProperties();
+
                     // Reinitialize the view component to subscribe to the new variable
                     ReinitializeViewComponent(viewComponent);
                 }
@@ -188,7 +191,7 @@ namespace Game.Core.UI.Editor
             }
 
             // Show [+] button when: no valid GUID is selected OR when there are no variables at all
-            if (!isGuidValid || availableVariables.variables.Count == 0)
+            if (currentVariable == null || availableVariables.variables.Count == 0)
             {
                 if (GUILayout.Button("+", GUILayout.Width(25), GUILayout.Height(18)))
                 {
@@ -245,6 +248,9 @@ namespace Game.Core.UI.Editor
                 boundGuidProperty.stringValue = newVariable.Guid;
             }
 
+            // Apply property changes immediately so the new GUID is set
+            boundGuidProperty.serializedObject.ApplyModifiedProperties();
+
             EditorUtility.SetDirty(viewComponent.blackboard);
 
             // Reinitialize the view component to subscribe to the new variable
@@ -256,12 +262,8 @@ namespace Game.Core.UI.Editor
             if (viewComponent == null)
                 return;
 
-            // Apply all serialized property changes BEFORE reinitializing
-            var serializedObj = new SerializedObject(viewComponent);
-            serializedObj.ApplyModifiedProperties();
-            serializedObj.Update();
-
             // Disable then enable to trigger OnDisable/OnEnable which reinitializes parameters
+            // Serialized properties are already applied before calling this method
             viewComponent.enabled = false;
             viewComponent.enabled = true;
 

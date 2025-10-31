@@ -931,7 +931,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 10
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1068,7 +1068,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1930952083}
   - component: {fileID: 1930952087}
-  - component: {fileID: 1930952086}
   m_Layer: 5
   m_Name: TestWindow
   m_TagString: Untagged
@@ -1097,31 +1096,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1930952086
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1930952082}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e59ed0fa2b434d0d94e5e9aafc125c8c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core::Game.Core.ViewComponents.TestViewComponent
-  blackboard: {fileID: 1930952087}
-  ggg:
-    boundGuid: 7d8aac70-090c-4095-812f-850f5d4771c8
-  sss:
-    boundGuid: 
-  v3:
-    boundGuid: 
-  v3Numerics:
-    boundGuid: 
-  v3List:
-    boundGuid: 
-  v3Array:
-    boundGuid: 
 --- !u!114 &1930952087
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1136,6 +1110,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Core::Game.Core.ViewComponents.Blackboard
   values:
   - rid: 4537498278767886411
+  - rid: 4537498278767886412
   references:
     version: 2
     RefIds:
@@ -1143,8 +1118,14 @@ MonoBehaviour:
       type: {class: 'BlackboardVariable`1[[System.Int32, mscorlib]]', ns: Game.Core.UI, asm: Core}
       data:
         guid: 7d8aac70-090c-4095-812f-850f5d4771c8
-        key: GGG
-        value: 0
+        key: GGG10
+        value: 10
+    - rid: 4537498278767886412
+      type: {class: 'BlackboardVariable`1[[System.Int32, mscorlib]]', ns: Game.Core.UI, asm: Core}
+      data:
+        guid: ff06c176-df38-4cde-b133-67d7319a8923
+        key: GGG123
+        value: 123
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
