@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Reflection;
 using Game.Core.Common;
+using UnityEngine;
 
 namespace Game.Core.UI
 {
+    [ExecuteAlways]
     public abstract class AViewComponent : BaseMonoBehaviour
     {
         public Blackboard blackboard;

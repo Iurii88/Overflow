@@ -12,11 +12,11 @@ namespace Game.Core.Common
         {
         }
 
-        protected void OnEnable()
+        protected virtual void OnEnable()
         {
         }
 
-        protected void OnDisable()
+        protected virtual void OnDisable()
         {
         }
 

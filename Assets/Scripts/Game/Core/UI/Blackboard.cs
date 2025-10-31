@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Game.Core.UI
 {
+    [ExecuteAlways]
     public class Blackboard : MonoBehaviour
     {
         [SerializeReference]

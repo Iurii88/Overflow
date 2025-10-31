@@ -31,7 +31,7 @@ namespace Game.Core.UI
 
         private void Update()
         {
-            ggg.Value = Time.frameCount % 9;
+            //ggg.Value = Time.frameCount % 9;
         }
     }
 }
