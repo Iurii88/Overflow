@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -13,6 +12,7 @@ using Game.Core.Reflection.Attributes;
 using Newtonsoft.Json;
 using VContainer;
 using VContainer.Unity;
+using ZLinq;
 
 namespace Game.Core.Content
 {
@@ -29,7 +29,7 @@ namespace Game.Core.Content
         private readonly Dictionary<string, Type> m_schemaTypeMapping = new();
         private readonly Dictionary<Type, Array> m_getAllCache = new();
 
-        public bool isInitialized { get; private set; }
+        public bool IsInitialized { get; private set; }
 
         private const string ContentRootPath = "Assets/GameAssets";
         private const string ContentFolderPrefix = "#";
@@ -37,7 +37,7 @@ namespace Game.Core.Content
 
         public async UniTask LoadAsync(CancellationToken cancellation = new())
         {
-            if (isInitialized)
+            if (IsInitialized)
                 return;
 
             await UniTask.RunOnThreadPool(() => 
@@ -46,7 +46,7 @@ namespace Game.Core.Content
                 return LoadAllContentAsync(cancellation);
             }, cancellationToken: cancellation);
 
-            isInitialized = true;
+            IsInitialized = true;
         }
 
         private void RegisterContentSchemas()
@@ -214,7 +214,7 @@ namespace Game.Core.Content
             if (!m_contentCache.TryGetValue(type, out var typeCache))
                 return Array.Empty<T>();
 
-            var array = typeCache.Values.Cast<T>().ToArray();
+            var array = typeCache.Values.AsValueEnumerable().Cast<T>().ToArray();
             m_getAllCache[type] = array;
             return array;
         }

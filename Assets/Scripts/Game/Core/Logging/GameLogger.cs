@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Game.Core.Logging.Modules;
+using ZLinq;
 
 namespace Game.Core.Logging
 {
@@ -60,7 +60,7 @@ namespace Game.Core.Logging
             if (level < minimumLevel)
                 return;
 
-            var processedMessage = Modules.Aggregate(message, (current, module) => module.Process(level, current));
+            var processedMessage = Modules.AsValueEnumerable().Aggregate(message, (current, module) => module.Process(level, current));
 
             switch (level)
             {

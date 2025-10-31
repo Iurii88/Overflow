@@ -4,7 +4,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Core.ViewComponents.Editor
+namespace Game.Core.UI.Editor
 {
     [CustomEditor(typeof(AViewComponent), true)]
     public class AViewComponentEditor : UnityEditor.Editor

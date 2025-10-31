@@ -2,6 +2,7 @@
 using Game.Core.Addressables;
 using Game.Core.Content;
 using Game.Features.Entities.Content;
+using Game.Features.View.Content;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -34,7 +35,6 @@ namespace Game.Features.Movement.System
 
         private async UniTask LoadPlayer()
         {
-            await UniTask.WaitUntil(() => m_contentManager.isInitialized);
             var contentPlayer = m_contentManager.Get<ContentEntity>("entity.player");
             var viewContentProperty = contentPlayer.GetProperty<ViewContentProperty>();
             var playerPrefab = await m_addressableManager.LoadAssetAsync<GameObject>(viewContentProperty.assetPath);

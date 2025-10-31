@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Game.Core.ViewComponents
+namespace Game.Core.UI
 {
     [Serializable]
     public abstract class BlackboardVariable

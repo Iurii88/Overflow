@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Game.Core.Initialization.Interfaces;
+using Game.Core.Initialization;
 using Game.Core.Reflection.Attributes;
 using UnsafeEcs.Core.Bootstrap;
 using UnsafeEcs.Core.Worlds;
 using VContainer;
 
-namespace Game.Core.Initialization
+namespace Game.Features.Bootstraps
 {
     [AutoRegister]
     public class EcsBootstrap : IAsyncLoader, IDisposable
     {
         [Inject]
         private readonly IObjectResolver m_resolver;
-        
+
         public void Dispose()
         {
             WorldManager.DestroyAllWorlds();

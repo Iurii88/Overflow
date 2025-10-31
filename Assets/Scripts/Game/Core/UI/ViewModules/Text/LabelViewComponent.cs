@@ -1,5 +1,4 @@
 ﻿using Cysharp.Text;
-using Game.Core.ViewComponents;
 using TMPro;
 using UnityEngine;
 

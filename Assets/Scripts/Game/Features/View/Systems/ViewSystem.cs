@@ -6,7 +6,7 @@ using UnsafeEcs.Core.Entities;
 using UnsafeEcs.Core.Systems;
 using VContainer;
 
-namespace Game.Features.Movement.System
+namespace Game.Features.View.Systems
 {
     [UpdateInGroup(typeof(AllWorldInitializationSystemGroup))]
     public class ViewSystem : SystemBase

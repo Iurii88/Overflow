@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game.Core.ViewComponents.Editor
+namespace Game.Core.UI.Editor
 {
     public static class CustomBlackboardTypeDrawers
     {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Game.Core.Content.Attributes;
@@ -63,7 +62,7 @@ namespace Game.Core.Reflection
                 return cached;
 
             var result = m_allTypes.AsValueEnumerable()
-                .Where(t => t.IsClass && !t.IsAbstract && t.ImplementedInterfaces.Contains(interfaceType))
+                .Where(t => t.IsClass && !t.IsAbstract && t.ImplementedInterfaces.AsValueEnumerable().Contains(interfaceType))
                 .ToArray();
 
             m_interfaceImplementersCache[interfaceType] = result;

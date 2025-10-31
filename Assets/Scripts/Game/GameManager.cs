@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Core.Content;
 using Game.Core.Initialization;
-using Game.Core.Initialization.Interfaces;
 using Game.Core.Logging;
 using Game.Core.Logging.Modules;
 using Game.Core.Reflection;
+using Game.Features.Bootstraps;
 using Game.Features.LoadingScreen;
 using VContainer;
 using VContainer.Unity;
@@ -35,14 +34,15 @@ namespace Game
             m_loadingScreen.gameObject.SetActive(true);
 
             GameLogger.Initialize(LogLevel.Debug, new LevelModule(), new ColorModule());
-            var tasks = new List<IAsyncLoader>
-            {
-                m_contentManager,
-                m_ecsBootstrap
-            };
 
-            //load in the specific order
-            foreach (var asyncLoader in tasks)
+            // Configure loader dependencies using fluent API
+            var orderedLoaders = new LoaderConfiguration()
+                .Register(m_contentManager)
+                .Register(m_ecsBootstrap).After(m_contentManager)
+                .ResolveOrder();
+
+            // Load in the resolved dependency order
+            foreach (var asyncLoader in orderedLoaders)
                 await asyncLoader.LoadAsync(cancellation);
 
             m_loadingScreen.gameObject.SetActive(false);

@@ -2,7 +2,7 @@
 using System.Reflection;
 using Game.Core.Common;
 
-namespace Game.Core.ViewComponents
+namespace Game.Core.UI
 {
     public abstract class AViewComponent : BaseMonoBehaviour
     {

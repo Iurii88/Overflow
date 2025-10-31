@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace Game.Core.ViewComponents.Editor.CustomTypeDrawers
+namespace Game.Core.UI.Editor.CustomTypeDrawers
 {
     [InitializeOnLoad]
     public static class MyCustomDrawers
