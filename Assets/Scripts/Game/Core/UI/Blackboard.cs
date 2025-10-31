@@ -9,7 +9,8 @@ namespace Game.Core.UI
         [SerializeReference]
         private List<BlackboardVariable> values = new();
 
-        private Dictionary<string, BlackboardVariable> m_cache;
+        private Dictionary<string, BlackboardVariable> m_keyCache;
+        private Dictionary<string, BlackboardVariable> m_guidCache;
 
         public event Action<string, BlackboardVariable> OnVariableChanged;
 
@@ -20,27 +21,58 @@ namespace Game.Core.UI
 
         private void RebuildCache()
         {
-            m_cache = new Dictionary<string, BlackboardVariable>();
+            m_keyCache = new Dictionary<string, BlackboardVariable>();
+            m_guidCache = new Dictionary<string, BlackboardVariable>();
+
             foreach (var val in values)
             {
-                if (val != null && !string.IsNullOrEmpty(val.key))
-                    m_cache[val.key] = val;
+                if (val == null)
+                    continue;
+
+                // Cache by GUID (primary identifier)
+                var guid = val.Guid;
+                if (!string.IsNullOrEmpty(guid))
+                    m_guidCache[guid] = val;
+
+                // Cache by key (for debugging and backward compatibility)
+                if (!string.IsNullOrEmpty(val.key))
+                    m_keyCache[val.key] = val;
             }
+        }
+
+        /// <summary>
+        /// Gets a variable by its GUID.
+        /// </summary>
+        public BlackboardVariable GetVariableByGuid(string guid)
+        {
+            if (m_guidCache == null)
+                RebuildCache();
+
+            m_guidCache.TryGetValue(guid, out var variable);
+            return variable;
+        }
+
+        /// <summary>
+        /// Gets all variables for editor display.
+        /// </summary>
+        public List<BlackboardVariable> GetAllVariables()
+        {
+            return values;
         }
 
         public void Set<T>(string key, T value)
         {
-            if (m_cache == null)
+            if (m_keyCache == null)
                 RebuildCache();
 
-            if (m_cache.TryGetValue(key, out var existing))
+            if (m_keyCache.TryGetValue(key, out var existing))
             {
                 if (existing is BlackboardVariable<T> typedValue)
                 {
                     if (!EqualityComparer<T>.Default.Equals(typedValue.value, value))
                     {
                         typedValue.value = value;
-                        OnVariableChanged?.Invoke(key, typedValue);
+                        OnVariableChanged?.Invoke(existing.Guid, typedValue);
                     }
                 }
                 else
@@ -48,25 +80,38 @@ namespace Game.Core.UI
                     var newValue = new BlackboardVariable<T>(key, value);
                     values.Remove(existing);
                     values.Add(newValue);
-                    m_cache[key] = newValue;
-                    OnVariableChanged?.Invoke(key, newValue);
+                    m_keyCache[key] = newValue;
+                    m_guidCache[newValue.Guid] = newValue;
+                    OnVariableChanged?.Invoke(newValue.Guid, newValue);
                 }
             }
             else
             {
                 var newValue = new BlackboardVariable<T>(key, value);
                 values.Add(newValue);
-                m_cache[key] = newValue;
-                OnVariableChanged?.Invoke(key, newValue);
+                m_keyCache[key] = newValue;
+                m_guidCache[newValue.Guid] = newValue;
+                OnVariableChanged?.Invoke(newValue.Guid, newValue);
             }
         }
 
         public T Get<T>(string key)
         {
-            if (m_cache == null)
+            if (m_keyCache == null)
                 RebuildCache();
 
-            if (m_cache.TryGetValue(key, out var value) && value is BlackboardVariable<T> typedValue)
+            if (m_keyCache.TryGetValue(key, out var value) && value is BlackboardVariable<T> typedValue)
+                return typedValue.value;
+
+            return default;
+        }
+
+        public T GetByGuid<T>(string guid)
+        {
+            if (m_guidCache == null)
+                RebuildCache();
+
+            if (m_guidCache.TryGetValue(guid, out var value) && value is BlackboardVariable<T> typedValue)
                 return typedValue.value;
 
             return default;
@@ -74,10 +119,25 @@ namespace Game.Core.UI
 
         public bool TryGet<T>(string key, out T result)
         {
-            if (m_cache == null)
+            if (m_keyCache == null)
                 RebuildCache();
 
-            if (m_cache.TryGetValue(key, out var value) && value is BlackboardVariable<T> typedValue)
+            if (m_keyCache.TryGetValue(key, out var value) && value is BlackboardVariable<T> typedValue)
+            {
+                result = typedValue.value;
+                return true;
+            }
+
+            result = default;
+            return false;
+        }
+
+        public bool TryGetByGuid<T>(string guid, out T result)
+        {
+            if (m_guidCache == null)
+                RebuildCache();
+
+            if (m_guidCache.TryGetValue(guid, out var value) && value is BlackboardVariable<T> typedValue)
             {
                 result = typedValue.value;
                 return true;
@@ -89,42 +149,76 @@ namespace Game.Core.UI
 
         public bool Has(string key)
         {
-            if (m_cache == null)
+            if (m_keyCache == null)
                 RebuildCache();
 
-            return m_cache.ContainsKey(key);
+            return m_keyCache.ContainsKey(key);
+        }
+
+        public bool HasGuid(string guid)
+        {
+            if (m_guidCache == null)
+                RebuildCache();
+
+            return m_guidCache.ContainsKey(guid);
         }
 
         public bool Remove(string key)
         {
-            if (m_cache == null)
+            if (m_keyCache == null)
                 RebuildCache();
 
-            if (!m_cache.TryGetValue(key, out var value))
+            if (!m_keyCache.TryGetValue(key, out var value))
                 return false;
 
             values.Remove(value);
-            m_cache.Remove(key);
-            OnVariableChanged?.Invoke(key, null);
+            m_keyCache.Remove(key);
+            m_guidCache.Remove(value.Guid);
+            OnVariableChanged?.Invoke(value.Guid, null);
+            return true;
+        }
+
+        public bool RemoveByGuid(string guid)
+        {
+            if (m_guidCache == null)
+                RebuildCache();
+
+            if (!m_guidCache.TryGetValue(guid, out var value))
+                return false;
+
+            values.Remove(value);
+            m_guidCache.Remove(guid);
+            if (!string.IsNullOrEmpty(value.key))
+                m_keyCache.Remove(value.key);
+            OnVariableChanged?.Invoke(guid, null);
             return true;
         }
 
         public void Clear()
         {
             values.Clear();
-            m_cache?.Clear();
+            m_keyCache?.Clear();
+            m_guidCache?.Clear();
             OnVariableChanged?.Invoke(null, null);
         }
 
-#if UNITY_EDITOR
-        public void NotifyValueChangedInEditor(string key)
+        /// <summary>
+        /// Notifies listeners that a variable has changed.
+        /// </summary>
+        public void NotifyVariableChanged(string guid, BlackboardVariable variable)
         {
-            if (m_cache == null)
+            OnVariableChanged?.Invoke(guid, variable);
+        }
+
+#if UNITY_EDITOR
+        public void NotifyValueChangedInEditor(string guid)
+        {
+            if (m_guidCache == null)
                 RebuildCache();
 
-            if (m_cache.TryGetValue(key, out var value))
+            if (m_guidCache.TryGetValue(guid, out var value))
             {
-                OnVariableChanged?.Invoke(key, value);
+                OnVariableChanged?.Invoke(guid, value);
             }
         }
 #endif

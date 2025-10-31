@@ -272,6 +272,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cba3b06a09642e6aab6458d9c6d4b93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::Game.Features.LoadingScreen.LoadingScreen
+  m_progressBar: {fileID: 0}
+  m_statusText: {fileID: 0}
+  m_percentageText: {fileID: 0}
 --- !u!114 &295962374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -861,8 +864,8 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 295962372}
   - {fileID: 1930952083}
+  - {fileID: 295962372}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1022,8 +1025,7 @@ MonoBehaviour:
   blackboard: {fileID: 1930952087}
   label: {fileID: 1627982730}
   parameter:
-    boundKey: GGG
-  stringBuilderCapacity: 16
+    boundGuid: 7d8aac70-090c-4095-812f-850f5d4771c8
 --- !u!1 &1796235271
 GameObject:
   m_ObjectHideFlags: 0
@@ -1109,17 +1111,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Core::Game.Core.ViewComponents.TestViewComponent
   blackboard: {fileID: 1930952087}
   ggg:
-    boundKey: GGG
+    boundGuid: 7d8aac70-090c-4095-812f-850f5d4771c8
   sss:
-    boundKey: SSS
+    boundGuid: 
   v3:
-    boundKey: 
+    boundGuid: 
   v3Numerics:
-    boundKey: 
+    boundGuid: 
   v3List:
-    boundKey: 
+    boundGuid: 
   v3Array:
-    boundKey: 
+    boundGuid: 
 --- !u!114 &1930952087
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1133,13 +1135,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Core::Game.Core.ViewComponents.Blackboard
   values:
-  - rid: 4537498248612937820
+  - rid: 4537498278767886411
   references:
     version: 2
     RefIds:
-    - rid: 4537498248612937820
-      type: {class: 'BlackboardVariable`1[[System.Int32, mscorlib]]', ns: Game.Core.ViewComponents, asm: Core}
+    - rid: 4537498278767886411
+      type: {class: 'BlackboardVariable`1[[System.Int32, mscorlib]]', ns: Game.Core.UI, asm: Core}
       data:
+        guid: 7d8aac70-090c-4095-812f-850f5d4771c8
         key: GGG
         value: 0
 --- !u!1660057539 &9223372036854775807

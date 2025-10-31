@@ -7,12 +7,12 @@ namespace Game.Core.UI
     public class BlackboardViewParameter<T>
     {
         [SerializeField]
-        private string boundKey;
+        private string boundGuid;
 
-        public string BoundKey
+        public string BoundGuid
         {
-            get => boundKey;
-            set => boundKey = value;
+            get => boundGuid;
+            set => boundGuid = value;
         }
 
         private Blackboard m_blackboard;
@@ -23,13 +23,13 @@ namespace Game.Core.UI
         {
             m_blackboard = bb;
 
-            if (m_blackboard != null && !string.IsNullOrEmpty(boundKey))
+            if (m_blackboard != null && !string.IsNullOrEmpty(boundGuid))
                 m_blackboard.OnVariableChanged += OnBlackboardVariableChanged;
         }
 
-        private void OnBlackboardVariableChanged(string key, BlackboardVariable variable)
+        private void OnBlackboardVariableChanged(string guid, BlackboardVariable variable)
         {
-            if (key == boundKey && variable is BlackboardVariable<T> typedValue)
+            if (guid == boundGuid && variable is BlackboardVariable<T> typedValue)
                 OnVariableChanged?.Invoke(typedValue);
         }
 
@@ -37,17 +37,23 @@ namespace Game.Core.UI
         {
             get
             {
-                if (m_blackboard == null || string.IsNullOrEmpty(boundKey))
+                if (m_blackboard == null || string.IsNullOrEmpty(boundGuid))
                     return default;
 
-                return m_blackboard.Get<T>(boundKey);
+                return m_blackboard.GetByGuid<T>(boundGuid);
             }
             set
             {
-                if (m_blackboard == null || string.IsNullOrEmpty(boundKey))
+                if (m_blackboard == null || string.IsNullOrEmpty(boundGuid))
                     return;
 
-                m_blackboard.Set(boundKey, value);
+                // Find the variable by GUID and update it
+                var variable = m_blackboard.GetVariableByGuid(boundGuid);
+                if (variable is BlackboardVariable<T> typedVar)
+                {
+                    typedVar.value = value;
+                    m_blackboard.NotifyVariableChanged(boundGuid, typedVar);
+                }
             }
         }
 

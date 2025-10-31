@@ -14,7 +14,9 @@
     "allowUnsafeCode": true,
     "overrideReferences": true,
     "precompiledReferences": [
-        "R3.dll"
+        "R3.dll",
+        "ZLinq.dll",
+        "ZString.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],

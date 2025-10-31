@@ -20,6 +20,12 @@ namespace Game.Core.UI.Editor
                 return;
             }
 
+            // Ensure GUID is generated for this variable
+            if (targetObject is BlackboardVariable bbVar)
+            {
+                bbVar.EnsureGuid();
+            }
+
             var targetType = targetObject.GetType();
 
             // Draw key field
@@ -52,11 +58,11 @@ namespace Game.Core.UI.Editor
                     {
                         property.serializedObject.ApplyModifiedProperties();
 
-                        // Notify the Blackboard component
+                        // Notify the Blackboard component using GUID
                         var blackboard = property.serializedObject.targetObject as Blackboard;
-                        if (blackboard != null && keyProp != null)
+                        if (blackboard != null && targetObject is BlackboardVariable variable)
                         {
-                            blackboard.NotifyValueChangedInEditor(keyProp.stringValue);
+                            blackboard.NotifyValueChangedInEditor(variable.Guid);
                         }
                     }
                 }
@@ -83,11 +89,11 @@ namespace Game.Core.UI.Editor
                                 property.serializedObject.ApplyModifiedProperties();
                                 EditorUtility.SetDirty(property.serializedObject.targetObject);
 
-                                // Notify the Blackboard component
+                                // Notify the Blackboard component using GUID
                                 var blackboard = property.serializedObject.targetObject as Blackboard;
-                                if (blackboard != null && keyProp != null)
+                                if (blackboard != null && targetObject is BlackboardVariable variable)
                                 {
-                                    blackboard.NotifyValueChangedInEditor(keyProp.stringValue);
+                                    blackboard.NotifyValueChangedInEditor(variable.Guid);
                                 }
                             }
                         }

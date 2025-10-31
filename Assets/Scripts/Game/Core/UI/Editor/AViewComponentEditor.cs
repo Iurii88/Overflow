@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using ZLinq;
 
 namespace Game.Core.UI.Editor
 {
@@ -132,13 +133,13 @@ namespace Game.Core.UI.Editor
             if (fieldProperty == null)
                 return;
 
-            var boundKeyProperty = fieldProperty.FindPropertyRelative("boundKey");
-            if (boundKeyProperty == null)
+            var boundGuidProperty = fieldProperty.FindPropertyRelative("boundGuid");
+            if (boundGuidProperty == null)
                 return;
 
-            var currentKey = boundKeyProperty.stringValue;
+            var currentGuid = boundGuidProperty.stringValue;
 
-            var availableKeys = GetBlackboardKeys(viewComponent.blackboard, field.FieldType);
+            var availableVariables = GetBlackboardVariables(viewComponent.blackboard, field.FieldType);
 
             var bgColor = EditorGUIUtility.isProSkin
                 ? new Color(0.25f, 0.25f, 0.25f, 1f)
@@ -163,26 +164,28 @@ namespace Game.Core.UI.Editor
 
             EditorGUILayout.LabelField("→", GUILayout.Width(15));
 
-            var isKeyValid = !string.IsNullOrEmpty(currentKey) && currentKey != "(None)" && availableKeys.Contains(currentKey);
+            // Find current variable by GUID
+            var currentVariable = availableVariables.variables.AsValueEnumerable().FirstOrDefault(v => v.Guid == currentGuid);
+            var isGuidValid = currentVariable != null;
 
-            if (availableKeys.Count > 0)
+            if (availableVariables.names.Count > 0)
             {
-                var currentIndex = isKeyValid ? availableKeys.IndexOf(currentKey) : 0;
+                var currentIndex = isGuidValid ? availableVariables.variables.IndexOf(currentVariable) + 1 : 0;
 
-                var newIndex = EditorGUILayout.Popup(currentIndex, availableKeys.ToArray(), GUILayout.MinWidth(80), GUILayout.MaxWidth(120));
+                var newIndex = EditorGUILayout.Popup(currentIndex, availableVariables.names.ToArray(), GUILayout.MinWidth(80), GUILayout.MaxWidth(120));
                 if (newIndex != currentIndex)
                 {
-                    var newKey = newIndex == 0 ? "" : availableKeys[newIndex];
-                    boundKeyProperty.stringValue = newKey;
+                    var newGuid = newIndex == 0 ? "" : availableVariables.variables[newIndex - 1].Guid;
+                    boundGuidProperty.stringValue = newGuid;
                 }
             }
             else
             {
-                EditorGUILayout.LabelField("(No keys)", EditorStyles.miniLabel, GUILayout.MinWidth(80), GUILayout.MaxWidth(100));
+                EditorGUILayout.LabelField("(No variables)", EditorStyles.miniLabel, GUILayout.MinWidth(80), GUILayout.MaxWidth(100));
             }
 
-            // Show [+] button when: no valid key is selected OR when there are no keys at all
-            if (!isKeyValid || availableKeys.Count <= 1) // Count <= 1 because "(None)" is always in the list
+            // Show [+] button when: no valid GUID is selected OR when there are no variables at all
+            if (!isGuidValid || availableVariables.variables.Count == 0)
             {
                 if (GUILayout.Button("+", GUILayout.Width(25), GUILayout.Height(18)))
                 {
@@ -191,7 +194,7 @@ namespace Game.Core.UI.Editor
                     {
                         if (!string.IsNullOrWhiteSpace(newKeyName))
                         {
-                            CreateNewKey(field, viewComponent, boundKeyProperty, newKeyName);
+                            CreateNewVariable(field, viewComponent, boundGuidProperty, newKeyName);
                         }
                     });
                 }
@@ -199,7 +202,7 @@ namespace Game.Core.UI.Editor
 
             GUILayout.FlexibleSpace();
 
-            var currentValue = GetCurrentBlackboardValue(viewComponent.blackboard, currentKey);
+            var currentValue = currentVariable != null ? GetVariableValue(currentVariable) : null;
             if (currentValue != null)
             {
                 var valueStyle = new GUIStyle(EditorStyles.miniLabel);
@@ -215,8 +218,8 @@ namespace Game.Core.UI.Editor
             EditorGUILayout.Space(3);
         }
 
-        private void CreateNewKey(FieldInfo field, AViewComponent viewComponent,
-            SerializedProperty boundKeyProperty, string newKey)
+        private void CreateNewVariable(FieldInfo field, AViewComponent viewComponent,
+            SerializedProperty boundGuidProperty, string newKey)
         {
             if (string.IsNullOrWhiteSpace(newKey))
                 return;
@@ -231,84 +234,60 @@ namespace Game.Core.UI.Editor
             var setMethod = typeof(Blackboard).GetMethod("Set").MakeGenericMethod(valueType);
             setMethod.Invoke(viewComponent.blackboard, new[] { newKey, defaultValue });
 
-            boundKeyProperty.stringValue = newKey;
+            // Get the newly created variable's GUID
+            var allVariables = viewComponent.blackboard.GetAllVariables();
+            var newVariable = allVariables.AsValueEnumerable().FirstOrDefault(v => v.key == newKey);
+            if (newVariable != null)
+            {
+                boundGuidProperty.stringValue = newVariable.Guid;
+            }
 
             EditorUtility.SetDirty(viewComponent.blackboard);
         }
 
-        private static string GetCurrentBlackboardValue(Blackboard blackboard, string key)
+        private static string GetVariableValue(BlackboardVariable variable)
         {
-            if (blackboard == null || string.IsNullOrEmpty(key))
+            if (variable == null)
                 return null;
 
-            var valuesField = typeof(Blackboard).GetField("values",
-                BindingFlags.NonPublic | BindingFlags.Instance);
+            var valueField = variable.GetType().GetField("value");
+            var value = valueField?.GetValue(variable);
 
-            if (valuesField == null)
-                return null;
+            if (value == null)
+                return "null";
 
-            var values = valuesField.GetValue(blackboard) as System.Collections.IList;
-            if (values == null)
-                return null;
+            var valueStr = value.ToString();
+            if (valueStr.Length > 30)
+                return valueStr.Substring(0, 27) + "...";
 
-            foreach (var val in values)
-            {
-                if (val == null)
-                    continue;
-
-                var keyField = val.GetType().GetField("key");
-                var valueKey = keyField?.GetValue(val) as string;
-
-                if (valueKey == key)
-                {
-                    var valueField = val.GetType().GetField("value");
-                    var value = valueField?.GetValue(val);
-
-                    if (value == null)
-                        return "null";
-
-                    var valueStr = value.ToString();
-                    if (valueStr.Length > 30)
-                        return valueStr.Substring(0, 27) + "...";
-
-                    return valueStr;
-                }
-            }
-
-            return null;
+            return valueStr;
         }
 
-        private static List<string> GetBlackboardKeys(Blackboard blackboard, Type parameterType)
+        private static (List<string> names, List<BlackboardVariable> variables) GetBlackboardVariables(Blackboard blackboard, Type parameterType)
         {
-            var keys = new List<string> { "(None)" };
+            var names = new List<string> { "(None)" };
+            var variables = new List<BlackboardVariable>();
             var valueType = parameterType.GetGenericArguments()[0];
 
-            var valuesField = typeof(Blackboard).GetField("values",
-                BindingFlags.NonPublic | BindingFlags.Instance);
+            var allVariables = blackboard.GetAllVariables();
 
-            if (valuesField == null)
-                return keys;
-
-            var values = valuesField.GetValue(blackboard) as System.Collections.IList;
-            if (values == null)
-                return keys;
-
-            foreach (var val in values)
+            foreach (var variable in allVariables)
             {
-                if (val == null)
+                if (variable == null)
                     continue;
 
-                var keyField = val.GetType().GetField("key");
-                var key = keyField?.GetValue(val) as string;
+                var type = variable.GetValueType();
+                if (type != valueType && valueType != typeof(object))
+                    continue;
 
-                var getValueTypeMethod = val.GetType().GetMethod("GetValueType");
-                var type = getValueTypeMethod?.Invoke(val, null) as Type;
-
-                if ((!string.IsNullOrEmpty(key) && type == valueType) || valueType == typeof(object))
-                    keys.Add(key);
+                variables.Add(variable);
+                var displayName = string.IsNullOrEmpty(variable.key)
+                    ? $"<Unnamed ({variable.Guid.Substring(0, 8)}...)>"
+                    : variable.key;
+                names.Add(displayName);
             }
 
-            return keys;
+            return (names, variables);
         }
 
         private static object GetDefaultValue(Type type)
