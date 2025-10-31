@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using ZLinq;
 
 namespace Game.Core.Initialization
@@ -31,6 +33,24 @@ namespace Game.Core.Initialization
         /// </summary>
         public List<IAsyncLoader> ResolveOrder()
         {
+            var levels = ResolveLevels();
+            var result = new List<IAsyncLoader>();
+
+            foreach (var level in levels)
+            {
+                result.AddRange(level);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Resolves loaders into parallel execution levels.
+        ///     Each level contains loaders that can execute in parallel.
+        ///     Loaders in level N depend only on loaders from levels 0 to N-1.
+        /// </summary>
+        public List<List<IAsyncLoader>> ResolveLevels()
+        {
             var inDegree = new Dictionary<IAsyncLoader, int>();
             var adjacencyList = new Dictionary<IAsyncLoader, List<IAsyncLoader>>();
 
@@ -55,41 +75,99 @@ namespace Game.Core.Initialization
                 }
             }
 
-            // Topological sort using Kahn's algorithm
-            var queue = new Queue<IAsyncLoader>();
-            var result = new List<IAsyncLoader>();
+            // Modified Kahn's algorithm to group loaders by dependency level
+            var levels = new List<List<IAsyncLoader>>();
+            var currentLevel = new List<IAsyncLoader>();
+            var processedCount = 0;
 
-            // Start with nodes that have no dependencies
+            // Start with nodes that have no dependencies (level 0)
             foreach (var kvp in inDegree)
             {
                 if (kvp.Value == 0)
-                    queue.Enqueue(kvp.Key);
+                    currentLevel.Add(kvp.Key);
             }
 
-            while (queue.Count > 0)
+            while (currentLevel.Count > 0)
             {
-                var current = queue.Dequeue();
-                result.Add(current);
+                levels.Add(new List<IAsyncLoader>(currentLevel));
+                processedCount += currentLevel.Count;
 
-                // Reduce in-degree for dependent nodes
-                foreach (var dependent in adjacencyList[current])
+                var nextLevel = new List<IAsyncLoader>();
+
+                // Process all loaders in current level
+                foreach (var current in currentLevel)
                 {
-                    inDegree[dependent]--;
-                    if (inDegree[dependent] == 0)
-                        queue.Enqueue(dependent);
+                    // Reduce in-degree for dependent nodes
+                    foreach (var dependent in adjacencyList[current])
+                    {
+                        inDegree[dependent]--;
+                        if (inDegree[dependent] == 0)
+                            nextLevel.Add(dependent);
+                    }
                 }
+
+                currentLevel = nextLevel;
             }
 
             // Check for circular dependencies
-            if (result.Count != m_loaders.Count)
+            if (processedCount != m_loaders.Count)
             {
-                var missing = m_loaders.AsValueEnumerable().Where(l => !result.Contains(l)).Select(l => l.GetType().Name);
+                var missing = m_loaders.AsValueEnumerable().Where(l =>
+                {
+                    foreach (var level in levels)
+                    {
+                        if (level.Contains(l))
+                            return false;
+                    }
+                    return true;
+                }).Select(l => l.GetType().Name);
+
                 throw new InvalidOperationException(
                     $"Circular dependency detected among loaders: {string.Join(", ", missing)}"
                 );
             }
 
-            return result;
+            return levels;
+        }
+
+        /// <summary>
+        ///     Loads all registered loaders in parallel with dependency awareness.
+        ///     Loaders at the same dependency level execute in parallel.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <param name="onProgress">Progress callback (progress 0-1, current loader name, completed count, total count)</param>
+        public async UniTask LoadAsync(CancellationToken cancellationToken, Action<float, string, int, int> onProgress = null)
+        {
+            var levels = ResolveLevels();
+            var totalLoaders = m_loaders.Count;
+            var completedLoaders = 0;
+
+            for (var levelIndex = 0; levelIndex < levels.Count; levelIndex++)
+            {
+                var level = levels[levelIndex];
+                var loadTasks = new List<UniTask>();
+
+                // Start all loaders in this level in parallel
+                foreach (var loader in level)
+                {
+                    var loaderName = loader.GetType().Name;
+                    loadTasks.Add(LoadWithProgress(loader, cancellationToken, () =>
+                    {
+                        completedLoaders++;
+                        var progress = (float)completedLoaders / totalLoaders;
+                        onProgress?.Invoke(progress, loaderName, completedLoaders, totalLoaders);
+                    }));
+                }
+
+                // Wait for all loaders in this level to complete
+                await UniTask.WhenAll(loadTasks);
+            }
+        }
+
+        private static async UniTask LoadWithProgress(IAsyncLoader loader, CancellationToken cancellationToken, Action onComplete)
+        {
+            await loader.LoadAsync(cancellationToken);
+            onComplete?.Invoke();
         }
 
         /// <summary>
@@ -169,6 +247,24 @@ namespace Game.Core.Initialization
             public List<IAsyncLoader> ResolveOrder()
             {
                 return m_configuration.ResolveOrder();
+            }
+
+            /// <summary>
+            ///     Resolves loaders into parallel execution levels.
+            /// </summary>
+            public List<List<IAsyncLoader>> ResolveLevels()
+            {
+                return m_configuration.ResolveLevels();
+            }
+
+            /// <summary>
+            ///     Loads all registered loaders in parallel with dependency awareness.
+            /// </summary>
+            /// <param name="cancellationToken">Cancellation token for the operation</param>
+            /// <param name="onProgress">Progress callback (progress 0-1, current loader name, completed count, total count)</param>
+            public UniTask LoadAsync(CancellationToken cancellationToken, Action<float, string, int, int> onProgress = null)
+            {
+                return m_configuration.LoadAsync(cancellationToken, onProgress);
             }
         }
     }

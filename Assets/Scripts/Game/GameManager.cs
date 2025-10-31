@@ -35,17 +35,19 @@ namespace Game
 
             GameLogger.Initialize(LogLevel.Debug, new LevelModule(), new ColorModule());
 
-            // Configure loader dependencies using fluent API
-            var orderedLoaders = new LoaderConfiguration()
+            // Configure and load with progress tracking
+            await new LoaderConfiguration()
                 .Register(m_contentManager)
                 .Register(m_ecsBootstrap).After(m_contentManager)
-                .ResolveOrder();
-
-            // Load in the resolved dependency order
-            foreach (var asyncLoader in orderedLoaders)
-                await asyncLoader.LoadAsync(cancellation);
+                .LoadAsync(cancellation, OnLoadProgress);
 
             m_loadingScreen.gameObject.SetActive(false);
+        }
+
+        private void OnLoadProgress(float progress, string loaderName, int completed, int total)
+        {
+            GameLogger.Log($"[GameManager] Loading progress: {completed}/{total} ({progress:P0}) - Completed: {loaderName}");
+            m_loadingScreen.SetProgress(progress, loaderName, completed, total);
         }
     }
 }
