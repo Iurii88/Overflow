@@ -10,17 +10,17 @@ namespace Game.Core.UI
     {
         public Blackboard blackboard;
 
-        protected override void Awake()
+        protected override void OnEnable()
         {
-            base.Awake();
+            base.OnEnable();
             InitializeParameters();
             Subscribe();
         }
 
-        protected override void OnDestroy()
+        protected override void OnDisable()
         {
-            base.OnDestroy();
-            DisposeParameters();
+            base.OnDisable();
+           DisposeParameters();
         }
 
         protected virtual void Reset()

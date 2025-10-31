@@ -177,6 +177,9 @@ namespace Game.Core.UI.Editor
                 {
                     var newGuid = newIndex == 0 ? "" : availableVariables.variables[newIndex - 1].Guid;
                     boundGuidProperty.stringValue = newGuid;
+
+                    // Reinitialize the view component to subscribe to the new variable
+                    ReinitializeViewComponent(viewComponent);
                 }
             }
             else
@@ -243,6 +246,28 @@ namespace Game.Core.UI.Editor
             }
 
             EditorUtility.SetDirty(viewComponent.blackboard);
+
+            // Reinitialize the view component to subscribe to the new variable
+            ReinitializeViewComponent(viewComponent);
+        }
+
+        private static void ReinitializeViewComponent(AViewComponent viewComponent)
+        {
+            if (viewComponent == null)
+                return;
+
+            // Apply all serialized property changes BEFORE reinitializing
+            var serializedObj = new SerializedObject(viewComponent);
+            serializedObj.ApplyModifiedProperties();
+            serializedObj.Update();
+
+            // Disable then enable to trigger OnDisable/OnEnable which reinitializes parameters
+            viewComponent.enabled = false;
+            viewComponent.enabled = true;
+
+            // Force the view to update immediately
+            EditorApplication.QueuePlayerLoopUpdate();
+            EditorUtility.SetDirty(viewComponent);
         }
 
         private static string GetVariableValue(BlackboardVariable variable)

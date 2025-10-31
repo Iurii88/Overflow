@@ -66,6 +66,9 @@ namespace Game.Core.UI
         {
             if (m_blackboard != null)
                 m_blackboard.OnVariableChanged -= OnBlackboardVariableChanged;
+
+            // Clear all event subscriptions to prevent memory leaks
+            OnVariableChanged = null;
         }
     }
 }
