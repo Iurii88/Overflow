@@ -40,8 +40,7 @@ namespace Game.Features.Movement.System
             var playerPrefab = await m_addressableManager.LoadAssetAsync<GameObject>(viewContentProperty.assetPath);
             var player = Object.Instantiate(playerPrefab);
             var playerEntity = entityManagerWrapper.Value.CreateEntity();
-            var managedRef = world.managedStorage.Add(player);
-            playerEntity.AddComponent(managedRef);
+            playerEntity.AddReference(player);
         }
 
         public override void OnUpdate()

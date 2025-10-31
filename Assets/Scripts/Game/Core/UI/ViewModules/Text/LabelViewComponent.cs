@@ -12,9 +12,6 @@ namespace Game.Core.UI.ViewModules.Text
 
         public BlackboardViewParameter<T> parameter;
 
-        [SerializeField]
-        private int stringBuilderCapacity = 16;
-
         protected override void Reset()
         {
             base.Reset();
