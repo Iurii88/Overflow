@@ -138,6 +138,10 @@ Assets/Scripts/Game/
 - Write clear, descriptive variable and method names instead of relying on comments
 - Add comments only when explaining "why" something is done, not "what" is being done
 
+### Code Style
+- **Use early returns and guard clauses** - avoid deep nesting by returning early for validation and error cases
+- Keep the "happy path" at the lowest indentation level
+
 ### Performance
 - **ALWAYS use ZLinq instead of standard LINQ** for all collection operations
 - Use **UniTask** for async operations, not standard Task
