@@ -159,7 +159,6 @@ namespace Game.Core.Settings
                     Directory.CreateDirectory(directory);
 
                 File.WriteAllText(presetPath, json);
-                GameLogger.Log($"Preset saved to {presetPath}");
             }
             catch (Exception ex)
             {

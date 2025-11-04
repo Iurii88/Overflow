@@ -160,15 +160,12 @@ namespace Game.Core.Settings.Editor
             for (var i = 0; i < m_modules.Count; i++)
             {
                 var module = m_modules[i];
-                var modifiedCount = GetModifiedFieldsCount(module.instance);
-                var hasModifications = modifiedCount > 0;
 
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
                 EditorGUILayout.BeginHorizontal();
 
-                var headerLabel = hasModifications ? $"{module.name} ({modifiedCount} modified)" : module.name;
-                module.isFoldedOut = EditorGUILayout.BeginFoldoutHeaderGroup(module.isFoldedOut, headerLabel);
+                module.isFoldedOut = EditorGUILayout.BeginFoldoutHeaderGroup(module.isFoldedOut, module.name);
 
                 if (GUILayout.Button("Reset", EditorStyles.miniButtonRight, GUILayout.Width(50)))
                 {
@@ -225,24 +222,6 @@ namespace Game.Core.Settings.Editor
             EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.5f));
         }
 
-        private int GetModifiedFieldsCount(AGameSettings settings)
-        {
-            var fields = settings.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-            var defaultInstance = Activator.CreateInstance(settings.GetType()) as AGameSettings;
-            var count = 0;
-
-            foreach (var field in fields)
-            {
-                var currentValue = field.GetValue(settings);
-                var defaultValue = field.GetValue(defaultInstance);
-
-                if (!Equals(currentValue, defaultValue))
-                    count++;
-            }
-
-            return count;
-        }
-
         private void DrawSettingsFields(AGameSettings settings)
         {
             var fields = settings.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
@@ -268,6 +247,8 @@ namespace Game.Core.Settings.Editor
         private void ResetModule(SettingsModule module)
         {
             module.instance = Activator.CreateInstance(module.instance.GetType()) as AGameSettings;
+            var reflectionManager = EditorReflectionService.GetOrCreateInstance();
+            module.instance?.OnBeforeApply(reflectionManager);
             SaveModule(module);
         }
 
