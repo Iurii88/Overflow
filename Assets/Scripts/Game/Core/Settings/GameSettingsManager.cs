@@ -8,7 +8,6 @@ namespace Game.Core.Settings
 {
     public static class GameSettingsManager
     {
-        private static readonly string SettingsPath = GetSettingsPath();
         private static readonly string EditorPresetPath = Path.Combine(Application.dataPath, "..", "ProjectSettings", "GameSettings_EditorPreset.json");
         private static readonly string StandalonePresetPath = Path.Combine(Application.dataPath, "..", "ProjectSettings", "GameSettings_StandalonePreset.json");
 
@@ -20,15 +19,16 @@ namespace Game.Core.Settings
 
         private static GameSettingsData m_data;
 
-        private static string GetSettingsPath()
+        private static string CurrentPresetPath
         {
+            get
+            {
 #if UNITY_EDITOR
-            // Editor: Save in ProjectSettings folder (shared with team via version control)
-            return Path.Combine(Application.dataPath, "..", "ProjectSettings", "GameSettings.json");
+                return EditorPresetPath;
 #else
-            // Standalone: Save in persistent data folder (user-specific settings)
-            return Path.Combine(Application.persistentDataPath, "GameSettings.json");
+                return StandalonePresetPath;
 #endif
+            }
         }
 
         public static string GetEditorPresetPath() => EditorPresetPath;
@@ -41,17 +41,18 @@ namespace Game.Core.Settings
 
         public static void Load()
         {
-            if (File.Exists(SettingsPath))
+            if (File.Exists(CurrentPresetPath))
             {
                 try
                 {
-                    var json = File.ReadAllText(SettingsPath);
+                    var json = File.ReadAllText(CurrentPresetPath);
                     m_data = JsonConvert.DeserializeObject<GameSettingsData>(json, SerializerSettings);
+                    GameLogger.Log($"Loaded settings from {CurrentPresetPath}");
                 }
                 catch (Exception ex)
                 {
                     GameLogger.Error($"Failed to load game settings: {ex.Message}");
-                    m_data = new GameSettingsData();
+                    LoadDefaultSettings();
                 }
             }
             else
@@ -62,26 +63,9 @@ namespace Game.Core.Settings
 
         private static void LoadDefaultSettings()
         {
-#if !UNITY_EDITOR
-            var defaultSettingsPath = Path.Combine(Application.streamingAssetsPath, "GameSettings_Default.json");
-
-            if (File.Exists(defaultSettingsPath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(defaultSettingsPath);
-                    m_data = JsonConvert.DeserializeObject<GameSettingsData>(json, SerializerSettings);
-                    GameLogger.Log("Loaded default settings from build preset");
-                    Save();
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    GameLogger.Error($"Failed to load default settings: {ex.Message}");
-                }
-            }
-#endif
+            GameLogger.Warning($"Preset not found at {CurrentPresetPath}. Creating new preset with default values.");
             m_data = new GameSettingsData();
+            Save();
         }
 
         public static void Save()
@@ -89,13 +73,13 @@ namespace Game.Core.Settings
             try
             {
                 var json = JsonConvert.SerializeObject(m_data, SerializerSettings);
-                var directory = Path.GetDirectoryName(SettingsPath);
+                var directory = Path.GetDirectoryName(CurrentPresetPath);
                 if (!Directory.Exists(directory))
                     if (directory != null)
                         Directory.CreateDirectory(directory);
 
-                File.WriteAllText(SettingsPath, json);
-                GameLogger.Log("Game settings saved successfully");
+                File.WriteAllText(CurrentPresetPath, json);
+                GameLogger.Log($"Game settings saved to {CurrentPresetPath}");
             }
             catch (Exception ex)
             {

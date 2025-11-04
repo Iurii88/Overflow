@@ -30,11 +30,11 @@
             "b": 0.0,
             "a": 1.0
           },
-          "enabled": false
+          "enabled": true
         },
         {
           "$type": "Game.Core.Logging.Modules.LevelModule, Core",
-          "enabled": false
+          "enabled": true
         }
       ]
     }
