@@ -105,11 +105,12 @@ namespace Game.Core.Settings
 
         public static T GetSetting<T>(string moduleName, T defaultValue = default)
         {
-            if (!m_data.moduleSettings.TryGetValue(moduleName, out var json))
+            if (!m_data.moduleSettings.TryGetValue(moduleName, out var value))
                 return defaultValue;
 
             try
             {
+                var json = JsonConvert.SerializeObject(value, SerializerSettings);
                 return JsonConvert.DeserializeObject<T>(json, SerializerSettings);
             }
             catch (Exception ex)
@@ -129,11 +130,12 @@ namespace Game.Core.Settings
         {
             var settingsKey = type.Name;
 
-            if (!m_data.moduleSettings.TryGetValue(settingsKey, out var json))
+            if (!m_data.moduleSettings.TryGetValue(settingsKey, out var value))
                 return Activator.CreateInstance(type) as AGameSettings;
 
             try
             {
+                var json = JsonConvert.SerializeObject(value, SerializerSettings);
                 return JsonConvert.DeserializeObject(json, type, SerializerSettings) as AGameSettings;
             }
             catch (Exception ex)
@@ -145,15 +147,7 @@ namespace Game.Core.Settings
 
         public static void SetSetting<T>(string moduleName, T value)
         {
-            try
-            {
-                var json = JsonConvert.SerializeObject(value, SerializerSettings);
-                m_data.moduleSettings[moduleName] = json;
-            }
-            catch (Exception ex)
-            {
-                GameLogger.Error($"Failed to serialize setting '{moduleName}': {ex.Message}");
-            }
+            m_data.moduleSettings[moduleName] = value;
         }
 
         public static bool HasSetting(string moduleName)

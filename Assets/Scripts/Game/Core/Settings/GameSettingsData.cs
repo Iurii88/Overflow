@@ -6,6 +6,6 @@ namespace Game.Core.Settings
     [Serializable]
     public class GameSettingsData
     {
-        public Dictionary<string, string> moduleSettings = new();
+        public Dictionary<string, object> moduleSettings = new();
     }
 }
