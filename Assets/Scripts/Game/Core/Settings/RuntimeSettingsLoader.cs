@@ -29,7 +29,12 @@ namespace Game.Core.Settings
                 try
                 {
                     var settings = GameSettingsManager.GetSetting(typeInfo.AsType());
-                    settings?.Apply();
+
+                    if (settings != null)
+                    {
+                        settings.OnBeforeApply(reflectionManager);
+                        settings.Apply();
+                    }
                 }
                 catch (Exception ex)
                 {

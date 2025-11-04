@@ -3,7 +3,6 @@ using Cysharp.Threading.Tasks;
 using Game.Core.Content;
 using Game.Core.Initialization;
 using Game.Core.Logging;
-using Game.Core.Logging.Modules;
 using Game.Core.Reflection;
 using Game.Core.Settings;
 using Game.Features.Bootstraps;
@@ -34,7 +33,7 @@ namespace Game
         {
             m_loadingScreen.gameObject.SetActive(true);
 
-            GameLogger.Initialize(LogLevel.Debug, new LevelModule(), new ColorModule());
+            GameLogger.Initialize(LogLevel.Debug);
             RuntimeSettingsLoader.LoadAllSettings(m_reflectionManager);
 
             // Configure and load with progress tracking

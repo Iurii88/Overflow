@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(move DefaultEnabledAttribute.cs LogModuleAttribute.cs)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
