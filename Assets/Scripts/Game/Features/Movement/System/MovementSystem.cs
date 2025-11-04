@@ -1,13 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
-using Game.Core.Addressables;
-using Game.Core.Content;
-using Game.Features.Entities.Content;
-using Game.Features.View.Content;
+using Game.Core.Factories;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
-using UnityEngine;
 using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap.Attributes;
 using UnsafeEcs.Core.Entities;
@@ -22,10 +18,7 @@ namespace Game.Features.Movement.System
         private EntityQuery m_query;
 
         [Inject]
-        private IContentManager m_contentManager;
-
-        [Inject]
-        private IAddressableManager m_addressableManager;
+        private IEntityFactory m_entityFactory;
 
         public override void OnAwake()
         {
@@ -35,12 +28,7 @@ namespace Game.Features.Movement.System
 
         private async UniTask LoadPlayer()
         {
-            var contentPlayer = m_contentManager.Get<ContentEntity>("entity.player");
-            var viewContentProperty = contentPlayer.GetProperty<ViewContentProperty>();
-            var playerPrefab = await m_addressableManager.LoadAssetAsync<GameObject>(viewContentProperty.assetPath);
-            var player = Object.Instantiate(playerPrefab);
-            var playerEntity = entityManagerWrapper.Value.CreateEntity();
-            playerEntity.AddReference(player);
+            await m_entityFactory.CreateEntityAsync(world.entityManagerWrapper, "entity.player");
         }
 
         public override void OnUpdate()
