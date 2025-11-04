@@ -7,13 +7,13 @@ namespace Game.Core.Logging
 {
     public static class GameLogger
     {
-        public static LogLevel minimumLevel { get; set; } = LogLevel.Debug;
+        public static LogLevel MinimumLevel { get; set; } = LogLevel.Debug;
 
         private static readonly List<ILogModule> Modules = new();
 
         public static void Initialize(LogLevel level, params ILogModule[] modules)
         {
-            minimumLevel = level;
+            MinimumLevel = level;
             ClearModules();
 
             foreach (var module in modules)
@@ -57,7 +57,7 @@ namespace Game.Core.Logging
 
         private static void Log(LogLevel level, string message, UnityEngine.Object context)
         {
-            if (level < minimumLevel)
+            if (level < MinimumLevel)
                 return;
 
             var processedMessage = Modules.AsValueEnumerable().Aggregate(message, (current, module) => module.Process(level, current));
