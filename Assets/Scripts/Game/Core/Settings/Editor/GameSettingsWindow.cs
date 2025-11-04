@@ -11,6 +11,12 @@ namespace Game.Core.Settings.Editor
 {
     public class GameSettingsWindow : EditorWindow
     {
+        private enum PresetType
+        {
+            Editor,
+            Standalone
+        }
+
         private class SettingsModule
         {
             public string name;
@@ -22,6 +28,7 @@ namespace Game.Core.Settings.Editor
 
         private List<SettingsModule> m_modules;
         private Vector2 m_scrollPosition;
+        private PresetType m_currentPreset = PresetType.Editor;
 
         [MenuItem("Tools/Game Settings")]
         public static void ShowWindow()
@@ -33,7 +40,7 @@ namespace Game.Core.Settings.Editor
 
         private void OnEnable()
         {
-            LoadModules();
+            LoadCurrentPreset();
         }
 
         private void LoadModules()
@@ -100,9 +107,18 @@ namespace Game.Core.Settings.Editor
         private void DrawToolbar()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            
-            EditorGUILayout.LabelField("Game Settings", EditorStyles.boldLabel);
 
+            EditorGUILayout.LabelField("Preset:", GUILayout.Width(50));
+
+            EditorGUI.BeginChangeCheck();
+            m_currentPreset = (PresetType)EditorGUILayout.EnumPopup(m_currentPreset, EditorStyles.toolbarDropDown, GUILayout.Width(150));
+            if (EditorGUI.EndChangeCheck())
+            {
+                LoadCurrentPreset();
+            }
+
+            GUILayout.FlexibleSpace();
+            
             if (GUILayout.Button("Reset All", EditorStyles.toolbarButton, GUILayout.Width(80)))
             {
                 if (EditorUtility.DisplayDialog("Reset Settings", "Are you sure you want to reset all settings to default?", "Yes", "No"))
@@ -111,12 +127,24 @@ namespace Game.Core.Settings.Editor
                 }
             }
 
-            if (GUILayout.Button("Refresh", EditorStyles.toolbarButton, GUILayout.Width(80)))
-            {
-                LoadModules();
-            }
-
             EditorGUILayout.EndHorizontal();
+        }
+
+        private string GetCurrentPresetPath()
+        {
+            return m_currentPreset switch
+            {
+                PresetType.Editor => GameSettingsManager.GetEditorPresetPath(),
+                PresetType.Standalone => GameSettingsManager.GetStandalonePresetPath(),
+                _ => GameSettingsManager.GetEditorPresetPath()
+            };
+        }
+
+        private void LoadCurrentPreset()
+        {
+            var presetPath = GetCurrentPresetPath();
+            GameSettingsManager.LoadPreset(presetPath);
+            LoadModules();
         }
 
         private void DrawAllModules()
@@ -241,7 +269,7 @@ namespace Game.Core.Settings.Editor
         private void SaveModule(SettingsModule module)
         {
             GameSettingsManager.SetSetting(module.settingsKey, module.instance);
-            GameSettingsManager.Save();
+            GameSettingsManager.SavePreset(GetCurrentPresetPath());
             module.instance.Apply();
         }
 

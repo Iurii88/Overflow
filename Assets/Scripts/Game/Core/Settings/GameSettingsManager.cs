@@ -8,8 +8,25 @@ namespace Game.Core.Settings
 {
     public static class GameSettingsManager
     {
-        private static readonly string SettingsPath = Path.Combine(Application.dataPath, "..", "ProjectSettings", "GameSettings.json");
+        private static readonly string SettingsPath = GetSettingsPath();
+        private static readonly string EditorPresetPath = Path.Combine(Application.dataPath, "..", "ProjectSettings", "GameSettings_EditorPreset.json");
+        private static readonly string StandalonePresetPath = Path.Combine(Application.dataPath, "..", "ProjectSettings", "GameSettings_StandalonePreset.json");
+
         private static GameSettingsData m_data;
+
+        private static string GetSettingsPath()
+        {
+#if UNITY_EDITOR
+            // Editor: Save in ProjectSettings folder (shared with team via version control)
+            return Path.Combine(Application.dataPath, "..", "ProjectSettings", "GameSettings.json");
+#else
+            // Standalone: Save in persistent data folder (user-specific settings)
+            return Path.Combine(Application.persistentDataPath, "GameSettings.json");
+#endif
+        }
+
+        public static string GetEditorPresetPath() => EditorPresetPath;
+        public static string GetStandalonePresetPath() => StandalonePresetPath;
 
         static GameSettingsManager()
         {
@@ -33,8 +50,32 @@ namespace Game.Core.Settings
             }
             else
             {
-                m_data = new GameSettingsData();
+                LoadDefaultSettings();
             }
+        }
+
+        private static void LoadDefaultSettings()
+        {
+#if !UNITY_EDITOR
+            var defaultSettingsPath = Path.Combine(Application.streamingAssetsPath, "GameSettings_Default.json");
+
+            if (File.Exists(defaultSettingsPath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(defaultSettingsPath);
+                    m_data = JsonConvert.DeserializeObject<GameSettingsData>(json);
+                    GameLogger.Log("Loaded default settings from build preset");
+                    Save();
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    GameLogger.Error($"Failed to load default settings: {ex.Message}");
+                }
+            }
+#endif
+            m_data = new GameSettingsData();
         }
 
         public static void Save()
@@ -122,6 +163,46 @@ namespace Game.Core.Settings
         public static void Clear()
         {
             m_data.moduleSettings.Clear();
+        }
+
+        public static void SavePreset(string presetPath)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(m_data, Formatting.Indented);
+                var directory = Path.GetDirectoryName(presetPath);
+                if (!Directory.Exists(directory) && directory != null)
+                    Directory.CreateDirectory(directory);
+
+                File.WriteAllText(presetPath, json);
+                GameLogger.Log($"Preset saved to {presetPath}");
+            }
+            catch (Exception ex)
+            {
+                GameLogger.Error($"Failed to save preset: {ex.Message}");
+            }
+        }
+
+        public static void LoadPreset(string presetPath)
+        {
+            if (!File.Exists(presetPath))
+            {
+                GameLogger.Warning($"Preset file not found: {presetPath}. Creating new preset with default values.");
+                m_data = new GameSettingsData();
+                SavePreset(presetPath);
+                return;
+            }
+
+            try
+            {
+                var json = File.ReadAllText(presetPath);
+                m_data = JsonConvert.DeserializeObject<GameSettingsData>(json);
+                GameLogger.Log($"Preset loaded from {presetPath}");
+            }
+            catch (Exception ex)
+            {
+                GameLogger.Error($"Failed to load preset: {ex.Message}");
+            }
         }
     }
 }
