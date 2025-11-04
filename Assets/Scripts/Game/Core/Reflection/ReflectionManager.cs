@@ -12,6 +12,12 @@ namespace Game.Core.Reflection
 {
     public sealed class ReflectionManager : IReflectionManager
     {
+        private static readonly HashSet<string> GameAssemblies = new()
+        {
+            "Core",
+            "Game.Editor"
+        };
+
         [Inject]
         private IObjectResolver m_objectResolver;
 
@@ -24,11 +30,29 @@ namespace Game.Core.Reflection
 
         public void Initialize()
         {
-            m_allTypes = Assembly.GetExecutingAssembly().GetTypes().AsValueEnumerable()
+            m_allTypes = GameAssemblies
+                .AsValueEnumerable()
+                .Select(LoadAssemblySafe)
+                .Where(assembly => assembly != null)
+                .SelectMany(assembly => assembly.GetTypes())
                 .Where(type => type.GetCustomAttribute<ReflectionInjectAttribute>() != null)
-                .Select(type => type.GetTypeInfo()).ToArray();
+                .Select(type => type.GetTypeInfo())
+                .ToArray();
 
             LoadIdentifierTypes();
+        }
+
+        private static Assembly LoadAssemblySafe(string assemblyName)
+        {
+            try
+            {
+                return Assembly.Load(assemblyName);
+            }
+            catch (Exception ex)
+            {
+                GameLogger.Warning($"Failed to load assembly '{assemblyName}': {ex.Message}");
+                return null;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
