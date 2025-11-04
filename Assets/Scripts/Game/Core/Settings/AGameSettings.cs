@@ -1,3 +1,4 @@
+using System.Reflection;
 using Game.Core.Reflection;
 
 namespace Game.Core.Settings
@@ -11,5 +12,12 @@ namespace Game.Core.Settings
         public virtual void Apply()
         {
         }
+
+#if UNITY_EDITOR
+        public virtual bool DrawEditorField(FieldInfo field, object defaultInstance, bool isStandalonePreset)
+        {
+            return false;
+        }
+#endif
     }
 }

@@ -12,6 +12,12 @@ namespace Game.Core.Settings
         private static readonly string EditorPresetPath = Path.Combine(Application.dataPath, "..", "ProjectSettings", "GameSettings_EditorPreset.json");
         private static readonly string StandalonePresetPath = Path.Combine(Application.dataPath, "..", "ProjectSettings", "GameSettings_StandalonePreset.json");
 
+        private static readonly JsonSerializerSettings SerializerSettings = new()
+        {
+            TypeNameHandling = TypeNameHandling.Auto,
+            Formatting = Formatting.Indented
+        };
+
         private static GameSettingsData m_data;
 
         private static string GetSettingsPath()
@@ -40,7 +46,7 @@ namespace Game.Core.Settings
                 try
                 {
                     var json = File.ReadAllText(SettingsPath);
-                    m_data = JsonConvert.DeserializeObject<GameSettingsData>(json);
+                    m_data = JsonConvert.DeserializeObject<GameSettingsData>(json, SerializerSettings);
                 }
                 catch (Exception ex)
                 {
@@ -64,7 +70,7 @@ namespace Game.Core.Settings
                 try
                 {
                     var json = File.ReadAllText(defaultSettingsPath);
-                    m_data = JsonConvert.DeserializeObject<GameSettingsData>(json);
+                    m_data = JsonConvert.DeserializeObject<GameSettingsData>(json, SerializerSettings);
                     GameLogger.Log("Loaded default settings from build preset");
                     Save();
                     return;
@@ -82,7 +88,7 @@ namespace Game.Core.Settings
         {
             try
             {
-                var json = JsonConvert.SerializeObject(m_data, Formatting.Indented);
+                var json = JsonConvert.SerializeObject(m_data, SerializerSettings);
                 var directory = Path.GetDirectoryName(SettingsPath);
                 if (!Directory.Exists(directory))
                     if (directory != null)
@@ -104,7 +110,7 @@ namespace Game.Core.Settings
 
             try
             {
-                return JsonConvert.DeserializeObject<T>(json);
+                return JsonConvert.DeserializeObject<T>(json, SerializerSettings);
             }
             catch (Exception ex)
             {
@@ -128,7 +134,7 @@ namespace Game.Core.Settings
 
             try
             {
-                return JsonConvert.DeserializeObject(json, type) as AGameSettings;
+                return JsonConvert.DeserializeObject(json, type, SerializerSettings) as AGameSettings;
             }
             catch (Exception ex)
             {
@@ -141,7 +147,7 @@ namespace Game.Core.Settings
         {
             try
             {
-                var json = JsonConvert.SerializeObject(value);
+                var json = JsonConvert.SerializeObject(value, SerializerSettings);
                 m_data.moduleSettings[moduleName] = json;
             }
             catch (Exception ex)
@@ -169,7 +175,7 @@ namespace Game.Core.Settings
         {
             try
             {
-                var json = JsonConvert.SerializeObject(m_data, Formatting.Indented);
+                var json = JsonConvert.SerializeObject(m_data, SerializerSettings);
                 var directory = Path.GetDirectoryName(presetPath);
                 if (!Directory.Exists(directory) && directory != null)
                     Directory.CreateDirectory(directory);
@@ -196,7 +202,7 @@ namespace Game.Core.Settings
             try
             {
                 var json = File.ReadAllText(presetPath);
-                m_data = JsonConvert.DeserializeObject<GameSettingsData>(json);
+                m_data = JsonConvert.DeserializeObject<GameSettingsData>(json, SerializerSettings);
                 GameLogger.Log($"Preset loaded from {presetPath}");
             }
             catch (Exception ex)

@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Game.Core.Logging;
-using Game.Core.Logging.Modules;
-using Game.Core.Logging.Modules.Attributes;
-using Game.Core.Logging.Settings;
 using Game.Core.Reflection.Editor;
 using Game.Core.Settings.Attributes;
 using UnityEditor;
@@ -33,7 +30,6 @@ namespace Game.Core.Settings.Editor
         private List<SettingsModule> m_modules;
         private Vector2 m_scrollPosition;
         private PresetType m_currentPreset = PresetType.Editor;
-        private readonly Dictionary<string, bool> m_logModuleFoldouts = new();
 
         [MenuItem("Tools/Game Settings")]
         public static void ShowWindow()
@@ -252,85 +248,14 @@ namespace Game.Core.Settings.Editor
         {
             var fields = settings.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
             var defaultInstance = Activator.CreateInstance(settings.GetType()) as AGameSettings;
+            var isStandalonePreset = m_currentPreset == PresetType.Standalone;
 
             foreach (var field in fields)
             {
-                if (settings is LoggerSettings loggerSettings && field.Name == "modules")
-                {
-                    DrawLogModulesField(loggerSettings);
+                if (settings.DrawEditorField(field, defaultInstance, isStandalonePreset))
                     continue;
-                }
 
-                var fieldType = field.FieldType;
-                var fieldName = ObjectNames.NicifyVariableName(field.Name);
-                var currentValue = field.GetValue(settings);
-                var defaultValue = field.GetValue(defaultInstance);
-                var isModified = !Equals(currentValue, defaultValue);
-
-                EditorGUILayout.BeginHorizontal();
-
-                var labelStyle = isModified ? EditorStyles.boldLabel : EditorStyles.label;
-                var labelContent = new GUIContent(fieldName, isModified ? "Modified from default" : "");
-
-                if (fieldType == typeof(int))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.IntField((int)currentValue);
-                    field.SetValue(settings, newValue);
-                }
-                else if (fieldType == typeof(float))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.FloatField((float)currentValue);
-                    field.SetValue(settings, newValue);
-                }
-                else if (fieldType == typeof(string))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.TextField((string)currentValue);
-                    field.SetValue(settings, newValue);
-                }
-                else if (fieldType == typeof(bool))
-                {
-                    var newValue = EditorGUILayout.Toggle(labelContent, (bool)currentValue);
-                    field.SetValue(settings, newValue);
-                }
-                else if (fieldType.IsEnum)
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.EnumPopup((Enum)currentValue);
-                    field.SetValue(settings, newValue);
-                }
-                else if (fieldType == typeof(Vector2))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.Vector2Field("", (Vector2)currentValue);
-                    field.SetValue(settings, newValue);
-                }
-                else if (fieldType == typeof(Vector3))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.Vector3Field("", (Vector3)currentValue);
-                    field.SetValue(settings, newValue);
-                }
-                else if (fieldType == typeof(Color))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.ColorField((Color)currentValue);
-                    field.SetValue(settings, newValue);
-                }
-                else
-                {
-                    EditorGUILayout.LabelField(fieldName, $"Unsupported type: {fieldType.Name}");
-                }
-
-                if (isModified && GUILayout.Button("↺", EditorStyles.miniButton, GUILayout.Width(20)))
-                {
-                    field.SetValue(settings, defaultValue);
-                    GUI.changed = true;
-                }
-
-                EditorGUILayout.EndHorizontal();
+                SettingsFieldDrawer.DrawField(field, settings, defaultInstance);
             }
         }
 
@@ -362,165 +287,6 @@ namespace Game.Core.Settings.Editor
             }
 
             GameLogger.Log("All settings reset successfully");
-        }
-
-        private void DrawLogModulesField(LoggerSettings loggerSettings)
-        {
-            EditorGUILayout.LabelField("Log Modules", EditorStyles.boldLabel);
-            EditorGUILayout.Space(3);
-
-            if (loggerSettings.modules == null)
-            {
-                loggerSettings.modules = new List<ALogModule>();
-                return;
-            }
-
-            var isStandalonePreset = m_currentPreset == PresetType.Standalone;
-
-            for (var i = 0; i < loggerSettings.modules.Count; i++)
-            {
-                var module = loggerSettings.modules[i];
-                if (module == null)
-                    continue;
-
-                var moduleAttribute = module.GetType().GetCustomAttribute<LogModuleAttribute>();
-                if (isStandalonePreset && moduleAttribute?.EditorOnly == true)
-                    continue;
-
-                var moduleName = module.GetDisplayName();
-                var foldoutKey = $"{loggerSettings.GetType().Name}_{module.GetType().Name}";
-
-                if (!m_logModuleFoldouts.ContainsKey(foldoutKey))
-                    m_logModuleFoldouts[foldoutKey] = false;
-
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-
-                EditorGUILayout.BeginHorizontal();
-
-                var enabledContent = new GUIContent("", module.enabled ? "Enabled" : "Disabled");
-                module.enabled = EditorGUILayout.Toggle(enabledContent, module.enabled, GUILayout.Width(20));
-
-                GUILayout.Space(-5);
-
-                var foldoutStyle = new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold };
-                m_logModuleFoldouts[foldoutKey] = EditorGUILayout.Foldout(m_logModuleFoldouts[foldoutKey], moduleName, true, foldoutStyle);
-
-                EditorGUILayout.EndHorizontal();
-
-                if (m_logModuleFoldouts[foldoutKey])
-                {
-                    EditorGUILayout.Space(3);
-                    EditorGUI.indentLevel++;
-
-                    DrawModuleFields(module);
-
-                    EditorGUI.indentLevel--;
-                    EditorGUILayout.Space(3);
-                }
-
-                EditorGUILayout.EndVertical();
-
-                if (i < loggerSettings.modules.Count - 1)
-                    EditorGUILayout.Space(2);
-            }
-        }
-
-        private void DrawModuleFields(ALogModule module)
-        {
-            var fields = module.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-            var defaultModule = Activator.CreateInstance(module.GetType()) as ALogModule;
-
-            var hasVisibleFields = fields.AsValueEnumerable().Any(f => f.Name != "enabled");
-
-            if (!hasVisibleFields)
-            {
-                EditorGUILayout.LabelField("No configurable settings", EditorStyles.centeredGreyMiniLabel);
-                return;
-            }
-
-            foreach (var field in fields)
-            {
-                if (field.Name == "enabled")
-                    continue;
-
-                var fieldType = field.FieldType;
-                var fieldName = ObjectNames.NicifyVariableName(field.Name);
-                var currentValue = field.GetValue(module);
-                var defaultValue = field.GetValue(defaultModule);
-                var isModified = !Equals(currentValue, defaultValue);
-
-                EditorGUILayout.BeginHorizontal();
-
-                var labelStyle = isModified ? EditorStyles.boldLabel : EditorStyles.label;
-                var labelContent = new GUIContent(fieldName, isModified ? "Modified from default" : "");
-
-                if (fieldType == typeof(int))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.IntField((int)currentValue);
-                    field.SetValue(module, newValue);
-                }
-                else if (fieldType == typeof(float))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.FloatField((float)currentValue);
-                    field.SetValue(module, newValue);
-                }
-                else if (fieldType == typeof(string))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.TextField((string)currentValue);
-                    field.SetValue(module, newValue);
-                }
-                else if (fieldType == typeof(bool))
-                {
-                    var newValue = EditorGUILayout.Toggle(labelContent, (bool)currentValue);
-                    field.SetValue(module, newValue);
-                }
-                else if (fieldType.IsEnum)
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.EnumPopup((Enum)currentValue);
-                    field.SetValue(module, newValue);
-                }
-                else if (fieldType == typeof(Vector2))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.Vector2Field("", (Vector2)currentValue);
-                    field.SetValue(module, newValue);
-                }
-                else if (fieldType == typeof(Vector3))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.Vector3Field("", (Vector3)currentValue);
-                    field.SetValue(module, newValue);
-                }
-                else if (fieldType == typeof(Color))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var newValue = EditorGUILayout.ColorField((Color)currentValue);
-                    field.SetValue(module, newValue);
-                }
-                else if (fieldType == typeof(SerializableColor))
-                {
-                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
-                    var serializableColor = (SerializableColor)currentValue;
-                    var newColor = EditorGUILayout.ColorField(serializableColor.ToColor());
-                    field.SetValue(module, new SerializableColor(newColor));
-                }
-                else
-                {
-                    EditorGUILayout.LabelField(fieldName, $"Unsupported type: {fieldType.Name}");
-                }
-
-                if (isModified && GUILayout.Button("↺", EditorStyles.miniButton, GUILayout.Width(20)))
-                {
-                    field.SetValue(module, defaultValue);
-                    GUI.changed = true;
-                }
-
-                EditorGUILayout.EndHorizontal();
-            }
         }
     }
 }

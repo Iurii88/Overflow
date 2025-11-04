@@ -82,5 +82,98 @@ namespace Game.Core.Logging.Settings
                 }
             }
         }
+
+#if UNITY_EDITOR
+        private static readonly Dictionary<string, bool> LOGModuleFoldouts = new();
+
+        public override bool DrawEditorField(FieldInfo field, object defaultInstance, bool isStandalonePreset)
+        {
+            if (field.Name != "modules")
+                return false;
+
+            DrawLogModulesField(isStandalonePreset);
+            return true;
+        }
+
+        private void DrawLogModulesField(bool isStandalonePreset)
+        {
+            UnityEditor.EditorGUILayout.LabelField("Log Modules", UnityEditor.EditorStyles.boldLabel);
+            UnityEditor.EditorGUILayout.Space(3);
+
+            if (modules == null)
+            {
+                modules = new List<ALogModule>();
+                return;
+            }
+
+            for (var i = 0; i < modules.Count; i++)
+            {
+                var module = modules[i];
+                if (module == null)
+                    continue;
+
+                var moduleAttribute = module.GetType().GetCustomAttribute<LogModuleAttribute>();
+                if (isStandalonePreset && moduleAttribute?.EditorOnly == true)
+                    continue;
+
+                var moduleName = module.GetDisplayName();
+                var foldoutKey = $"{GetType().Name}_{module.GetType().Name}";
+
+                LOGModuleFoldouts.TryAdd(foldoutKey, false);
+
+                UnityEditor.EditorGUILayout.BeginVertical(UnityEditor.EditorStyles.helpBox);
+
+                UnityEditor.EditorGUILayout.BeginHorizontal();
+
+                var enabledContent = new GUIContent("", module.enabled ? "Enabled" : "Disabled");
+                module.enabled = UnityEditor.EditorGUILayout.Toggle(enabledContent, module.enabled, GUILayout.Width(20));
+
+                GUILayout.Space(-5);
+
+                var foldoutStyle = new GUIStyle(UnityEditor.EditorStyles.foldout) { fontStyle = FontStyle.Bold };
+                LOGModuleFoldouts[foldoutKey] = UnityEditor.EditorGUILayout.Foldout(LOGModuleFoldouts[foldoutKey], moduleName, true, foldoutStyle);
+
+                UnityEditor.EditorGUILayout.EndHorizontal();
+
+                if (LOGModuleFoldouts[foldoutKey])
+                {
+                    UnityEditor.EditorGUILayout.Space(3);
+                    UnityEditor.EditorGUI.indentLevel++;
+
+                    DrawModuleFields(module);
+
+                    UnityEditor.EditorGUI.indentLevel--;
+                    UnityEditor.EditorGUILayout.Space(3);
+                }
+
+                UnityEditor.EditorGUILayout.EndVertical();
+
+                if (i < modules.Count - 1)
+                    UnityEditor.EditorGUILayout.Space(2);
+            }
+        }
+
+        private static void DrawModuleFields(ALogModule module)
+        {
+            var fields = module.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var defaultModule = Activator.CreateInstance(module.GetType()) as ALogModule;
+
+            var hasVisibleFields = fields.AsValueEnumerable().Any(f => f.Name != "enabled");
+
+            if (!hasVisibleFields)
+            {
+                UnityEditor.EditorGUILayout.LabelField("No configurable settings", UnityEditor.EditorStyles.centeredGreyMiniLabel);
+                return;
+            }
+
+            foreach (var field in fields)
+            {
+                if (field.Name == "enabled")
+                    continue;
+
+                Game.Core.Settings.Editor.SettingsFieldDrawer.DrawField(field, module, defaultModule);
+            }
+        }
+#endif
     }
 }
