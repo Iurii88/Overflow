@@ -1,6 +1,5 @@
 using System.IO;
 using Game.Core.Logging;
-using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -17,7 +16,7 @@ namespace Game.Core.Settings.Editor
 
             if (!File.Exists(standalonePresetPath))
             {
-                Debug.LogWarning($"[GameSettings] Standalone preset not found at {standalonePresetPath}. Build will use default settings.");
+                GameLogger.Warning($"[GameSettings] Standalone preset not found at {standalonePresetPath}. Build will use default settings.");
                 return;
             }
 
@@ -29,11 +28,11 @@ namespace Game.Core.Settings.Editor
                     Directory.CreateDirectory(Application.streamingAssetsPath);
 
                 File.Copy(standalonePresetPath, targetPath, true);
-                Debug.Log($"[GameSettings] Copied standalone preset to StreamingAssets for build.");
+                GameLogger.Log("[GameSettings] Copied standalone preset to StreamingAssets for build.");
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"[GameSettings] Failed to copy standalone preset: {ex.Message}");
+                GameLogger.Error($"[GameSettings] Failed to copy standalone preset: {ex.Message}");
             }
         }
     }

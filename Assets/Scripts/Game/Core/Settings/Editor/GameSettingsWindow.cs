@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Game.Core.Reflection;
+using Game.Core.Logging;
+using Game.Core.Reflection.Editor;
 using Game.Core.Settings.Attributes;
 using UnityEditor;
 using UnityEngine;
@@ -47,7 +48,7 @@ namespace Game.Core.Settings.Editor
         {
             m_modules = new List<SettingsModule>();
 
-            var reflectionManager = new ReflectionManager();
+            var reflectionManager = EditorReflectionService.GetOrCreateInstance();
             reflectionManager.Initialize();
 
             var moduleTypes = reflectionManager.GetByAttribute<GameSettingsAttribute>();
@@ -75,7 +76,7 @@ namespace Game.Core.Settings.Editor
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"Failed to instantiate settings module {typeInfo.Name}: {ex.Message}");
+                    GameLogger.Error($"Failed to instantiate settings module {typeInfo.Name}: {ex.Message}");
                 }
             }
 
@@ -118,7 +119,7 @@ namespace Game.Core.Settings.Editor
             }
 
             GUILayout.FlexibleSpace();
-            
+
             if (GUILayout.Button("Reset All", EditorStyles.toolbarButton, GUILayout.Width(80)))
             {
                 if (EditorUtility.DisplayDialog("Reset Settings", "Are you sure you want to reset all settings to default?", "Yes", "No"))
@@ -152,7 +153,7 @@ namespace Game.Core.Settings.Editor
             EditorGUILayout.Space(5);
             m_scrollPosition = EditorGUILayout.BeginScrollView(m_scrollPosition);
 
-            for (int i = 0; i < m_modules.Count; i++)
+            for (var i = 0; i < m_modules.Count; i++)
             {
                 var module = m_modules[i];
                 var modifiedCount = GetModifiedFieldsCount(module.instance);
@@ -341,11 +342,11 @@ namespace Game.Core.Settings.Editor
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"Failed to reset module {module.name}: {ex.Message}");
+                    GameLogger.Error($"Failed to reset module {module.name}: {ex.Message}");
                 }
             }
 
-            Debug.Log("All settings reset successfully");
+            GameLogger.Log("All settings reset successfully");
         }
     }
 }

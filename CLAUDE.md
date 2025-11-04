@@ -141,6 +141,7 @@ Assets/Scripts/Game/
 ### Code Style
 - **Use early returns and guard clauses** - avoid deep nesting by returning early for validation and error cases
 - Keep the "happy path" at the lowest indentation level
+- Use GameLogger.Log/Warning/Error instead of Debug.Log
 
 ### Performance
 - **ALWAYS use ZLinq instead of standard LINQ** for all collection operations
