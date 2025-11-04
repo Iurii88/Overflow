@@ -155,12 +155,15 @@ namespace Game.Core.Settings.Editor
             for (int i = 0; i < m_modules.Count; i++)
             {
                 var module = m_modules[i];
+                var modifiedCount = GetModifiedFieldsCount(module.instance);
+                var hasModifications = modifiedCount > 0;
 
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
                 EditorGUILayout.BeginHorizontal();
 
-                module.isFoldedOut = EditorGUILayout.BeginFoldoutHeaderGroup(module.isFoldedOut, module.name);
+                var headerLabel = hasModifications ? $"{module.name} ({modifiedCount} modified)" : module.name;
+                module.isFoldedOut = EditorGUILayout.BeginFoldoutHeaderGroup(module.isFoldedOut, headerLabel);
 
                 if (GUILayout.Button("Reset", EditorStyles.miniButtonRight, GUILayout.Width(50)))
                 {
@@ -217,52 +220,101 @@ namespace Game.Core.Settings.Editor
             EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.5f));
         }
 
+        private int GetModifiedFieldsCount(AGameSettings settings)
+        {
+            var fields = settings.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var defaultInstance = Activator.CreateInstance(settings.GetType()) as AGameSettings;
+            var count = 0;
+
+            foreach (var field in fields)
+            {
+                var currentValue = field.GetValue(settings);
+                var defaultValue = field.GetValue(defaultInstance);
+
+                if (!Equals(currentValue, defaultValue))
+                    count++;
+            }
+
+            return count;
+        }
+
         private void DrawSettingsFields(AGameSettings settings)
         {
             var fields = settings.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var defaultInstance = Activator.CreateInstance(settings.GetType()) as AGameSettings;
 
             foreach (var field in fields)
             {
                 var fieldType = field.FieldType;
                 var fieldName = ObjectNames.NicifyVariableName(field.Name);
                 var currentValue = field.GetValue(settings);
+                var defaultValue = field.GetValue(defaultInstance);
+                var isModified = !Equals(currentValue, defaultValue);
+
+                EditorGUILayout.BeginHorizontal();
+
+                var labelStyle = isModified ? EditorStyles.boldLabel : EditorStyles.label;
+                var labelContent = new GUIContent(fieldName, isModified ? "Modified from default" : "");
 
                 if (fieldType == typeof(int))
                 {
-                    field.SetValue(settings, EditorGUILayout.IntField(fieldName, (int)currentValue));
+                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
+                    var newValue = EditorGUILayout.IntField((int)currentValue);
+                    field.SetValue(settings, newValue);
                 }
                 else if (fieldType == typeof(float))
                 {
-                    field.SetValue(settings, EditorGUILayout.FloatField(fieldName, (float)currentValue));
+                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
+                    var newValue = EditorGUILayout.FloatField((float)currentValue);
+                    field.SetValue(settings, newValue);
                 }
                 else if (fieldType == typeof(string))
                 {
-                    field.SetValue(settings, EditorGUILayout.TextField(fieldName, (string)currentValue));
+                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
+                    var newValue = EditorGUILayout.TextField((string)currentValue);
+                    field.SetValue(settings, newValue);
                 }
                 else if (fieldType == typeof(bool))
                 {
-                    field.SetValue(settings, EditorGUILayout.Toggle(fieldName, (bool)currentValue));
+                    var newValue = EditorGUILayout.Toggle(labelContent, (bool)currentValue);
+                    field.SetValue(settings, newValue);
                 }
                 else if (fieldType.IsEnum)
                 {
-                    field.SetValue(settings, EditorGUILayout.EnumPopup(fieldName, (Enum)currentValue));
+                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
+                    var newValue = EditorGUILayout.EnumPopup((Enum)currentValue);
+                    field.SetValue(settings, newValue);
                 }
                 else if (fieldType == typeof(Vector2))
                 {
-                    field.SetValue(settings, EditorGUILayout.Vector2Field(fieldName, (Vector2)currentValue));
+                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
+                    var newValue = EditorGUILayout.Vector2Field("", (Vector2)currentValue);
+                    field.SetValue(settings, newValue);
                 }
                 else if (fieldType == typeof(Vector3))
                 {
-                    field.SetValue(settings, EditorGUILayout.Vector3Field(fieldName, (Vector3)currentValue));
+                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
+                    var newValue = EditorGUILayout.Vector3Field("", (Vector3)currentValue);
+                    field.SetValue(settings, newValue);
                 }
                 else if (fieldType == typeof(Color))
                 {
-                    field.SetValue(settings, EditorGUILayout.ColorField(fieldName, (Color)currentValue));
+                    EditorGUILayout.PrefixLabel(labelContent, EditorStyles.label, labelStyle);
+                    var newValue = EditorGUILayout.ColorField((Color)currentValue);
+                    field.SetValue(settings, newValue);
                 }
                 else
                 {
                     EditorGUILayout.LabelField(fieldName, $"Unsupported type: {fieldType.Name}");
                 }
+
+                if (isModified && GUILayout.Button("↺", EditorStyles.miniButton, GUILayout.Width(20)))
+                {
+                    field.SetValue(settings, defaultValue);
+                    GUI.changed = true;
+                }
+
+                EditorGUILayout.EndHorizontal();
             }
         }
 
