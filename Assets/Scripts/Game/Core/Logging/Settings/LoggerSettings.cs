@@ -30,9 +30,11 @@ namespace Game.Core.Logging.Settings
             GameLogger.ClearModules();
 
             var isEditor = Application.isEditor;
-
-            foreach (var module in modules.AsValueEnumerable().Where(m => m != null && m.enabled))
+            foreach (var module in modules.AsValueEnumerable().Where(m => m != null))
             {
+                if (!module.enabled)
+                    continue;
+
                 var attribute = module.GetType().GetCustomAttribute<LogModuleAttribute>();
                 if (!isEditor && attribute?.EditorOnly == true)
                     continue;
@@ -43,10 +45,7 @@ namespace Game.Core.Logging.Settings
 
         private void EnsureModulesInitialized(IReflectionManager reflectionManager)
         {
-            if (modules == null)
-            {
-                modules = new List<ALogModule>();
-            }
+            modules ??= new List<ALogModule>();
 
             var moduleTypes = reflectionManager.GetDerivedTypes<ALogModule>();
             var isFirstTimeInit = modules.Count == 0;
@@ -54,31 +53,25 @@ namespace Game.Core.Logging.Settings
 
             foreach (var moduleType in moduleTypes)
             {
-                if (!existingTypes.Contains(moduleType.AsType()))
+                if (existingTypes.Contains(moduleType.AsType()))
+                    continue;
+
+                try
                 {
-                    try
+                    var attribute = moduleType.GetCustomAttribute<LogModuleAttribute>();
+                    if (Activator.CreateInstance(moduleType.AsType()) is ALogModule instance)
                     {
-                        var attribute = moduleType.GetCustomAttribute<LogModuleAttribute>();
-                        var instance = Activator.CreateInstance(moduleType.AsType()) as ALogModule;
+                        if (isFirstTimeInit)
+                            instance.enabled = attribute?.DefaultEnabled ?? false;
+                        else
+                            instance.enabled = false;
 
-                        if (instance != null)
-                        {
-                            if (isFirstTimeInit)
-                            {
-                                instance.enabled = attribute?.DefaultEnabled ?? false;
-                            }
-                            else
-                            {
-                                instance.enabled = false;
-                            }
-
-                            modules.Add(instance);
-                        }
+                        modules.Add(instance);
                     }
-                    catch (Exception ex)
-                    {
-                        GameLogger.Warning($"Failed to create log module {moduleType.Name}: {ex.Message}");
-                    }
+                }
+                catch (Exception ex)
+                {
+                    GameLogger.Warning($"Failed to create log module {moduleType.Name}: {ex.Message}");
                 }
             }
         }

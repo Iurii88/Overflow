@@ -49,7 +49,6 @@ namespace Game.Core.Settings.Editor
             m_modules = new List<SettingsModule>();
 
             var reflectionManager = EditorReflectionService.GetOrCreateInstance();
-            reflectionManager.Initialize();
 
             var moduleTypes = reflectionManager.GetByAttribute<GameSettingsAttribute>();
 

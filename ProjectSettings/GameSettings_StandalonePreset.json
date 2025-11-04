@@ -1,5 +1,5 @@
 {
   "moduleSettings": {
-    "LoggerSettings": "{\"minimumLogLevel\":0}"
+    "LoggerSettings": "{\r\n  \"minimumLogLevel\": 0,\r\n  \"modules\": [\r\n    {\r\n      \"$type\": \"Game.Core.Logging.Modules.ColorModule, Core\",\r\n      \"debugColor\": {\r\n        \"r\": 0.53,\r\n        \"g\": 0.53,\r\n        \"b\": 0.53,\r\n        \"a\": 1.0\r\n      },\r\n      \"logColor\": {\r\n        \"r\": 0.0,\r\n        \"g\": 1.0,\r\n        \"b\": 0.0,\r\n        \"a\": 1.0\r\n      },\r\n      \"warningColor\": {\r\n        \"r\": 1.0,\r\n        \"g\": 1.0,\r\n        \"b\": 0.0,\r\n        \"a\": 1.0\r\n      },\r\n      \"errorColor\": {\r\n        \"r\": 1.0,\r\n        \"g\": 0.0,\r\n        \"b\": 0.0,\r\n        \"a\": 1.0\r\n      },\r\n      \"enabled\": true\r\n    },\r\n    {\r\n      \"$type\": \"Game.Core.Logging.Modules.LevelModule, Core\",\r\n      \"enabled\": true\r\n    }\r\n  ]\r\n}"
   }
 }

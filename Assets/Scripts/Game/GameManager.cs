@@ -33,7 +33,6 @@ namespace Game
         {
             m_loadingScreen.gameObject.SetActive(true);
 
-            GameLogger.Initialize(LogLevel.Debug);
             RuntimeSettingsLoader.LoadAllSettings(m_reflectionManager);
 
             // Configure and load with progress tracking
