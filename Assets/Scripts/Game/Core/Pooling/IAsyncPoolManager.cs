@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using Game.Core.Addressables;
+using UnityEngine;
 
 namespace Game.Core.Pooling
 {
@@ -9,5 +10,6 @@ namespace Game.Core.Pooling
         IAddressableManager AddressableManager { get; }
         UniTask<T> GetAsync<T>(string key, Func<UniTask<T>> asyncFactory, Func<T, T> syncClone, Action<T> onGet = null, Action<T> onRelease = null, Action<T> onDestroy = null) where T : class;
         void Release<T>(T obj) where T : class;
+        GameObject GetPoolRoot<T>(string key) where T : class;
     }
 }
