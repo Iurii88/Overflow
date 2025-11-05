@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using Game.Core.Factories;
 using Game.Core.Logging;
+using Game.Features.Entities.Components;
 using UnityEngine;
 using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap.Attributes;
@@ -26,7 +27,7 @@ namespace Game.Features.Entities.System
 
             await UniTask.Delay(300);
 
-            var playerContentId = "entity.player";
+            const string playerContentId = "entity.player";
             var playerEntity = await m_entityFactory.CreateEntityAsync(world.entityManagerWrapper, playerContentId);
             if (playerEntity != default)
             {
@@ -35,19 +36,18 @@ namespace Game.Features.Entities.System
 
             await UniTask.Delay(300);
 
-            var enemyContentId = "entity.enemy.triangle";
+            const string enemyContentId = "entity.enemy.triangle";
             var enemyEntity = await m_entityFactory.CreateEntityAsync(world.entityManagerWrapper, enemyContentId);
             if (enemyEntity != default)
             {
                 GameLogger.Log($"Successfully spawned enemy entity: {enemyContentId}");
 
                 if (enemyEntity.TryGetReference(out GameObject enemyGameObject))
-                {
                     enemyGameObject.transform.position = new Vector3(3f, 0f, 0f);
-                }
             }
 
-            //enemyEntity.SetComponent<Destroy>();
+            await UniTask.Delay(1000);
+            enemyEntity.SetComponent<Destroy>();
 
             GameLogger.Log("EntitySpawnerTestSystem: Spawn test completed!");
         }

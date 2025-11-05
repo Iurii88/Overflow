@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Game.Features.Entities.Content;
@@ -8,14 +9,16 @@ namespace Game.Core.Extensions
 {
     public static class ExtensionExecutor
     {
+        private static readonly Dictionary<Type, object> ExtensionCache = new();
+
         public static async UniTask ExecuteAsync<TExtension>(
             IObjectResolver resolver,
             Entity entity,
             ContentEntity contentEntity,
-            System.Func<TExtension, UniTask> action)
+            Func<TExtension, UniTask> action)
             where TExtension : IExtension
         {
-            var extensions = resolver.Resolve<IReadOnlyList<TExtension>>();
+            var extensions = GetOrResolveExtensions<TExtension>(resolver);
 
             for (var i = 0; i < extensions.Count; i++)
             {
@@ -30,10 +33,10 @@ namespace Game.Core.Extensions
             IObjectResolver resolver,
             Entity entity,
             ContentEntity contentEntity,
-            System.Action<TExtension> action)
+            Action<TExtension> action)
             where TExtension : IExtension
         {
-            var extensions = resolver.Resolve<IReadOnlyList<TExtension>>();
+            var extensions = GetOrResolveExtensions<TExtension>(resolver);
 
             for (var i = 0; i < extensions.Count; i++)
             {
@@ -42,6 +45,20 @@ namespace Game.Core.Extensions
 
                 action(extensions[i]);
             }
+        }
+
+        private static IReadOnlyList<TExtension> GetOrResolveExtensions<TExtension>(IObjectResolver resolver)
+            where TExtension : IExtension
+        {
+            var extensionType = typeof(TExtension);
+
+            if (!ExtensionCache.TryGetValue(extensionType, out var cachedExtensions))
+            {
+                cachedExtensions = resolver.Resolve<IReadOnlyList<TExtension>>();
+                ExtensionCache[extensionType] = cachedExtensions;
+            }
+
+            return (IReadOnlyList<TExtension>)cachedExtensions;
         }
 
         private static bool ShouldExecute(IExtension extension, Entity entity, ContentEntity contentEntity)
