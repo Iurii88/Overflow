@@ -1,5 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
-using Game.Core.Factories;
+﻿using Game.Core.Factories;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -23,25 +22,19 @@ namespace Game.Features.Movement.System
         public override void OnAwake()
         {
             m_query = CreateQuery();
-            LoadPlayer().Forget();
-        }
-
-        private async UniTask LoadPlayer()
-        {
-            await m_entityFactory.CreateEntityAsync(world.entityManagerWrapper, "entity.player");
         }
 
         public override void OnUpdate()
         {
             //Debug.Log("MovementSystem");
-            var entities = m_query.Fetch();
-
-            new MovementJobParallel
-                {
-                    entities = entities,
-                    deltaTime = world.deltaTime
-                }
-                .Schedule(entities.Length, 512).Complete();
+            // var entities = m_query.Fetch();
+            //
+            // new MovementJobParallel
+            //     {
+            //         entities = entities,
+            //         deltaTime = world.deltaTime
+            //     }
+            //     .Schedule(entities.Length, 512).Complete();
         }
 
         [BurstCompile]

@@ -47,5 +47,28 @@ namespace Game.Core.Factories
 
             return entity;
         }
+
+        public async UniTask DestroyEntityAsync(ReferenceWrapper<EntityManager> entityManager, Entity entity)
+        {
+            if (!entity.IsAlive())
+            {
+                GameLogger.Warning("Attempted to destroy invalid entity");
+                return;
+            }
+
+            var contentEntity = entity.GetReference<ContentEntity>();
+            if (contentEntity == null)
+            {
+                GameLogger.Warning("Entity has no ContentEntity reference");
+            }
+
+            var extensions = m_resolver.Resolve<IReadOnlyList<IEntityDestroyedExtension>>();
+            for (var i = 0; i < extensions.Count; i++)
+                await extensions[i].OnEntityDestroyed(entity, contentEntity);
+
+            entityManager.Value.DestroyEntity(entity);
+
+            GameLogger.Log($"Destroyed entity: {contentEntity?.id ?? "unknown"}");
+        }
     }
 }

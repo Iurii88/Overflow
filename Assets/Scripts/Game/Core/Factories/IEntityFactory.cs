@@ -7,5 +7,6 @@ namespace Game.Core.Factories
     public interface IEntityFactory
     {
         UniTask<Entity> CreateEntityAsync(ReferenceWrapper<EntityManager> entityManager, string contentId);
+        UniTask DestroyEntityAsync(ReferenceWrapper<EntityManager> entityManager, Entity entity);
     }
 }

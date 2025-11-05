@@ -29,10 +29,13 @@ namespace Game.Features.View.Extensions
 
             var gameObject = Object.Instantiate(prefab);
             gameObject.name = contentEntity.id;
+            entity.AddReference(gameObject);
         }
 
         public UniTask OnEntityDestroyed(Entity entity, ContentEntity contentEntity)
         {
+            var go = entity.GetReference<GameObject>();
+            Object.Destroy(go);
             return UniTask.CompletedTask;
         }
     }

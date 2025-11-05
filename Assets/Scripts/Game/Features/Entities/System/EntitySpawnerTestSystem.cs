@@ -47,6 +47,8 @@ namespace Game.Features.Entities.System
                 }
             }
 
+            //enemyEntity.SetComponent<Destroy>();
+
             GameLogger.Log("EntitySpawnerTestSystem: Spawn test completed!");
         }
 
