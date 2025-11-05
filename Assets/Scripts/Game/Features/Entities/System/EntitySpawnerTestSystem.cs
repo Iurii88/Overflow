@@ -24,7 +24,7 @@ namespace Game.Features.Entities.System
         {
             GameLogger.Log("EntitySpawnerTestSystem: Starting entity spawn test...");
 
-            await UniTask.Delay(1000);
+            await UniTask.Delay(300);
 
             var playerContentId = "entity.player";
             var playerEntity = await m_entityFactory.CreateEntityAsync(world.entityManagerWrapper, playerContentId);
@@ -33,7 +33,7 @@ namespace Game.Features.Entities.System
                 GameLogger.Log($"Successfully spawned player entity: {playerContentId}");
             }
 
-            await UniTask.Delay(500);
+            await UniTask.Delay(300);
 
             var enemyContentId = "entity.enemy.triangle";
             var enemyEntity = await m_entityFactory.CreateEntityAsync(world.entityManagerWrapper, enemyContentId);

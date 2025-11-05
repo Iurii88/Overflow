@@ -5,7 +5,7 @@ using UnsafeEcs.Core.Entities;
 
 namespace Game.Core.Lifecycle
 {
-    public interface IEntityDestroyedExtension : IExtension
+    public interface IEntityDestroyedExtension : IFilterableExtension
     {
         UniTask OnEntityDestroyed(Entity entity, ContentEntity contentEntity);
     }

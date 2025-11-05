@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using Game.Core.Addressables;
 using Game.Core.Content;
+using Game.Core.Extensions;
 using Game.Core.Lifecycle;
 using Game.Core.Logging;
 using Game.Core.Reflection;
@@ -39,9 +39,9 @@ namespace Game.Core.Factories
 
             var entity = entityManager.Value.CreateEntity();
             entity.AddReference(contentEntity);
-            var extensions = m_resolver.Resolve<IReadOnlyList<IEntityCreatedExtension>>();
-            for (var i = 0; i < extensions.Count; i++)
-                await extensions[i].OnEntityCreated(entity, contentEntity);
+
+            await ExtensionExecutor.ExecuteAsync<IEntityCreatedExtension>(m_resolver, entity, contentEntity,
+                extension => extension.OnEntityCreated(entity, contentEntity));
 
             GameLogger.Log($"Created entity: {contentId}");
 
@@ -62,9 +62,8 @@ namespace Game.Core.Factories
                 GameLogger.Warning("Entity has no ContentEntity reference");
             }
 
-            var extensions = m_resolver.Resolve<IReadOnlyList<IEntityDestroyedExtension>>();
-            for (var i = 0; i < extensions.Count; i++)
-                await extensions[i].OnEntityDestroyed(entity, contentEntity);
+            await ExtensionExecutor.ExecuteAsync<IEntityDestroyedExtension>(m_resolver, entity, contentEntity,
+                extension => extension.OnEntityDestroyed(entity, contentEntity));
 
             entityManager.Value.DestroyEntity(entity);
 

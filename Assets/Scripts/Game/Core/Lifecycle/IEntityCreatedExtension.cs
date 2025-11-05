@@ -5,7 +5,7 @@ using UnsafeEcs.Core.Entities;
 
 namespace Game.Core.Lifecycle
 {
-    public interface IEntityCreatedExtension : IExtension
+    public interface IEntityCreatedExtension : IFilterableExtension
     {
         UniTask OnEntityCreated(Entity entity, ContentEntity contentEntity);
     }

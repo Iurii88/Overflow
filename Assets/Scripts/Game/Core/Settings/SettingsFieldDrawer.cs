@@ -5,7 +5,7 @@ using Game.Core.Logging.Modules;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Core.Settings.Editor
+namespace Game.Core.Settings
 {
     public static class SettingsFieldDrawer
     {

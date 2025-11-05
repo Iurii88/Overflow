@@ -164,7 +164,7 @@ namespace Game.Core.Logging.Settings
                 if (field.Name == "enabled")
                     continue;
 
-                Game.Core.Settings.Editor.SettingsFieldDrawer.DrawField(field, module, defaultModule);
+                SettingsFieldDrawer.DrawField(field, module, defaultModule);
             }
         }
 #endif
