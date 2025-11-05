@@ -1,24 +1,28 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Game.Core.Reflection.Attributes;
 using Game.Features.Entities.Content;
 using UnsafeEcs.Core.Entities;
 using VContainer;
 
 namespace Game.Core.Extensions
 {
-    public static class ExtensionExecutor
+    [AutoRegister]
+    public class ExtensionExecutor : IExtensionExecutor
     {
-        private static readonly Dictionary<Type, object> ExtensionCache = new();
+        [Inject]
+        private readonly IObjectResolver m_resolver;
 
-        public static async UniTask ExecuteAsync<TExtension>(
-            IObjectResolver resolver,
+        private readonly Dictionary<Type, object> m_extensionCache = new();
+
+        public async UniTask ExecuteAsync<TExtension>(
             Entity entity,
             ContentEntity contentEntity,
             Func<TExtension, UniTask> action)
             where TExtension : IExtension
         {
-            var extensions = GetOrResolveExtensions<TExtension>(resolver);
+            var extensions = GetOrResolveExtensions<TExtension>();
 
             for (var i = 0; i < extensions.Count; i++)
             {
@@ -29,14 +33,13 @@ namespace Game.Core.Extensions
             }
         }
 
-        public static void Execute<TExtension>(
-            IObjectResolver resolver,
+        public void Execute<TExtension>(
             Entity entity,
             ContentEntity contentEntity,
             Action<TExtension> action)
             where TExtension : IExtension
         {
-            var extensions = GetOrResolveExtensions<TExtension>(resolver);
+            var extensions = GetOrResolveExtensions<TExtension>();
 
             for (var i = 0; i < extensions.Count; i++)
             {
@@ -47,15 +50,15 @@ namespace Game.Core.Extensions
             }
         }
 
-        private static IReadOnlyList<TExtension> GetOrResolveExtensions<TExtension>(IObjectResolver resolver)
+        private IReadOnlyList<TExtension> GetOrResolveExtensions<TExtension>()
             where TExtension : IExtension
         {
             var extensionType = typeof(TExtension);
 
-            if (!ExtensionCache.TryGetValue(extensionType, out var cachedExtensions))
+            if (!m_extensionCache.TryGetValue(extensionType, out var cachedExtensions))
             {
-                cachedExtensions = resolver.Resolve<IReadOnlyList<TExtension>>();
-                ExtensionCache[extensionType] = cachedExtensions;
+                cachedExtensions = m_resolver.Resolve<IReadOnlyList<TExtension>>();
+                m_extensionCache[extensionType] = cachedExtensions;
             }
 
             return (IReadOnlyList<TExtension>)cachedExtensions;

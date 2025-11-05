@@ -26,7 +26,7 @@ namespace Game.Core.Factories
         private IReflectionManager m_reflectionManager;
 
         [Inject]
-        private IObjectResolver m_resolver;
+        private IExtensionExecutor m_extensionExecutor;
 
         public async UniTask<Entity> CreateEntityAsync(ReferenceWrapper<EntityManager> entityManager, string contentId)
         {
@@ -40,7 +40,7 @@ namespace Game.Core.Factories
             var entity = entityManager.Value.CreateEntity();
             entity.AddReference(contentEntity);
 
-            await ExtensionExecutor.ExecuteAsync<IEntityCreatedExtension>(m_resolver, entity, contentEntity,
+            await m_extensionExecutor.ExecuteAsync<IEntityCreatedExtension>(entity, contentEntity,
                 extension => extension.OnEntityCreated(entity, contentEntity));
 
             GameLogger.Log($"Created entity: {contentId}");
@@ -62,7 +62,7 @@ namespace Game.Core.Factories
                 GameLogger.Warning("Entity has no ContentEntity reference");
             }
 
-            await ExtensionExecutor.ExecuteAsync<IEntityDestroyedExtension>(m_resolver, entity, contentEntity,
+            await m_extensionExecutor.ExecuteAsync<IEntityDestroyedExtension>(entity, contentEntity,
                 extension => extension.OnEntityDestroyed(entity, contentEntity));
 
             entityManager.Value.DestroyEntity(entity);
