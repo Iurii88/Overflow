@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using Game.Core.Addressables;
 using Game.Core.Content.Properties.Filters;
 using Game.Core.Extensions.Filters;
 using Game.Core.Lifecycle;
 using Game.Core.Logging;
+using Game.Core.Pooling;
 using Game.Core.Reflection.Attributes;
 using Game.Features.Entities.Content;
 using Game.Features.View.Content;
@@ -18,7 +18,7 @@ namespace Game.Features.View.Extensions
     public class EntityViewExtension : IEntityCreatedExtension, IEntityDestroyedExtension
     {
         [Inject]
-        private IAddressableManager m_addressableManager;
+        private IAsyncPoolManager m_poolManager;
 
         public IReadOnlyList<IExtensionFilter> Filters { get; } = new List<IExtensionFilter>
         {
@@ -28,22 +28,21 @@ namespace Game.Features.View.Extensions
         public async UniTask OnEntityCreated(Entity entity, ContentEntity contentEntity)
         {
             var viewProperty = contentEntity.GetProperty<ViewContentProperty>();
-            var prefab = await m_addressableManager.LoadAssetAsync<GameObject>(viewProperty.assetPath);
-            if (prefab == null)
+            var gameObject = await m_poolManager.GetGameObjectAsync(viewProperty.assetPath);
+
+            if (gameObject == null)
             {
                 GameLogger.Error($"Failed to load prefab for entity {contentEntity.id} at path: {viewProperty.assetPath}");
                 return;
             }
 
-            var gameObject = Object.Instantiate(prefab);
             gameObject.name = contentEntity.id;
             entity.AddReference(gameObject);
         }
 
         public UniTask OnEntityDestroyed(Entity entity, ContentEntity contentEntity)
         {
-            var go = entity.GetReference<GameObject>();
-            Object.Destroy(go);
+            m_poolManager.Release(entity.GetReference<GameObject>());
             return UniTask.CompletedTask;
         }
     }

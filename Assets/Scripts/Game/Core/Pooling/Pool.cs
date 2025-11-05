@@ -12,21 +12,23 @@ namespace Game.Core.Pooling
         private T[] m_dense;
         private int[] m_generations;
         private int[] m_sparse;
+        private int[] m_denseToSparse;
 
-        public int count { get; private set; }
-        public int capacity { get; private set; }
+        public int Count { get; private set; }
+        public int Capacity { get; private set; }
 
         public Pool(Func<T> createFunc, Action<T> onGet = null, Action<T> onRelease = null, Action<T> onDestroy = null, int initialCapacity = 32, int maxPoolSize = 1000)
         {
             var func = createFunc ?? throw new ArgumentNullException(nameof(createFunc));
 
-            capacity = initialCapacity;
-            m_dense = new T[capacity];
-            m_sparse = new int[capacity];
-            m_generations = new int[capacity];
+            Capacity = initialCapacity;
+            m_dense = new T[Capacity];
+            m_sparse = new int[Capacity];
+            m_denseToSparse = new int[Capacity];
+            m_generations = new int[Capacity];
             m_freeIndices = new Queue<int>();
 
-            for (var i = 0; i < capacity; i++)
+            for (var i = 0; i < Capacity; i++)
             {
                 m_sparse[i] = -1;
                 m_generations[i] = 0;
@@ -41,16 +43,17 @@ namespace Game.Core.Pooling
 
             if (!m_freeIndices.TryDequeue(out var index))
             {
-                index = count;
+                index = Count;
 
-                if (index >= capacity)
-                    Resize(capacity * 2);
+                if (index >= Capacity)
+                    Resize(Capacity * 2);
             }
 
-            var denseIndex = count;
+            var denseIndex = Count;
             m_dense[denseIndex] = obj;
             m_sparse[index] = denseIndex;
-            count++;
+            m_denseToSparse[denseIndex] = index;
+            Count++;
 
             var handle = new PoolHandle
             {
@@ -72,7 +75,7 @@ namespace Game.Core.Pooling
             var denseIndex = m_sparse[handle.index];
 
             if (denseIndex >= 0 &&
-                denseIndex < count &&
+                denseIndex < Count &&
                 m_generations[handle.index] == handle.generation)
             {
                 obj = m_dense[denseIndex];
@@ -96,22 +99,18 @@ namespace Game.Core.Pooling
             var sparseIndex = handle.index;
             var denseIndex = m_sparse[sparseIndex];
 
-            var lastIndex = count - 1;
+            var lastIndex = Count - 1;
             if (denseIndex != lastIndex)
             {
+                var lastSparseIndex = m_denseToSparse[lastIndex];
                 m_dense[denseIndex] = m_dense[lastIndex];
-
-                for (var i = 0; i < capacity; i++)
-                    if (m_sparse[i] == lastIndex)
-                    {
-                        m_sparse[i] = denseIndex;
-                        break;
-                    }
+                m_sparse[lastSparseIndex] = denseIndex;
+                m_denseToSparse[denseIndex] = lastSparseIndex;
             }
 
             m_dense[lastIndex] = null;
             m_sparse[sparseIndex] = -1;
-            count--;
+            Count--;
 
             m_generations[sparseIndex]++;
             m_freeIndices.Enqueue(sparseIndex);
@@ -123,17 +122,17 @@ namespace Game.Core.Pooling
 
         public void Clear()
         {
-            for (var i = 0; i < count; i++)
+            for (var i = 0; i < Count; i++)
                 if (m_dense[i] != null)
                 {
                     m_pool.Release(m_dense[i]);
                     m_dense[i] = null;
                 }
 
-            count = 0;
+            Count = 0;
             m_freeIndices.Clear();
 
-            for (var i = 0; i < capacity; i++)
+            for (var i = 0; i < Capacity; i++)
                 m_sparse[i] = -1;
         }
 
@@ -141,15 +140,16 @@ namespace Game.Core.Pooling
         {
             Array.Resize(ref m_dense, newCapacity);
             Array.Resize(ref m_sparse, newCapacity);
+            Array.Resize(ref m_denseToSparse, newCapacity);
             Array.Resize(ref m_generations, newCapacity);
 
-            for (var i = capacity; i < newCapacity; i++)
+            for (var i = Capacity; i < newCapacity; i++)
             {
                 m_sparse[i] = -1;
                 m_generations[i] = 0;
             }
 
-            capacity = newCapacity;
+            Capacity = newCapacity;
         }
     }
 }
