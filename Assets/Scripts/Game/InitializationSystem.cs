@@ -23,12 +23,7 @@ namespace Game.Features.Entities.System
 
         private async UniTask TestSpawnEntities()
         {
-            const string playerContentId = "entity.player";
-            var playerEntity = await m_entityFactory.CreateEntityAsync(world.entityManagerWrapper, playerContentId);
-            if (playerEntity != default)
-            {
-                GameLogger.Log($"Successfully spawned player entity: {playerContentId}");
-            }
+
         }
     }
 }

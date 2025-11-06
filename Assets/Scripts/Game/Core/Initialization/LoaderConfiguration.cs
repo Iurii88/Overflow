@@ -6,17 +6,11 @@ using ZLinq;
 
 namespace Game.Core.Initialization
 {
-    /// <summary>
-    ///     Fluent API for configuring loader dependencies and execution order.
-    /// </summary>
     public class LoaderConfiguration
     {
         private readonly List<IAsyncLoader> m_loaders = new();
         private readonly Dictionary<IAsyncLoader, List<IAsyncLoader>> m_dependencies = new();
 
-        /// <summary>
-        ///     Registers a loader with no dependencies.
-        /// </summary>
         public LoaderRegistration Register(IAsyncLoader loader)
         {
             if (m_loaders.Contains(loader))
@@ -28,9 +22,6 @@ namespace Game.Core.Initialization
             return new LoaderRegistration(this, loader);
         }
 
-        /// <summary>
-        ///     Resolves and returns loaders in dependency order using topological sort.
-        /// </summary>
         public List<IAsyncLoader> ResolveOrder()
         {
             var levels = ResolveLevels();
@@ -44,11 +35,6 @@ namespace Game.Core.Initialization
             return result;
         }
 
-        /// <summary>
-        ///     Resolves loaders into parallel execution levels.
-        ///     Each level contains loaders that can execute in parallel.
-        ///     Loaders in level N depend only on loaders from levels 0 to N-1.
-        /// </summary>
         public List<List<IAsyncLoader>> ResolveLevels()
         {
             var inDegree = new Dictionary<IAsyncLoader, int>();
@@ -119,6 +105,7 @@ namespace Game.Core.Initialization
                         if (level.Contains(l))
                             return false;
                     }
+
                     return true;
                 }).Select(l => l.GetType().Name);
 
@@ -130,12 +117,6 @@ namespace Game.Core.Initialization
             return levels;
         }
 
-        /// <summary>
-        ///     Loads all registered loaders in parallel with dependency awareness.
-        ///     Loaders at the same dependency level execute in parallel.
-        /// </summary>
-        /// <param name="cancellationToken">Cancellation token for the operation</param>
-        /// <param name="onProgress">Progress callback (progress 0-1, current loader name, completed count, total count)</param>
         public async UniTask LoadAsync(CancellationToken cancellationToken, Action<float, string, int, int> onProgress = null)
         {
             var levels = ResolveLevels();
@@ -170,9 +151,6 @@ namespace Game.Core.Initialization
             onComplete?.Invoke();
         }
 
-        /// <summary>
-        ///     Adds a dependency for a loader (internal use by LoaderRegistration).
-        /// </summary>
         private void AddDependency(IAsyncLoader dependent, IAsyncLoader dependency)
         {
             if (!m_loaders.Contains(dependency))
@@ -188,9 +166,6 @@ namespace Game.Core.Initialization
             }
         }
 
-        /// <summary>
-        ///     Fluent registration API for configuring loader dependencies.
-        /// </summary>
         public class LoaderRegistration
         {
             private readonly LoaderConfiguration m_configuration;
@@ -202,18 +177,12 @@ namespace Game.Core.Initialization
                 m_loader = loader;
             }
 
-            /// <summary>
-            ///     Specifies that this loader should execute after another loader.
-            /// </summary>
             public LoaderRegistration After(IAsyncLoader dependency)
             {
                 m_configuration.AddDependency(m_loader, dependency);
                 return this;
             }
 
-            /// <summary>
-            ///     Specifies that this loader should execute after multiple loaders.
-            /// </summary>
             public LoaderRegistration After(params IAsyncLoader[] dependencies)
             {
                 foreach (var dependency in dependencies)
@@ -224,44 +193,27 @@ namespace Game.Core.Initialization
                 return this;
             }
 
-            /// <summary>
-            ///     Specifies that another loader should execute after this one.
-            /// </summary>
             public LoaderRegistration Before(IAsyncLoader dependent)
             {
                 m_configuration.Register(dependent).After(m_loader);
                 return this;
             }
 
-            /// <summary>
-            ///     Registers another loader and returns its registration for chaining.
-            /// </summary>
             public LoaderRegistration Register(IAsyncLoader loader)
             {
                 return m_configuration.Register(loader);
             }
 
-            /// <summary>
-            ///     Resolves and returns loaders in dependency order.
-            /// </summary>
             public List<IAsyncLoader> ResolveOrder()
             {
                 return m_configuration.ResolveOrder();
             }
 
-            /// <summary>
-            ///     Resolves loaders into parallel execution levels.
-            /// </summary>
             public List<List<IAsyncLoader>> ResolveLevels()
             {
                 return m_configuration.ResolveLevels();
-            }
+            } 
 
-            /// <summary>
-            ///     Loads all registered loaders in parallel with dependency awareness.
-            /// </summary>
-            /// <param name="cancellationToken">Cancellation token for the operation</param>
-            /// <param name="onProgress">Progress callback (progress 0-1, current loader name, completed count, total count)</param>
             public UniTask LoadAsync(CancellationToken cancellationToken, Action<float, string, int, int> onProgress = null)
             {
                 return m_configuration.LoadAsync(cancellationToken, onProgress);
