@@ -357,6 +357,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 801d30a3e3176e54c95bd9f27a2a8bbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::Game.Core.Pooling.PoolBenchmark
+  m_testPrefab: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -798,6 +799,7 @@ MonoBehaviour:
     TypeName: Game.Core.VContainer.CoreEarlyLifeTimeScope
   autoRun: 1
   autoInjectGameObjects: []
+  playerInput: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
 --- !u!114 &1470268504
 MonoBehaviour:
   m_ObjectHideFlags: 0

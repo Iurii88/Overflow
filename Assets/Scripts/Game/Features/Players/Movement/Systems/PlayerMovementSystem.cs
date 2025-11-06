@@ -3,6 +3,7 @@ using Game.Features.Movement.Components;
 using Game.Features.Players.Common.Components;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap.Attributes;
 using UnsafeEcs.Core.Entities;
@@ -16,10 +17,13 @@ namespace Game.Features.Movement.System
     public class PlayerMovementSystem : SystemBase
     {
         private EntityQuery m_playerQuery;
-        private EntityQuery m_movementQuery;
+        private InputAction m_moveAction;
 
         [Inject]
         private IEntityFactory m_entityFactory;
+
+        [Inject]
+        private InputActionAsset m_inputActionAsset;
 
         public override void OnAwake()
         {
@@ -27,6 +31,14 @@ namespace Game.Features.Movement.System
                 .With<PlayerTag>()
                 .With<Velocity>()
                 .With<Speed>();
+
+            m_moveAction = m_inputActionAsset.FindAction("Player/Move");
+            m_moveAction.Enable();
+        }
+
+        public override void OnDestroy()
+        {
+            m_moveAction?.Disable();
         }
 
         public override void OnUpdate()
@@ -36,16 +48,14 @@ namespace Game.Features.Movement.System
 
         private void HandlePlayerInput()
         {
-            m_playerQuery.ForEach((ref Entity entity, ref Velocity velocity, ref Speed speed) =>
+            var moveInput = m_moveAction.ReadValue<Vector2>();
+            var input = new float2(moveInput.x, moveInput.y);
+
+            if (math.lengthsq(input) > 0)
+                input = math.normalize(input);
+
+            m_playerQuery.ForEach((ref Entity _, ref Velocity velocity, ref Speed speed) =>
             {
-                var input = new float2(
-                    Input.GetAxisRaw("Horizontal"),
-                    Input.GetAxisRaw("Vertical")
-                );
-
-                if (math.lengthsq(input) > 0)
-                    input = math.normalize(input);
-
                 velocity.value = input * speed.value;
             });
         }

@@ -1,6 +1,8 @@
 ﻿using System;
 using Game.Core.Reflection;
 using Game.Core.Reflection.Attributes;
+using UnityEngine;
+using UnityEngine.InputSystem;
 using VContainer;
 using VContainer.Unity;
 
@@ -8,8 +10,13 @@ namespace Game.Core.VContainer
 {
     public class CoreLifeTimeScope : LifetimeScope
     {
+        [SerializeField]
+        private InputActionAsset playerInput;
+
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.RegisterInstance(playerInput);
+
             var reflectionManager = Parent.Container.Resolve<IReflectionManager>();
             RegisterTypesWithAttribute<AutoRegisterAttribute>(reflectionManager, builder);
         }
