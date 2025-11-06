@@ -4,6 +4,13 @@
     {
       "identifier": "VIEW",
       "assetPath": "Assets/GameAssets/Entities/Player/Prefabs/Player.prefab"
+    },
+    {
+      "identifier": "PLAYER"
+    },
+    {
+      "identifier": "MOVABLE",
+      "baseSpeed": 5
     }
   ]
 }

@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using Game.Core.Factories;
 using Game.Core.Logging;
 using Game.Features.Entities.Components;
+using Game.Features.Movement.Components;
 using UnityEngine;
 using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap.Attributes;
@@ -10,7 +11,7 @@ using VContainer;
 
 namespace Game.Features.Entities.System
 {
-    [UpdateInGroup(typeof(AllWorldInitializationSystemGroup))]
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class EntitySpawnerTestSystem : SystemBase
     {
         [Inject]
@@ -32,6 +33,7 @@ namespace Game.Features.Entities.System
             if (playerEntity != default)
             {
                 GameLogger.Log($"Successfully spawned player entity: {playerContentId}");
+
             }
 
             await UniTask.Delay(300);

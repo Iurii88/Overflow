@@ -12,7 +12,7 @@ using VContainer;
 
 namespace Game.Features.Entities.System
 {
-    [UpdateInGroup(typeof(AllWorldCleanUpSystemGroup))]
+    [UpdateInGroup(typeof(CleanUpSystemGroup))]
     public class DestroySystem : SystemBase
     {
         public override SystemUpdateMask UpdateMask => SystemUpdateMask.Update;

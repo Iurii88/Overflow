@@ -38,11 +38,14 @@ namespace Game.Features.View.Extensions
 
             gameObject.name = contentEntity.id;
             entity.AddReference(gameObject);
+            entity.AddReference(gameObject.transform);
         }
 
         public UniTask OnEntityDestroyed(Entity entity, ContentEntity contentEntity)
         {
             m_poolManager.Release(entity.GetReference<GameObject>());
+            entity.RemoveReference<GameObject>();
+            entity.RemoveReference<Transform>();
             return UniTask.CompletedTask;
         }
     }

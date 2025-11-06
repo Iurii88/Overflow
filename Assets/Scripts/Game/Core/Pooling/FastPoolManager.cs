@@ -13,7 +13,7 @@ namespace Game.Core.Pooling
     [AutoRegister]
     public class FastPoolManager : IAsyncPoolManager
     {
-        private struct PoolKey : IEquatable<PoolKey>
+        private readonly struct PoolKey : IEquatable<PoolKey>
         {
             private readonly int typeHash;
             private readonly int keyHash;

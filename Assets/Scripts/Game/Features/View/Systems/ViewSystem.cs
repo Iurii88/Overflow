@@ -8,7 +8,7 @@ using VContainer;
 
 namespace Game.Features.View.Systems
 {
-    [UpdateInGroup(typeof(AllWorldInitializationSystemGroup))]
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class ViewSystem : SystemBase
     {
         public override SystemUpdateMask UpdateMask => SystemUpdateMask.Update;

@@ -1,8 +1,6 @@
 ﻿using Game.Core.Factories;
-using Unity.Burst;
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.Jobs;
+using Game.Features.Movement.Components;
+using UnityEngine;
 using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap.Attributes;
 using UnsafeEcs.Core.Entities;
@@ -11,46 +9,30 @@ using VContainer;
 
 namespace Game.Features.Movement.System
 {
-    [UpdateInGroup(typeof(AllWorldInitializationSystemGroup))]
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class MovementSystem : SystemBase
     {
-        private EntityQuery m_query;
+        private EntityQuery m_movementQuery;
 
         [Inject]
         private IEntityFactory m_entityFactory;
 
         public override void OnAwake()
         {
-            m_query = CreateQuery();
+            m_movementQuery = CreateQuery().With<Velocity>();
         }
 
         public override void OnUpdate()
         {
-            //Debug.Log("MovementSystem");
-            // var entities = m_query.Fetch();
-            //
-            // new MovementJobParallel
-            //     {
-            //         entities = entities,
-            //         deltaTime = world.deltaTime
-            //     }
-            //     .Schedule(entities.Length, 512).Complete();
-        }
-
-        [BurstCompile]
-        private struct MovementJobParallel : IJobParallelFor
-        {
-            [ReadOnly]
-            public UnsafeList<Entity> entities;
-
-            public float deltaTime;
-
-            public void Execute(int index)
+            m_movementQuery.ForEach((ref Entity entity, ref Velocity velocity) =>
             {
-                var entity = entities[index];
-                // ref var transform = ref transforms.Get(entity);
-                // transform.Translate(new float3(0, 0, 1) * deltaTime);
-            }
+                if (!entity.TryGetReference(out GameObject gameObject))
+                    return;
+
+                var transform = gameObject.transform;
+                var movement = new Vector3(velocity.value.x, velocity.value.y, 0) * world.deltaTime;
+                transform.position += movement;
+            });
         }
     }
 }
