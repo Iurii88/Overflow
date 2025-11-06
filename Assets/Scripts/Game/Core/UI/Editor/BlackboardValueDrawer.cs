@@ -1,4 +1,5 @@
 ﻿using System;
+using Game.Core.UI.Blackboard;
 using UnityEditor;
 using UnityEngine;
 
@@ -59,7 +60,7 @@ namespace Game.Core.UI.Editor
                         property.serializedObject.ApplyModifiedProperties();
 
                         // Notify the Blackboard component using GUID
-                        var blackboard = property.serializedObject.targetObject as Blackboard;
+                        var blackboard = property.serializedObject.targetObject as Blackboard.Blackboard;
                         if (blackboard != null && targetObject is BlackboardVariable variable)
                         {
                             blackboard.NotifyValueChangedInEditor(variable.Guid);
@@ -90,7 +91,7 @@ namespace Game.Core.UI.Editor
                                 EditorUtility.SetDirty(property.serializedObject.targetObject);
 
                                 // Notify the Blackboard component using GUID
-                                var blackboard = property.serializedObject.targetObject as Blackboard;
+                                var blackboard = property.serializedObject.targetObject as Blackboard.Blackboard;
                                 if (blackboard != null && targetObject is BlackboardVariable variable)
                                 {
                                     blackboard.NotifyValueChangedInEditor(variable.Guid);

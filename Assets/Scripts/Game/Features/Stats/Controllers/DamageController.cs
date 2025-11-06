@@ -1,5 +1,6 @@
 using Game.Core.EntityControllers;
 using Game.Core.Logging;
+using Game.Features.Stats.Consts;
 using UnsafeEcs.Core.Entities;
 
 namespace Game.Features.Stats.Controllers

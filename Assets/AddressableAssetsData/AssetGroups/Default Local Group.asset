@@ -25,6 +25,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d433cb5da78fded4187f7107c2b9f1a2
+    m_Address: Assets/GameAssets/UI/HealthBar/HealthBar.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 69f45dde55261de4ca8e617e37108c72, type: 2}
   m_SchemaSet:

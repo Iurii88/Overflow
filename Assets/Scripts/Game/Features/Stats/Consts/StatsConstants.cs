@@ -1,4 +1,4 @@
-namespace Game.Features.Stats
+namespace Game.Features.Stats.Consts
 {
     public static class StatsConstants
     {

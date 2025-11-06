@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Game.Core.Common;
+using Game.Core.UI.Blackboard;
 using UnityEngine;
 
 namespace Game.Core.UI
@@ -8,7 +9,7 @@ namespace Game.Core.UI
     [ExecuteAlways]
     public abstract class AViewComponent : BaseMonoBehaviour
     {
-        public Blackboard blackboard;
+        public Blackboard.Blackboard blackboard;
 
         protected override void OnEnable()
         {
@@ -25,9 +26,9 @@ namespace Game.Core.UI
 
         protected virtual void Reset()
         {
-            blackboard = GetComponent<Blackboard>();
+            blackboard = GetComponent<Blackboard.Blackboard>();
             if (blackboard == null)
-                blackboard = GetComponentInParent<Blackboard>();
+                blackboard = GetComponentInParent<Blackboard.Blackboard>();
         }
 
         protected abstract void Subscribe();

@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Game.Core.Content;
 using Game.Core.Content.Attributes;
 using Newtonsoft.Json.Linq;
 
-namespace Game.Editor
+namespace Game.Core.Content.Editor
 {
     public static class ContentIdUtility
     {

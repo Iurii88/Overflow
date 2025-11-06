@@ -2,7 +2,7 @@ using Game.Core.Content.Attributes;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Editor
+namespace Game.Core.Content.Editor
 {
     [CustomPropertyDrawer(typeof(ContentSelectorAttribute))]
     public class ContentIdAttributeDrawer : PropertyDrawer

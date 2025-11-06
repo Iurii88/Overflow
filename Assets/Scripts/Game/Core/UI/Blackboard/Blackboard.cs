@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game.Core.UI
+namespace Game.Core.UI.Blackboard
 {
     [ExecuteAlways]
     public class Blackboard : MonoBehaviour
