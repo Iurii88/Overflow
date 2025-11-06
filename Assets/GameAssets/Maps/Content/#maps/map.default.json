@@ -1,6 +1,6 @@
 ﻿{
   "id": "map.default",
-  "scene": "Assets/GameAssets/Maps/Scenes/DefaultScene.unity",
+  "scene": "Scenes/Map_test",
   "playerSpawnPosition": {
     "x": -3,
     "y": 0

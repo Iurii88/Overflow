@@ -10,6 +10,7 @@ using Game.Features.Bootstraps;
 using Game.Features.Entities.Content;
 using Game.Features.LoadingScreen;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VContainer;
 using VContainer.Unity;
 
@@ -32,13 +33,19 @@ namespace Game
         [Inject]
         private LoadingScreen m_loadingScreen;
 
+        public LifetimeScope gameScope;
+
         [ContentSelector(typeof(ContentMap))]
         public string selectedMapId;
 
         public async UniTask StartAsync(CancellationToken cancellation = new())
         {
-            m_loadingScreen.gameObject.SetActive(true);
+            await Load(cancellation);
+        }
 
+        private async UniTask Load(CancellationToken cancellation)
+        {
+            m_loadingScreen.gameObject.SetActive(true);
             RuntimeSettingsLoader.LoadAllSettings(m_reflectionManager);
 
             // Configure and load with progress tracking
@@ -46,6 +53,11 @@ namespace Game
                 .Register(m_contentManager)
                 .Register(m_ecsBootstrap).After(m_contentManager)
                 .LoadAsync(cancellation, OnLoadProgress);
+
+            var contentMap = m_contentManager.Get<ContentMap>(selectedMapId);
+
+            using (LifetimeScope.EnqueueParent(gameScope))
+                await SceneManager.LoadSceneAsync(contentMap.scene, LoadSceneMode.Additive);
 
             m_loadingScreen.gameObject.SetActive(false);
         }

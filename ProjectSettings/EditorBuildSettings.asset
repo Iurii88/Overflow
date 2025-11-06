@@ -8,6 +8,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Game.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/Scenes/Map_test.unity
+    guid: c98a3a9732a08a741add8da860f5cf84
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 668b2a6d244eff742935ae27b49f09a9, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
