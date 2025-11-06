@@ -31,9 +31,38 @@ namespace Game.Features.Stats.Controllers
             return m_statsController.TryGetStat(StatsConstants.Health, out health);
         }
 
+        public float GetMaxHealth()
+        {
+            if (m_statsController == null)
+                return 0f;
+
+            return m_statsController.GetMaxStat(StatsConstants.Health);
+        }
+
+        public bool TryGetMaxHealth(out float maxHealth)
+        {
+            maxHealth = 0f;
+            if (m_statsController == null)
+                return false;
+
+            return m_statsController.TryGetMaxStat(StatsConstants.Health, out maxHealth);
+        }
+
         public bool IsDead()
         {
             return GetHealth() <= 0f;
+        }
+
+        public void ResetHealthToMax()
+        {
+            if (m_statsController == null)
+                return;
+
+            var currentHealth = m_statsController.GetStat(StatsConstants.Health);
+            m_statsController.ResetToMax(StatsConstants.Health);
+            var newHealth = m_statsController.GetStat(StatsConstants.Health);
+
+            GameLogger.Log($"Entity {Entity.id} health reset to max. Health: {currentHealth} -> {newHealth}");
         }
 
         public void TakeDamage(float amount)

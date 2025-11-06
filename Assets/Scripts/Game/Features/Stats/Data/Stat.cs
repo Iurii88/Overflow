@@ -7,5 +7,6 @@ namespace Game.Features.Stats.Data
     {
         public string id;
         public float value;
+        public float max;
     }
 }
