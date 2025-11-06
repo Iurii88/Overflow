@@ -28,7 +28,7 @@ namespace Game
 
         [Inject]
         private LoadingScreen m_loadingScreen;
-
+        
         public async UniTask StartAsync(CancellationToken cancellation = new())
         {
             m_loadingScreen.gameObject.SetActive(true);

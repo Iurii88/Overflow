@@ -1,5 +1,10 @@
 ﻿{
   "id": "map.default",
+  "scene": "Assets/GameAssets/Maps/Scenes/DefaultScene.unity",
+  "playerSpawnPosition": {
+    "x": -3,
+    "y": 0
+  },
   "properties": [
     {
       "identifier": "WAVES_GENERATOR"
