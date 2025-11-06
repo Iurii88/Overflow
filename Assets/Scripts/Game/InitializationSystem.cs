@@ -6,7 +6,7 @@ using UnsafeEcs.Core.Bootstrap.Attributes;
 using UnsafeEcs.Core.Systems;
 using VContainer;
 
-namespace Game.Features.Entities.System
+namespace Game
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class InitializationSystem : SystemBase
@@ -23,7 +23,12 @@ namespace Game.Features.Entities.System
 
         private async UniTask TestSpawnEntities()
         {
-
+            const string playerContentId = "entity.player";
+            var playerEntity = await m_entityFactory.CreateEntityAsync(world.entityManagerWrapper, playerContentId);
+            if (playerEntity != default)
+            {
+                GameLogger.Log($"Successfully spawned player entity: {playerContentId}");
+            }
         }
     }
 }

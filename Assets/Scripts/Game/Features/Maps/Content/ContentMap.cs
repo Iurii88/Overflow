@@ -2,7 +2,7 @@
 using Game.Core.Content.Attributes;
 using Unity.Mathematics;
 
-namespace Game.Features.Entities.Content
+namespace Game.Features.Maps.Content
 {
     [ContentSchema("maps")]
     public class ContentMap : AContent

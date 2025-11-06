@@ -11,6 +11,15 @@
     {
       "identifier": "MOVABLE",
       "baseSpeed": 5
+    },
+    {
+      "identifier": "STATS",
+      "stats": [
+        {
+          "id": "HEALTH",
+          "value": 100
+        }
+      ]
     }
   ]
 }

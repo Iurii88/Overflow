@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using Game.Core.Content;
 using Game.Core.Initialization;
 using Game.Core.Logging;
-using Game.Features.Entities.Content;
+using Game.Features.Maps.Content;
 using UnityEngine.SceneManagement;
 
 namespace Game.Features.Maps

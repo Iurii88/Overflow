@@ -7,11 +7,11 @@ using Game.Core.Pooling;
 using Game.Core.Reflection.Attributes;
 using Game.Features.Entities.Content;
 using Game.Features.Movement.Components;
-using Game.Features.View.Content;
+using Game.Features.Movement.Content;
 using UnsafeEcs.Core.Entities;
 using VContainer;
 
-namespace Game.Features.View.Extensions
+namespace Game.Features.Movement.Extensions
 {
     [AutoRegister]
     public class MovableExtension : IEntityCreatedExtension

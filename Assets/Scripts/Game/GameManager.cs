@@ -10,6 +10,7 @@ using Game.Features.Bootstraps;
 using Game.Features.Entities.Content;
 using Game.Features.LoadingScreen;
 using Game.Features.Maps;
+using Game.Features.Maps.Content;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;

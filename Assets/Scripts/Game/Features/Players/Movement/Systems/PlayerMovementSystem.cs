@@ -1,5 +1,6 @@
 ﻿using Game.Core.Factories;
 using Game.Features.Movement.Components;
+using Game.Features.Movement.System;
 using Game.Features.Players.Common.Components;
 using Unity.Mathematics;
 using UnityEngine;
@@ -10,7 +11,7 @@ using UnsafeEcs.Core.Entities;
 using UnsafeEcs.Core.Systems;
 using VContainer;
 
-namespace Game.Features.Movement.System
+namespace Game.Features.Players.Movement.Systems
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(MovementSystem))]

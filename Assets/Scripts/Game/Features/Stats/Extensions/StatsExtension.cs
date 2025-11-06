@@ -1,32 +1,31 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Game.Core.Content.Properties.Filters;
+using Game.Core.EntityControllers;
 using Game.Core.Extensions.Filters;
 using Game.Core.Lifecycle;
-using Game.Core.Pooling;
 using Game.Core.Reflection.Attributes;
 using Game.Features.Entities.Content;
-using Game.Features.Players.Common.Components;
-using Game.Features.Players.Common.Content;
+using Game.Features.Stats.Content;
+using Game.Features.Stats.Controllers;
 using UnsafeEcs.Core.Entities;
-using VContainer;
 
-namespace Game.Features.Players.Common.Extensions
+namespace Game.Features.Stats.Extensions
 {
     [AutoRegister]
-    public class PlayerExtension : IEntityCreatedExtension
+    public class StatsExtension : IEntityCreatedExtension
     {
-        [Inject]
-        private IAsyncPoolManager m_poolManager;
-
         public IReadOnlyList<IExtensionFilter> Filters { get; } = new List<IExtensionFilter>
         {
-            new HasPropertyFilter<PlayerContentProperty>()
+            new HasPropertyFilter<StatsContentProperty>()
         };
 
         public UniTask OnEntityCreated(Entity entity, ContentEntity contentEntity)
         {
-            entity.AddComponent<PlayerTag>();
+            var statsProperty = contentEntity.GetProperty<StatsContentProperty>();
+            var statsController = entity.AddController<StatsController>();
+            statsController.InitializeStats(statsProperty.stats);
+
             return UniTask.CompletedTask;
         }
     }
