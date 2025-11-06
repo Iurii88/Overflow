@@ -9,8 +9,8 @@ using Game.Core.Settings;
 using Game.Features.Bootstraps;
 using Game.Features.Entities.Content;
 using Game.Features.LoadingScreen;
+using Game.Features.Maps;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using VContainer;
 using VContainer.Unity;
 
@@ -48,16 +48,13 @@ namespace Game
             m_loadingScreen.gameObject.SetActive(true);
             RuntimeSettingsLoader.LoadAllSettings(m_reflectionManager);
 
-            // Configure and load with progress tracking
+            var mapLoader = new MapLoader(m_contentManager, selectedMapId);
+
             await new LoaderConfiguration()
                 .Register(m_contentManager)
-                .Register(m_ecsBootstrap).After(m_contentManager)
+                .Register(mapLoader).After(m_contentManager)
+                .Register(m_ecsBootstrap).After(mapLoader)
                 .LoadAsync(cancellation, OnLoadProgress);
-
-            var contentMap = m_contentManager.Get<ContentMap>(selectedMapId);
-
-            using (LifetimeScope.EnqueueParent(gameScope))
-                await SceneManager.LoadSceneAsync(contentMap.scene, LoadSceneMode.Additive);
 
             m_loadingScreen.gameObject.SetActive(false);
         }
