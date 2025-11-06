@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using Game.Core.Addressables;
 using Game.Core.Reflection.Attributes;
 using UnityEngine;
+using UnityEngine.Pool;
 using VContainer;
 using Object = UnityEngine.Object;
 
@@ -14,8 +15,7 @@ namespace Game.Core.Pooling
     {
         private class PoolData<T> where T : class
         {
-            public Pool<T> pool;
-            public readonly Dictionary<T, PoolHandle> handles = new();
+            public ObjectPool<T> pool;
             public GameObject poolRoot;
         }
 
@@ -23,6 +23,7 @@ namespace Game.Core.Pooling
         private IAddressableManager m_addressableManager;
 
         private readonly Dictionary<(Type, string), object> m_pools = new();
+        private readonly Dictionary<object, (Type type, string key)> m_objectToPool = new();
         private GameObject m_rootPoolObject;
 
         public IAddressableManager AddressableManager => m_addressableManager;
@@ -65,14 +66,16 @@ namespace Game.Core.Pooling
             if (!m_pools.TryGetValue(poolKey, out var poolObj))
             {
                 var template = await asyncFactory();
-
                 var poolRoot = typeof(T) == typeof(GameObject) ? GetOrCreatePoolRoot(key) : null;
 
-                var pool = new Pool<T>(
+                var pool = new ObjectPool<T>(
                     () => syncClone(template),
                     onGet,
                     onRelease,
-                    onDestroy
+                    onDestroy,
+                    true,
+                    32,
+                    1000
                 );
 
                 poolObj = new PoolData<T> { pool = pool, poolRoot = poolRoot };
@@ -80,8 +83,9 @@ namespace Game.Core.Pooling
             }
 
             var data = (PoolData<T>)poolObj;
-            var handle = data.pool.Rent(out var obj);
-            data.handles[obj] = handle;
+            var obj = data.pool.Get();
+
+            m_objectToPool[obj] = poolKey;
 
             return obj;
         }
@@ -102,22 +106,24 @@ namespace Game.Core.Pooling
             if (obj == null)
                 return;
 
-            foreach (var kvp in m_pools)
+            if (!m_objectToPool.TryGetValue(obj, out var poolKey))
             {
-                if (kvp.Key.Item1 != typeof(T) || kvp.Value is not PoolData<T> poolData)
-                    continue;
-
-                if (!poolData.handles.TryGetValue(obj, out var handle))
-                    continue;
-
-                poolData.pool.Return(handle);
-                poolData.handles.Remove(obj);
+#if UNITY_EDITOR
+                Debug.LogWarning($"Failed to release object of type {typeof(T).Name} - not found in any pool");
+#endif
                 return;
             }
 
+            if (!m_pools.TryGetValue(poolKey, out var poolObj) || poolObj is not PoolData<T> poolData)
+            {
 #if UNITY_EDITOR
-            Debug.LogWarning($"Failed to release object of type {typeof(T).Name} - not found in any pool");
+                Debug.LogWarning("Failed to release object - pool not found");
 #endif
+                return;
+            }
+
+            m_objectToPool.Remove(obj);
+            poolData.pool.Release(obj);
         }
     }
 }
