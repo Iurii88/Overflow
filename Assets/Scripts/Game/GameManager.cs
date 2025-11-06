@@ -1,18 +1,21 @@
 ﻿using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Core.Content;
+using Game.Core.Content.Attributes;
 using Game.Core.Initialization;
 using Game.Core.Logging;
 using Game.Core.Reflection;
 using Game.Core.Settings;
 using Game.Features.Bootstraps;
+using Game.Features.Entities.Content;
 using Game.Features.LoadingScreen;
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
 namespace Game
 {
-    public class GameManager : IAsyncStartable
+    public class GameManager : MonoBehaviour, IAsyncStartable
     {
         [Inject]
         private IObjectResolver m_objectResolver;
@@ -28,7 +31,10 @@ namespace Game
 
         [Inject]
         private LoadingScreen m_loadingScreen;
-        
+
+        [ContentSelector(typeof(ContentMap))]
+        public string selectedMapId;
+
         public async UniTask StartAsync(CancellationToken cancellation = new())
         {
             m_loadingScreen.gameObject.SetActive(true);

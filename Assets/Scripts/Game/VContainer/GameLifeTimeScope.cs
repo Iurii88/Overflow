@@ -8,7 +8,7 @@ namespace Game.VContainer
     {
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.RegisterEntryPoint<GameManager>();
+            builder.RegisterComponentInHierarchy<GameManager>().AsImplementedInterfaces();
             builder.RegisterComponentInHierarchy<LoadingScreen>();
         }
     }

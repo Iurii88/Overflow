@@ -31,8 +31,8 @@ namespace Game.Core.Content
 
         public bool IsInitialized { get; private set; }
 
-        private const string ContentRootPath = "Assets/GameAssets";
-        private const string ContentFolderPrefix = "#";
+        public const string ContentRootPath = "Assets/GameAssets";
+        public const string ContentFolderPrefix = "#";
         private const string IDFieldName = "id";
 
         public async UniTask LoadAsync(CancellationToken cancellation = new())
