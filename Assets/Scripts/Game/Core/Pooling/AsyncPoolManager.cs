@@ -10,7 +10,7 @@ using Object = UnityEngine.Object;
 
 namespace Game.Core.Pooling
 {
-    [AutoRegister]
+    //[AutoRegister]
     public class AsyncPoolManager : IAsyncPoolManager
     {
         private class PoolData<T> where T : class
