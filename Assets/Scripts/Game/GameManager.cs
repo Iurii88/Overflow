@@ -56,6 +56,8 @@ namespace Game
                 .Register(m_ecsBootstrap).After(mapLoader)
                 .LoadAsync(cancellation, OnLoadProgress);
 
+            await UniTask.Delay(100, cancellationToken: cancellation);
+
             m_loadingScreen.gameObject.SetActive(false);
         }
 
