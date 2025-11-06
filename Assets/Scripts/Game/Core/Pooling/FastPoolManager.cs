@@ -44,7 +44,6 @@ namespace Game.Core.Pooling
         private abstract class PoolBase
         {
             public GameObject poolRoot;
-            public abstract void ReleaseObject(object obj);
         }
 
         private sealed class FastPool<T> : PoolBase where T : class
@@ -100,11 +99,6 @@ namespace Game.Core.Pooling
 
                 m_items[m_count] = item;
                 m_count++;
-            }
-
-            public override void ReleaseObject(object obj)
-            {
-                Release((T)obj);
             }
         }
 
@@ -236,7 +230,7 @@ namespace Game.Core.Pooling
             }
 
             m_objectToPoolKey.Remove(objHash);
-            poolBase.ReleaseObject(obj);
+            ((FastPool<T>)poolBase).Release(obj);
         }
     }
 }
