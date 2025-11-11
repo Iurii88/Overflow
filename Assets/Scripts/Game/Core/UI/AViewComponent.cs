@@ -21,9 +21,13 @@ namespace Game.Core.UI
         protected override void OnDisable()
         {
             base.OnDisable();
-           DisposeParameters();
+            DisposeParameters();
         }
 
+        public virtual void OnInitialize()
+        {
+        }
+        
         protected virtual void Reset()
         {
             blackboard = GetComponent<Blackboard.Blackboard>();

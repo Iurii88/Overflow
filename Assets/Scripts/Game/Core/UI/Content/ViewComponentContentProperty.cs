@@ -8,6 +8,6 @@ namespace Game.Core.UI.Content
     public class ViewComponentContentProperty : AContentProperty
     {
         public string assetPath;
-        public UILayer layer;
+        public string layer;
     }
 }

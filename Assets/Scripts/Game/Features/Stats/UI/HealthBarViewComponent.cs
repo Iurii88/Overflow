@@ -39,9 +39,15 @@ namespace Game.Features.Stats.UI
             fillImage = GetComponentInChildren<Image>();
         }
 
+        public override void OnInitialize()
+        {
+            base.OnInitialize();
+            UpdateHealthBar();
+        }
+
         private void UpdateHealthBar()
         {
-            if (Application.isEditor)
+            if (!Application.isPlaying)
                 return;
 
             var statsController = entity.Value.GetOrCreateController<StatsController>();

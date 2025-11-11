@@ -1,6 +1,7 @@
 ﻿using System;
 using Game.Core.Reflection;
 using Game.Core.Reflection.Attributes;
+using Game.Core.UI.Layers;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using VContainer;
@@ -12,10 +13,14 @@ namespace Game.Core.VContainer
     {
         [SerializeField]
         private InputActionAsset playerInput;
-
+        
+        [SerializeField]
+        private UILayerManager layerManager;
+        
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterInstance(playerInput);
+            builder.RegisterComponent(layerManager);
 
             var reflectionManager = Parent.Container.Resolve<IReflectionManager>();
             RegisterTypesWithAttribute<AutoRegisterAttribute>(reflectionManager, builder);

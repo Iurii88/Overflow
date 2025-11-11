@@ -70,11 +70,11 @@ namespace Game.Core.UI.Blackboard
             {
                 if (existing is BlackboardVariable<T> typedValue)
                 {
-                    if (!EqualityComparer<T>.Default.Equals(typedValue.value, value))
-                    {
-                        typedValue.value = value;
-                        OnVariableChanged?.Invoke(existing.Guid, typedValue);
-                    }
+                    if (EqualityComparer<T>.Default.Equals(typedValue.value, value))
+                        return;
+                    
+                    typedValue.value = value;
+                    OnVariableChanged?.Invoke(existing.Guid, typedValue);
                 }
                 else
                 {

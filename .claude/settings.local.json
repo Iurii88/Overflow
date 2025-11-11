@@ -5,7 +5,11 @@
       "Bash(cat:*)",
       "Bash(nul)",
       "Bash(find:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\UI\\Editor\\ButtonDrawer.cs.meta\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\UI\\Editor\\ButtonDrawer.cs.meta\")",
+      "Bash(else echo \"No meta file found\")",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []

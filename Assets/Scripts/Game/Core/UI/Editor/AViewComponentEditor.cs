@@ -45,6 +45,8 @@ namespace Game.Core.UI.Editor
             if (!hasParameters)
                 EditorGUILayout.HelpBox("No BlackboardViewParameter fields found in this component.", MessageType.Info);
 
+            ButtonDrawerUtility.DrawButtonMethods(target, targets);
+
             serializedObject.ApplyModifiedProperties();
         }
 

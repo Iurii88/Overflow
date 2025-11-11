@@ -203,22 +203,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Core::Game.Core.UI.Blackboard
   values:
-  - rid: 6357717229525270783
-  - rid: 6357717229525270784
+  - rid: 6357717345532116992
+  - rid: 6357717345532116993
   references:
     version: 2
     RefIds:
-    - rid: 6357717229525270783
-      type: {class: 'BlackboardVariable`1[[UnsafeEcs.Core.Entities.Entity, UnsafeEcs]]', ns: Game.Core.UI, asm: Core}
+    - rid: 6357717345532116992
+      type: {class: 'BlackboardVariable`1[[UnsafeEcs.Core.Entities.Entity, UnsafeEcs]]', ns: Game.Core.UI.Blackboard, asm: Core}
       data:
-        guid: c1e3a01a-1e03-4f65-9bc8-ab3b69c4d670
+        guid: fb857611-970e-492d-864e-8e6246a3a2bd
         key: ENTITY
-    - rid: 6357717229525270784
-      type: {class: 'BlackboardVariable`1[[System.Int32, mscorlib]]', ns: Game.Core.UI, asm: Core}
+    - rid: 6357717345532116993
+      type: {class: 'BlackboardVariable`1[[System.Int32, mscorlib]]', ns: Game.Core.UI.Blackboard, asm: Core}
       data:
-        guid: 80448193-69a0-4657-b762-5117bffb9376
+        guid: e316c5f2-4998-47fd-8ed7-8bf33c053abe
         key: HEALTH
-        value: 5
+        value: 0
 --- !u!114 &6593395631761526890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -235,9 +235,9 @@ MonoBehaviour:
   fillImage: {fileID: 8337379393856549509}
   updateSpeed: 5
   entity:
-    boundGuid: c1e3a01a-1e03-4f65-9bc8-ab3b69c4d670
+    boundGuid: fb857611-970e-492d-864e-8e6246a3a2bd
   health:
-    boundGuid: 80448193-69a0-4657-b762-5117bffb9376
+    boundGuid: e316c5f2-4998-47fd-8ed7-8bf33c053abe
 --- !u!114 &2672447999029579609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,7 +252,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Core::Game.Core.UI.ViewModules.WorldPositionSyncViewComponent
   blackboard: {fileID: 8052684156502656732}
   entity:
-    boundGuid: c1e3a01a-1e03-4f65-9bc8-ab3b69c4d670
+    boundGuid: fb857611-970e-492d-864e-8e6246a3a2bd
   worldOffset: {x: 0, y: 1, z: 0}
-  targetCamera: {fileID: 0}
-  parentCanvas: {fileID: 0}

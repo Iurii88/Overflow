@@ -25,7 +25,7 @@
     {
       "identifier": "VIEW_COMPONENT",
       "assetPath": "Assets/GameAssets/UI/HealthBar/HealthBar.prefab",
-      "layer": 1
+      "layer": "LOWER"
     }
   ]
 }
