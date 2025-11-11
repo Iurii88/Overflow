@@ -253,4 +253,4 @@ MonoBehaviour:
   blackboard: {fileID: 8052684156502656732}
   entity:
     boundGuid: fb857611-970e-492d-864e-8e6246a3a2bd
-  worldOffset: {x: 0, y: 1, z: 0}
+  worldOffset: {x: 0, y: 0.7}
