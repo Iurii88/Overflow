@@ -10,22 +10,17 @@ using VContainer.Unity;
 
 namespace Game.Core.VContainer
 {
-    public class CoreLifeTimeScope : LifetimeScope
+    public class GameLifeTimeScope : LifetimeScope
     {
         [SerializeField]
         private InputActionAsset playerInput;
-        
-        [SerializeField]
-        private UILayerManager layerManager;
-        
-        [SerializeField]
-        private LoadingScreen loadingScreen;
-        
+
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterInstance(playerInput);
-            builder.RegisterComponent(layerManager);
-            builder.RegisterComponent(loadingScreen);
+            builder.RegisterComponentInHierarchy<GameManager>().AsImplementedInterfaces();
+            builder.RegisterComponentInHierarchy<LoadingScreen>();
+            builder.RegisterComponentInHierarchy<UILayerManager>();
 
             var reflectionManager = Parent.Container.Resolve<IReflectionManager>();
             RegisterTypesWithAttribute<AutoRegisterAttribute>(reflectionManager, builder);

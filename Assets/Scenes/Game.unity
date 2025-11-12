@@ -345,7 +345,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ebb48aeda9f4e85a8bdf1eb03f7f42d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::Game.GameManager
-  gameScope: {fileID: 1470268502}
+  gameScope: {fileID: 0}
   selectedMapId: map.default
 --- !u!4 &538104747
 Transform:
@@ -623,7 +623,6 @@ GameObject:
   - component: {fileID: 1470268501}
   - component: {fileID: 1470268504}
   - component: {fileID: 1470268503}
-  - component: {fileID: 1470268502}
   m_Layer: 0
   m_Name: LifeTimeScopes
   m_TagString: Untagged
@@ -646,22 +645,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1470268502
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1470268500}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e861b70db7449f8ae89cb7500d72b13, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core::Game.Scopes.GameLifeTimeScope
-  parentReference:
-    TypeName: Game.Core.VContainer.CoreLifeTimeScope
-  autoRun: 1
-  autoInjectGameObjects: []
 --- !u!114 &1470268503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -675,12 +658,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Core::Core.Common.VContainer.GameLifeTimeScope
   parentReference:
-    TypeName: Game.Core.VContainer.CoreEarlyLifeTimeScope
+    TypeName: Game.Core.VContainer.ReflectionLifeTimeScope
   autoRun: 1
   autoInjectGameObjects: []
   playerInput: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
-  layerManager: {fileID: 2015570116}
-  loadingScreen: {fileID: 295962373}
 --- !u!114 &1470268504
 MonoBehaviour:
   m_ObjectHideFlags: 0
