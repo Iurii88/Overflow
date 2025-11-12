@@ -5,6 +5,7 @@ using Game.Core.Initialization;
 using Game.Core.Logging;
 using Game.Features.Maps.Content;
 using UnityEngine.SceneManagement;
+using VContainer.Unity;
 
 namespace Game.Features.Maps
 {
@@ -12,9 +13,11 @@ namespace Game.Features.Maps
     {
         private readonly IContentManager m_contentManager;
         private readonly string m_mapId;
+        private readonly LifetimeScope m_parentScope;
 
-        public MapLoader(IContentManager contentManager, string mapId)
+        public MapLoader(LifetimeScope parentScope, IContentManager contentManager, string mapId)
         {
+            m_parentScope = parentScope;
             m_contentManager = contentManager;
             m_mapId = mapId;
         }
@@ -42,16 +45,18 @@ namespace Game.Features.Maps
 
             GameLogger.Log($"[MapLoader] Loading scene: {map.scene}");
 
-            var asyncOperation = SceneManager.LoadSceneAsync(map.scene, LoadSceneMode.Additive);
-            if (asyncOperation == null)
+            using (LifetimeScope.EnqueueParent(m_parentScope))
             {
-                GameLogger.Error($"[MapLoader] Failed to start loading scene: {map.scene}");
-                return;
+                var asyncOperation = SceneManager.LoadSceneAsync(map.scene, LoadSceneMode.Additive);
+                if (asyncOperation == null)
+                {
+                    GameLogger.Error($"[MapLoader] Failed to start loading scene: {map.scene}");
+                    return;
+                }
+
+                await asyncOperation.ToUniTask(cancellationToken: cancellationToken);
+                GameLogger.Log($"[MapLoader] Scene loaded successfully: {map.scene}");
             }
-
-            await asyncOperation.ToUniTask(cancellationToken: cancellationToken);
-
-            GameLogger.Log($"[MapLoader] Scene loaded successfully: {map.scene}");
         }
     }
 }

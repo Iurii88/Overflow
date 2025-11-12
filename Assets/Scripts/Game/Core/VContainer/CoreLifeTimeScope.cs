@@ -2,6 +2,7 @@
 using Game.Core.Reflection;
 using Game.Core.Reflection.Attributes;
 using Game.Core.UI.Layers;
+using Game.Features.LoadingScreen;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using VContainer;
@@ -17,10 +18,14 @@ namespace Game.Core.VContainer
         [SerializeField]
         private UILayerManager layerManager;
         
+        [SerializeField]
+        private LoadingScreen loadingScreen;
+        
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterInstance(playerInput);
             builder.RegisterComponent(layerManager);
+            builder.RegisterComponent(loadingScreen);
 
             var reflectionManager = Parent.Container.Resolve<IReflectionManager>();
             RegisterTypesWithAttribute<AutoRegisterAttribute>(reflectionManager, builder);

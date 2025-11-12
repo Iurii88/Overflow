@@ -50,6 +50,28 @@ namespace Game.Core.Extensions
             }
         }
 
+        public async UniTask ExecuteAsync<TExtension>(Func<TExtension, UniTask> action)
+            where TExtension : IExtension
+        {
+            var extensions = GetOrResolveExtensions<TExtension>();
+
+            for (var i = 0; i < extensions.Count; i++)
+            {
+                await action(extensions[i]);
+            }
+        }
+
+        public void Execute<TExtension>(Action<TExtension> action)
+            where TExtension : IExtension
+        {
+            var extensions = GetOrResolveExtensions<TExtension>();
+
+            for (var i = 0; i < extensions.Count; i++)
+            {
+                action(extensions[i]);
+            }
+        }
+
         private IReadOnlyList<TExtension> GetOrResolveExtensions<TExtension>()
             where TExtension : IExtension
         {

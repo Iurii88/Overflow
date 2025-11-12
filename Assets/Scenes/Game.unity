@@ -677,10 +677,10 @@ MonoBehaviour:
   parentReference:
     TypeName: Game.Core.VContainer.CoreEarlyLifeTimeScope
   autoRun: 1
-  autoInjectGameObjects:
-  - {fileID: 2015570114}
+  autoInjectGameObjects: []
   playerInput: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   layerManager: {fileID: 2015570116}
+  loadingScreen: {fileID: 295962373}
 --- !u!114 &1470268504
 MonoBehaviour:
   m_ObjectHideFlags: 0

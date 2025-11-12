@@ -12,5 +12,11 @@ namespace Game.Core.Extensions
 
         void Execute<TExtension>(Entity entity, ContentEntity contentEntity, Action<TExtension> action)
             where TExtension : IExtension;
+
+        UniTask ExecuteAsync<TExtension>(Func<TExtension, UniTask> action)
+            where TExtension : IExtension;
+
+        void Execute<TExtension>(Action<TExtension> action)
+            where TExtension : IExtension;
     }
 }
