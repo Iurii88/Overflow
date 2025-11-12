@@ -1,6 +1,8 @@
+using Game.Core.Camera;
 using Game.Core.UI.Blackboard;
 using UnityEngine;
 using UnsafeEcs.Core.Entities;
+using VContainer;
 
 namespace Game.Core.UI.ViewModules
 {
@@ -13,7 +15,9 @@ namespace Game.Core.UI.ViewModules
         private Vector2 worldOffset = Vector2.zero;
 
         private RectTransform m_rectTransform;
-        private Camera m_camera;
+
+        [Inject]
+        private ICameraManager m_cameraManager;
 
         protected override void Subscribe()
         {
@@ -28,7 +32,6 @@ namespace Game.Core.UI.ViewModules
         {
             base.Awake();
             m_rectTransform = GetComponent<RectTransform>();
-            m_camera = Camera.main;
         }
 
         private void LateUpdate()
@@ -48,11 +51,11 @@ namespace Game.Core.UI.ViewModules
             if (entityTransform == null)
                 return;
 
-            if (m_camera == null)
+            if (m_cameraManager?.MainCamera == null)
                 return;
 
             var worldPosition = (Vector2)entityTransform.position + worldOffset;
-            var screenPosition = m_camera.WorldToScreenPoint(worldPosition);
+            var screenPosition = m_cameraManager.MainCamera.WorldToScreenPoint(worldPosition);
 
             var parentRect = m_rectTransform.parent as RectTransform;
             if (parentRect == null)

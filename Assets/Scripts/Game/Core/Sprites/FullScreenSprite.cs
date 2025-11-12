@@ -1,17 +1,26 @@
-﻿using R3;
+﻿using Game.Core.Camera;
+using R3;
 using UnityEngine;
+using VContainer;
 
 namespace Game.Core.Sprites
 {
     public class FullScreenSprite : MonoBehaviour
     {
         private readonly CompositeDisposable m_subscription = new();
-        private Camera m_cam;
+        private UnityEngine.Camera m_cam;
         private SpriteRenderer m_sr;
+        private ICameraManager m_cameraManager;
+
+        [Inject]
+        public void Construct(ICameraManager cameraManager)
+        {
+            m_cameraManager = cameraManager;
+        }
 
         private void Start()
         {
-            m_cam = Camera.main;
+            m_cam = m_cameraManager.MainCamera;
             m_sr = GetComponent<SpriteRenderer>();
 
             Observable.EveryUpdate()

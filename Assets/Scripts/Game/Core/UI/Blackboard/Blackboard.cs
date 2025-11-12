@@ -42,7 +42,7 @@ namespace Game.Core.UI.Blackboard
         }
 
         /// <summary>
-        /// Gets a variable by its GUID.
+        ///     Gets a variable by its GUID.
         /// </summary>
         public BlackboardVariable GetVariableByGuid(string guid)
         {
@@ -54,7 +54,7 @@ namespace Game.Core.UI.Blackboard
         }
 
         /// <summary>
-        /// Gets all variables for editor display.
+        ///     Gets all variables for editor display.
         /// </summary>
         public List<BlackboardVariable> GetAllVariables()
         {
@@ -72,7 +72,7 @@ namespace Game.Core.UI.Blackboard
                 {
                     if (EqualityComparer<T>.Default.Equals(typedValue.value, value))
                         return;
-                    
+
                     typedValue.value = value;
                     OnVariableChanged?.Invoke(existing.Guid, typedValue);
                 }
@@ -204,7 +204,7 @@ namespace Game.Core.UI.Blackboard
         }
 
         /// <summary>
-        /// Notifies listeners that a variable has changed.
+        ///     Notifies listeners that a variable has changed.
         /// </summary>
         public void NotifyVariableChanged(string guid, BlackboardVariable variable)
         {

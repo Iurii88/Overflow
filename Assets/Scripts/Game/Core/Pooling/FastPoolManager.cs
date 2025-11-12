@@ -6,6 +6,7 @@ using Game.Core.Addressables;
 using Game.Core.Reflection.Attributes;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 using Object = UnityEngine.Object;
 
 namespace Game.Core.Pooling
@@ -13,38 +14,8 @@ namespace Game.Core.Pooling
     [AutoRegister]
     public class FastPoolManager : IAsyncPoolManager
     {
-        private readonly struct PoolKey : IEquatable<PoolKey>
-        {
-            private readonly int typeHash;
-            private readonly int keyHash;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public PoolKey(Type type, string key)
-            {
-                typeHash = type.GetHashCode();
-                keyHash = key.GetHashCode();
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool Equals(PoolKey other)
-            {
-                return typeHash == other.typeHash && keyHash == other.keyHash;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return (typeHash * 397) ^ keyHash;
-                }
-            }
-        }
-
-        private abstract class PoolBase
-        {
-            public GameObject poolRoot;
-        }
+        [Inject]
+        private IObjectResolver m_resolver;
 
         private sealed class FastPool<T> : PoolBase where T : class
         {
@@ -231,6 +202,56 @@ namespace Game.Core.Pooling
 
             m_objectToPoolKey.Remove(objHash);
             ((FastPool<T>)poolBase).Release(obj);
+        }
+
+        public async UniTask<GameObject> GetGameObjectAsync(string assetPath)
+        {
+            var gameObject = await GetAsync(
+                assetPath,
+                async () =>
+                {
+                    var prefab = await AddressableManager.LoadAssetAsync<GameObject>(assetPath);
+                    return prefab;
+                },
+                Object.Instantiate,
+                go =>
+                {
+                    if (go == null)
+                        return;
+
+                    go.transform.SetParent(null);
+                    ResetTransform(go.transform);
+
+                    var poolables = go.GetComponentsInChildren<IPoolable>(true);
+                    foreach (var poolable in poolables)
+                        poolable.OnRentedFromPool();
+
+                    go.SetActive(true);
+                },
+                go =>
+                {
+                    if (go == null)
+                        return;
+
+                    go.SetActive(false);
+
+                    var poolables = go.GetComponentsInChildren<IPoolable>(true);
+                    foreach (var poolable in poolables)
+                        poolable.OnReturnedToPool();
+
+                    var poolRoot = GetPoolRoot<GameObject>(assetPath);
+                    go.transform.SetParent(poolRoot?.transform);
+                }
+            );
+            m_resolver.InjectGameObject(gameObject);
+            return gameObject;
+        }
+
+        private static void ResetTransform(Transform transform)
+        {
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
         }
     }
 }
