@@ -1,8 +1,4 @@
-﻿using System;
-using Game.Core.Reflection;
-using Game.Core.Reflection.Attributes;
-using Game.Core.SceneLoading;
-using Game.Core.UI.Layers;
+﻿using Game.Core.UI.Layers;
 using Game.Features.LoadingScreen;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -22,18 +18,6 @@ namespace Game.Core.VContainer
             builder.RegisterComponentInHierarchy<GameManager>().AsImplementedInterfaces();
             builder.RegisterComponentInHierarchy<LoadingScreen>();
             builder.RegisterComponentInHierarchy<UILayerManager>();
-
-            builder.Register<IGameSceneConfigurationProvider>(_ => SceneLoadingManager.Instance, Lifetime.Singleton);
-
-            var reflectionManager = Parent.Container.Resolve<IReflectionManager>();
-            RegisterTypesWithAttribute<AutoRegisterAttribute>(reflectionManager, builder);
-        }
-
-        private static void RegisterTypesWithAttribute<TAttribute>(IReflectionManager reflectionManager, IContainerBuilder builder) where TAttribute : Attribute
-        {
-            var types = reflectionManager.GetByAttribute<TAttribute>();
-            foreach (var typeInfo in types)
-                builder.Register(typeInfo, Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
         }
     }
 }

@@ -3,50 +3,52 @@ using Cysharp.Threading.Tasks;
 using Game.Core.Content;
 using Game.Core.Initialization;
 using Game.Core.Logging;
+using Game.Core.Reflection.Attributes;
+using Game.Core.VContainer;
 using Game.Features.Maps.Content;
 using UnityEngine.SceneManagement;
+using VContainer;
 using VContainer.Unity;
 
 namespace Game.Features.Maps
 {
+    [AutoRegister]
     public class MapLoader : IAsyncLoader
     {
-        private readonly IContentManager m_contentManager;
-        private readonly string m_mapId;
-        private readonly LifetimeScope m_parentScope;
-        private string m_loadedSceneName;
+        [Inject]
+        private IContentManager m_contentManager;
 
-        public MapLoader(LifetimeScope parentScope, IContentManager contentManager, string mapId)
-        {
-            m_parentScope = parentScope;
-            m_contentManager = contentManager;
-            m_mapId = mapId;
-        }
+        [Inject]
+        private GameLifeTimeScope m_gameScope;
+
+        public string mapId;
+
+        private string m_loadedSceneName;
 
         public async UniTask LoadAsync(CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(m_mapId))
+            if (string.IsNullOrEmpty(mapId))
             {
                 GameLogger.Warning("[MapLoader] No map ID specified, skipping scene load");
                 return;
             }
 
-            var map = m_contentManager.Get<ContentMap>(m_mapId);
+            var map = m_contentManager.Get<ContentMap>(mapId);
             if (map == null)
             {
-                GameLogger.Error($"[MapLoader] Map not found: {m_mapId}");
+                GameLogger.Error($"[MapLoader] Map not found: {mapId}");
                 return;
             }
 
             if (string.IsNullOrEmpty(map.scene))
             {
-                GameLogger.Warning($"[MapLoader] Map '{m_mapId}' has no scene specified");
+                GameLogger.Warning($"[MapLoader] Map '{mapId}' has no scene specified");
                 return;
             }
 
             GameLogger.Log($"[MapLoader] Loading scene: {map.scene}");
 
-            using (LifetimeScope.EnqueueParent(m_parentScope))
+            using (LifetimeScope.EnqueueParent(m_gameScope))
             {
                 var asyncOperation = SceneManager.LoadSceneAsync(map.scene, LoadSceneMode.Additive);
                 if (asyncOperation == null)

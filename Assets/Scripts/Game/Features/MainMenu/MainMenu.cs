@@ -5,6 +5,7 @@ using Game.Core.Logging;
 using Game.Core.SceneLoading;
 using Game.Features.Maps.Content;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Game.Features.MainMenu
 {
@@ -29,9 +30,12 @@ namespace Game.Features.MainMenu
         {
             GameLogger.Log($"[MainMenuManager] Starting game with map: {mapId}");
 
-            var configuration = new GameSceneConfiguration(mapId);
-
-            await SceneLoadingManager.Instance.LoadGameSceneAsync(configuration);
+            var configuration = new GameConfiguration
+            {
+                mapId = mapId
+            };
+            GameManager.Configuration = configuration;
+            await SceneManager.LoadSceneAsync(mapId);
         }
 
         public void Shutdown()

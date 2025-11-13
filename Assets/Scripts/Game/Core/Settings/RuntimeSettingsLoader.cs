@@ -2,17 +2,22 @@ using System;
 using Game.Core.Logging;
 using Game.Core.Reflection;
 using Game.Core.Settings.Attributes;
+using VContainer;
+using VContainer.Unity;
 using ZLinq;
 
 namespace Game.Core.Settings
 {
-    public static class RuntimeSettingsLoader
+    public class RuntimeSettingsLoader : IStartable
     {
-        public static void LoadAllSettings(IReflectionManager reflectionManager)
+        [Inject]
+        private IReflectionManager m_reflectionManager;
+
+        public void Start()
         {
             GameSettingsManager.Load();
 
-            var settingsTypes = reflectionManager.GetByAttribute<GameSettingsAttribute>();
+            var settingsTypes = m_reflectionManager.GetByAttribute<GameSettingsAttribute>();
 
             var settingsWithOrder = settingsTypes
                 .AsValueEnumerable()
@@ -30,11 +35,11 @@ namespace Game.Core.Settings
                 {
                     var settings = GameSettingsManager.GetSetting(typeInfo.AsType());
 
-                    if (settings != null)
-                    {
-                        settings.OnBeforeApply(reflectionManager);
-                        settings.Apply();
-                    }
+                    if (settings == null)
+                        continue;
+
+                    settings.OnBeforeApply(m_reflectionManager);
+                    settings.Apply();
                 }
                 catch (Exception ex)
                 {

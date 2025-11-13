@@ -1,4 +1,5 @@
 ﻿using Game.Core.Reflection;
+using Game.Core.Settings;
 using VContainer;
 using VContainer.Unity;
 
@@ -8,7 +9,8 @@ namespace Game.Core.VContainer
     {
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.Register<IReflectionManager, ReflectionManager>(Lifetime.Singleton).As<IInitializable>();
+            builder.Register<ReflectionManager>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<RuntimeSettingsLoader>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
         }
     }
 }
