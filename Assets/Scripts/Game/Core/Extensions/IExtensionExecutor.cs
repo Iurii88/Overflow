@@ -5,7 +5,7 @@ using UnsafeEcs.Core.Entities;
 
 namespace Game.Core.Extensions
 {
-    public interface IExtensionExecutor
+    public interface IExtensionExecutor : IDisposable
     {
         UniTask ExecuteAsync<TExtension>(Entity entity, ContentEntity contentEntity, Func<TExtension, UniTask> action)
             where TExtension : IExtension;

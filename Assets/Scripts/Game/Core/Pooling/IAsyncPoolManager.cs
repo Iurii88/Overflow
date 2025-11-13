@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Game.Core.Pooling
 {
-    public interface IAsyncPoolManager
+    public interface IAsyncPoolManager : IDisposable
     {
         IAddressableManager AddressableManager { get; }
         UniTask<T> GetAsync<T>(string key, Func<UniTask<T>> asyncFactory, Func<T, T> syncClone, Action<T> onGet = null, Action<T> onRelease = null, Action<T> onDestroy = null) where T : class;

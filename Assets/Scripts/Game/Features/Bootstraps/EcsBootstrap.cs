@@ -19,7 +19,7 @@ namespace Game.Features.Bootstraps
 
         public void Dispose()
         {
-            WorldManager.DestroyAllWorlds();
+            WorldManager.Destroy();
         }
 
         public UniTask LoadAsync(CancellationToken cancellationToken)
@@ -34,7 +34,11 @@ namespace Game.Features.Bootstraps
 
             var world = WorldManager.CreateWorld();
             WorldBootstrap.onSystemCreated = system => m_resolver.Inject(system);
-            WorldBootstrap.Initialize(assemblies, new List<World> { world });
+            WorldBootstrap.Initialize(assemblies, new List<World> { world }, new WorldBootstrapOptions
+            {
+                dontDestroyOnLoad = false,
+                logLevel = WorldBootstrap.LogLevel.Normal
+            });
 
             return UniTask.CompletedTask;
         }

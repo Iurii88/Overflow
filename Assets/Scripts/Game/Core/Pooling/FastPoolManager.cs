@@ -85,11 +85,11 @@ namespace Game.Core.Pooling
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private GameObject GetOrCreateRootPool()
         {
-            if (m_rootPoolObject == null)
-            {
-                m_rootPoolObject = new GameObject("[FastPools]");
-                Object.DontDestroyOnLoad(m_rootPoolObject);
-            }
+            if (m_rootPoolObject != null)
+                return m_rootPoolObject;
+
+            m_rootPoolObject = new GameObject("[FastPools]");
+            Object.DontDestroyOnLoad(m_rootPoolObject);
 
             return m_rootPoolObject;
         }
@@ -252,6 +252,18 @@ namespace Game.Core.Pooling
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
+        }
+
+        public void Dispose()
+        {
+            m_pools.Clear();
+            m_objectToPoolKey.Clear();
+
+            if (m_rootPoolObject != null)
+            {
+                Object.Destroy(m_rootPoolObject);
+                m_rootPoolObject = null;
+            }
         }
     }
 }

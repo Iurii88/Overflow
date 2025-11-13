@@ -224,6 +224,7 @@ namespace Game.Core.Content
             m_contentCache.Clear();
             m_schemaTypeMapping.Clear();
             m_getAllCache.Clear();
+            IsInitialized = false;
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Game.Features.MainMenu
                 mapId = mapId
             };
             GameManager.Configuration = configuration;
-            await SceneManager.LoadSceneAsync(mapId);
+            await SceneManager.LoadSceneAsync("Game");
         }
 
         public void Shutdown()

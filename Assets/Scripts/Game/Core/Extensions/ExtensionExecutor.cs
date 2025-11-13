@@ -103,5 +103,10 @@ namespace Game.Core.Extensions
 
             return true;
         }
+
+        public void Dispose()
+        {
+            m_extensionCache.Clear();
+        }
     }
 }

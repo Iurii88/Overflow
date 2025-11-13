@@ -479,7 +479,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Core::Game.GameManager
   gameScope: {fileID: 1830856170}
-  selectedMapId: map.default
+  customMapId: map.default
 --- !u!4 &538104747
 Transform:
   m_ObjectHideFlags: 0
