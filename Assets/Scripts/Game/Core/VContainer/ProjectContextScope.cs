@@ -4,7 +4,7 @@ using VContainer.Unity;
 
 namespace Game.Core.VContainer
 {
-    public class ReflectionLifeTimeScope : LifetimeScope
+    public class ProjectContextScope : LifetimeScope
     {
         protected override void Configure(IContainerBuilder builder)
         {

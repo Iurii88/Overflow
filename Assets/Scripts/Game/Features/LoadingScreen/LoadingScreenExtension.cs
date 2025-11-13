@@ -1,6 +1,6 @@
 using Cysharp.Threading.Tasks;
-using Game.Core.Lifecycle;
 using Game.Core.Reflection.Attributes;
+using Game.Features.LoadingScreen.Extensions;
 using VContainer;
 
 namespace Game.Features.LoadingScreen

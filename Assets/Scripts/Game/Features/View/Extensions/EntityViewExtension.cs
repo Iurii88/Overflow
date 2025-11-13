@@ -2,7 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Game.Core.Content.Properties.Filters;
 using Game.Core.Extensions.Filters;
-using Game.Core.Lifecycle;
+using Game.Core.Lifecycle.Extensions;
 using Game.Core.Logging;
 using Game.Core.Pooling;
 using Game.Core.Reflection.Attributes;

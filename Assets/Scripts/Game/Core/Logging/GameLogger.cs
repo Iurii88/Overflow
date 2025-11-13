@@ -11,15 +11,6 @@ namespace Game.Core.Logging
 
         private static readonly List<ILogModule> Modules = new();
 
-        public static void Initialize(LogLevel level, params ILogModule[] modules)
-        {
-            MinimumLevel = level;
-            ClearModules();
-
-            foreach (var module in modules)
-                RegisterModule(module);
-        }
-
         public static void RegisterModule(ILogModule module)
         {
             Modules.Add(module);

@@ -14,6 +14,7 @@ namespace Game.Features.Maps
         private readonly IContentManager m_contentManager;
         private readonly string m_mapId;
         private readonly LifetimeScope m_parentScope;
+        private string m_loadedSceneName;
 
         public MapLoader(LifetimeScope parentScope, IContentManager contentManager, string mapId)
         {
@@ -55,8 +56,39 @@ namespace Game.Features.Maps
                 }
 
                 await asyncOperation.ToUniTask(cancellationToken: cancellationToken);
+                m_loadedSceneName = map.scene;
                 GameLogger.Log($"[MapLoader] Scene loaded successfully: {map.scene}");
             }
+        }
+
+        public async UniTask UnloadAsync(CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrEmpty(m_loadedSceneName))
+            {
+                GameLogger.Warning("[MapLoader] No scene loaded, skipping unload");
+                return;
+            }
+
+            GameLogger.Log($"[MapLoader] Unloading scene: {m_loadedSceneName}");
+
+            var scene = SceneManager.GetSceneByName(m_loadedSceneName);
+            if (!scene.isLoaded)
+            {
+                GameLogger.Warning($"[MapLoader] Scene {m_loadedSceneName} is not loaded");
+                m_loadedSceneName = null;
+                return;
+            }
+
+            var asyncOperation = SceneManager.UnloadSceneAsync(scene);
+            if (asyncOperation == null)
+            {
+                GameLogger.Error($"[MapLoader] Failed to unload scene: {m_loadedSceneName}");
+                return;
+            }
+
+            await asyncOperation.ToUniTask(cancellationToken: cancellationToken);
+            GameLogger.Log($"[MapLoader] Scene unloaded successfully: {m_loadedSceneName}");
+            m_loadedSceneName = null;
         }
     }
 }

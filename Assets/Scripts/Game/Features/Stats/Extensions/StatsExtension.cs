@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using Game.Core.Content.Properties.Filters;
 using Game.Core.EntityControllers;
 using Game.Core.Extensions.Filters;
-using Game.Core.Lifecycle;
+using Game.Core.Lifecycle.Extensions;
 using Game.Core.Reflection.Attributes;
 using Game.Features.Entities.Content;
 using Game.Features.Stats.Content;

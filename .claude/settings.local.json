@@ -9,7 +9,12 @@
       "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\UI\\Editor\\ButtonDrawer.cs.meta\" ])",
       "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\UI\\Editor\\ButtonDrawer.cs.meta\")",
       "Bash(else echo \"No meta file found\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Lifecycle\\GameShutdownService.cs\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Lifecycle\\GameShutdownService.cs\")",
+      "Bash(else echo \"File not found\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Lifecycle\\GameShutdownService.cs.meta\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Lifecycle\\GameShutdownService.cs.meta\")"
     ],
     "deny": [],
     "ask": []

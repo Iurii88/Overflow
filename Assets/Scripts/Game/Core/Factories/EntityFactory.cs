@@ -2,7 +2,7 @@
 using Game.Core.Addressables;
 using Game.Core.Content;
 using Game.Core.Extensions;
-using Game.Core.Lifecycle;
+using Game.Core.Lifecycle.Extensions;
 using Game.Core.Logging;
 using Game.Core.Reflection;
 using Game.Core.Reflection.Attributes;
