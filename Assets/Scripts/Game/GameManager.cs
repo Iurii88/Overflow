@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Core.Content;
 using Game.Core.Content.Attributes;
@@ -44,6 +45,7 @@ namespace Game
         public async UniTask StartAsync(CancellationToken cancellation = default)
         {
             m_childScope = gameScope.CreateChild(builder => { AutoRegistration(m_reflectionManager, builder); });
+
             m_extensionExecutor = m_childScope.Container.Resolve<IExtensionExecutor>();
             await m_extensionExecutor.ExecuteAsync<IGameStartLoadingExtension>(extension => extension.OnGameStartLoading());
 
@@ -63,6 +65,11 @@ namespace Game
 
         public async UniTask RestartAsync(CancellationToken cancellationToken = default)
         {
+            var asyncDisposables = m_childScope.Container.Resolve<IEnumerable<IUniTaskAsyncDisposable>>();
+
+            foreach (var disposable in asyncDisposables)
+                await disposable.DisposeAsync();
+
             m_childScope.Dispose();
             await StartAsync(cancellationToken);
         }

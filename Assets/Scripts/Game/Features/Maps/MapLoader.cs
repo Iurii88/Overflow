@@ -13,7 +13,7 @@ using VContainer.Unity;
 namespace Game.Features.Maps
 {
     [AutoRegister]
-    public class MapLoader : IAsyncLoader
+    public class MapLoader : IAsyncLoader, IUniTaskAsyncDisposable
     {
         [Inject]
         private IContentManager m_contentManager;
@@ -91,6 +91,11 @@ namespace Game.Features.Maps
             await asyncOperation.ToUniTask(cancellationToken: cancellationToken);
             GameLogger.Log($"[MapLoader] Scene unloaded successfully: {m_loadedSceneName}");
             m_loadedSceneName = null;
+        }
+
+        public async UniTask DisposeAsync()
+        {
+            await UnloadAsync();
         }
     }
 }
