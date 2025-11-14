@@ -204,13 +204,14 @@ namespace Game.Core.Pooling
             ((FastPool<T>)poolBase).Release(obj);
         }
 
-        public async UniTask<GameObject> GetGameObjectAsync(string assetPath)
+        public async UniTask<GameObject> GetGameObjectAsync(string assetPath, bool activeByDefault = true)
         {
             var gameObject = await GetAsync(
                 assetPath,
                 async () =>
                 {
                     var prefab = await AddressableManager.LoadAssetAsync<GameObject>(assetPath);
+                    prefab.SetActive(false);
                     return prefab;
                 },
                 Object.Instantiate,
@@ -226,7 +227,7 @@ namespace Game.Core.Pooling
                     foreach (var poolable in poolables)
                         poolable.OnRentedFromPool();
 
-                    go.SetActive(true);
+                    go.SetActive(activeByDefault);
                 },
                 go =>
                 {

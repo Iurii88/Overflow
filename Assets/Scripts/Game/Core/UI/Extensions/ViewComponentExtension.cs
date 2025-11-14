@@ -54,7 +54,7 @@ namespace Game.Core.UI.Extensions
                     continue;
                 }
 
-                var viewObject = await m_poolManager.GetGameObjectAsync(property.assetPath);
+                var viewObject = await m_poolManager.GetGameObjectAsync(property.assetPath, false);
                 if (viewObject == null)
                 {
                     GameLogger.Error($"Failed to load view component prefab for entity {contentEntity.id} at path: {property.assetPath}");
@@ -62,21 +62,21 @@ namespace Game.Core.UI.Extensions
                 }
 
                 viewObject.transform.SetParent(layerTransform, false);
-                viewObject.SetActive(property.activeOnStart);
 
                 var viewComponent = viewObject.GetComponent<AViewComponent>();
+
+                // Set entity BEFORE activating to ensure OnEnable has access to entity
                 if (viewComponent is AEntityViewComponent entityViewComponent)
-                {
                     entityViewComponent.entity = entity;
-                }
                 else
                 {
                     var blackboard = viewObject.GetComponent<BlackboardComponent>();
                     if (blackboard != null)
-                    {
                         blackboard.Set("ENTITY", entity);
-                    }
                 }
+
+                if (property.activeOnStart)
+                    viewObject.SetActive(true);
 
                 viewComponents.Add(viewObject);
                 viewComponent.OnInitialize();

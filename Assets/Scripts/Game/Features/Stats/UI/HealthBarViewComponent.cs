@@ -52,7 +52,7 @@ namespace Game.Features.Stats.UI
 
         private void UpdateHealthBar()
         {
-            if (!Application.isPlaying || entity.IsAlive())
+            if (!Application.isPlaying || !entity.IsAlive())
                 return;
 
             var statsController = entity.GetOrCreateController<StatsController>();
