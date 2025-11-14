@@ -1,16 +1,13 @@
 using System;
-using Game.Core.EntityControllers;
 using Game.Core.UI;
 using Game.Core.UI.Blackboards;
-using Game.Features.Stats.Consts;
-using Game.Features.Stats.Controllers;
 using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Game.Features.Stats.UI
 {
-    public class HealthBarViewComponent : AEntityViewComponent
+    public class ProgressViewComponent : AEntityViewComponent
     {
         [SerializeField]
         private Image fillImage;
@@ -18,13 +15,14 @@ namespace Game.Features.Stats.UI
         [SerializeField]
         private float animationDuration = 0.3f;
 
-        public BlackboardViewParameter<int> health;
+        public BlackboardViewParameter<int> current;
+        public BlackboardViewParameter<int> max;
 
         private IDisposable m_animationDisposable;
 
         protected override void Subscribe()
         {
-            health.OnVariableChanged += HealthOnOnVariableChanged;
+            current.OnVariableChanged += OnVariableChanged;
         }
 
         protected override void OnDestroy()
@@ -33,7 +31,7 @@ namespace Game.Features.Stats.UI
             m_animationDisposable?.Dispose();
         }
 
-        private void HealthOnOnVariableChanged(BlackboardVariable<int> healthVariable)
+        private void OnVariableChanged(BlackboardVariable<int> healthVariable)
         {
             UpdateHealthBar();
         }
@@ -52,22 +50,17 @@ namespace Game.Features.Stats.UI
 
         private void UpdateHealthBar()
         {
-            if (!Application.isPlaying || !entity.IsAlive())
+            if (!Application.isPlaying)
                 return;
 
-            var statsController = entity.GetOrCreateController<StatsController>();
-
-            if (!statsController.TryGetMaxStat(StatsConstants.Health, out var maxHealth))
-                return;
-
-            var targetFillAmount = maxHealth <= 0f ? 0f : health.Value / maxHealth;
+            var targetProgress = max.Value <= 0f ? 0f : (float)current.Value / max.Value;
 
             m_animationDisposable?.Dispose();
 
-            if (Mathf.Abs(fillImage.fillAmount - targetFillAmount) < 0.001f)
+            if (Mathf.Abs(fillImage.fillAmount - targetProgress) < 0.001f)
                 return;
 
-            var startFillAmount = fillImage.fillAmount;
+            var startProgress = fillImage.fillAmount;
 
             m_animationDisposable = Observable.EveryUpdate()
                 .Select(_ => Time.deltaTime)
@@ -76,7 +69,7 @@ namespace Game.Features.Stats.UI
                 .Subscribe(elapsed =>
                 {
                     var t = Mathf.Clamp01(elapsed / animationDuration);
-                    fillImage.fillAmount = Mathf.Lerp(startFillAmount, targetFillAmount, t);
+                    fillImage.fillAmount = Mathf.Lerp(startProgress, targetProgress, t);
                 });
         }
     }

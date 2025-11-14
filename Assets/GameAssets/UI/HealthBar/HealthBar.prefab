@@ -205,6 +205,7 @@ MonoBehaviour:
   values:
   - rid: 6357717406217928780
   - rid: 6357717406217928779
+  - rid: 6357717406217928781
   references:
     version: 2
     RefIds:
@@ -219,6 +220,12 @@ MonoBehaviour:
       data:
         guid: 74e87d2c-fbfb-42c6-b482-c81d964c299e
         key: ENTITY
+    - rid: 6357717406217928781
+      type: {class: 'BlackboardVariable`1[[System.Int32, mscorlib]]', ns: Game.Core.UI.Blackboards, asm: Core}
+      data:
+        guid: a0b4f4cc-fb36-4030-b878-5bee0fde1b50
+        key: MAX_HEALTH
+        value: 0
 --- !u!114 &6593395631761526890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -234,8 +241,10 @@ MonoBehaviour:
   blackboard: {fileID: 7655225890919264101}
   fillImage: {fileID: 8337379393856549509}
   animationDuration: 0.3
-  health:
+  current:
     boundGuid: bc0e5d0b-3d7b-4823-a895-314b224caa1a
+  max:
+    boundGuid: a0b4f4cc-fb36-4030-b878-5bee0fde1b50
 --- !u!114 &2672447999029579609
 MonoBehaviour:
   m_ObjectHideFlags: 0
