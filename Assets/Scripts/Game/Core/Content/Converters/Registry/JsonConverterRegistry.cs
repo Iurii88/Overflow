@@ -2,13 +2,11 @@
 using Game.Core.Content.Converters.Attributes;
 using Game.Core.Content.Converters.Interfaces;
 using Game.Core.Reflection;
-using Game.Core.Reflection.Attributes;
 using Newtonsoft.Json;
 using VContainer;
 
 namespace Game.Core.Content.Converters.Registry
 {
-    [AutoRegister]
     public class JsonConverterRegistry
     {
         [Inject] private readonly IReflectionManager m_reflectionManager;

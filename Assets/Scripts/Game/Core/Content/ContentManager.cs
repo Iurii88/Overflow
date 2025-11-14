@@ -8,7 +8,6 @@ using Game.Core.Content.Attributes;
 using Game.Core.Content.Converters.Registry;
 using Game.Core.Logging;
 using Game.Core.Reflection;
-using Game.Core.Reflection.Attributes;
 using Newtonsoft.Json;
 using VContainer;
 using VContainer.Unity;
@@ -16,7 +15,6 @@ using ZLinq;
 
 namespace Game.Core.Content
 {
-    [AutoRegister]
     public class ContentManager : IContentManager
     {
         [Inject]
