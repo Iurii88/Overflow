@@ -63,14 +63,22 @@ namespace Game.Core.UI.Extensions
                 viewObject.transform.SetParent(layerTransform, false);
                 viewObject.SetActive(property.activeOnStart);
 
-                var blackboard = viewObject.GetComponent<Blackboard.Blackboard>();
-                if (blackboard != null)
+                var viewComponent = viewObject.GetComponent<AViewComponent>();
+                if (viewComponent is AEntityViewComponent entityViewComponent)
                 {
-                    blackboard.Set("ENTITY", entity);
+                    entityViewComponent.entity = entity;
+                }
+                else
+                {
+                    var blackboard = viewObject.GetComponent<Blackboard.Blackboard>();
+                    if (blackboard != null)
+                    {
+                        blackboard.Set("ENTITY", entity);
+                    }
                 }
 
                 viewComponents.Add(viewObject);
-                viewObject.GetComponent<AViewComponent>().OnInitialize();
+                viewComponent.OnInitialize();
                 GameLogger.Log($"Instantiated view component for entity {contentEntity.id} on layer {property.layer}");
             }
 

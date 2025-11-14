@@ -7,11 +7,10 @@ using Game.Features.Stats.Controllers;
 using R3;
 using UnityEngine;
 using UnityEngine.UI;
-using UnsafeEcs.Core.Entities;
 
 namespace Game.Features.Stats.UI
 {
-    public class HealthBarViewComponent : AViewComponent
+    public class HealthBarViewComponent : AEntityViewComponent
     {
         [SerializeField]
         private Image fillImage;
@@ -19,7 +18,6 @@ namespace Game.Features.Stats.UI
         [SerializeField]
         private float animationDuration = 0.3f;
 
-        public BlackboardViewParameter<Entity> entity;
         public BlackboardViewParameter<int> health;
 
         private IDisposable m_animationDisposable;
@@ -54,10 +52,10 @@ namespace Game.Features.Stats.UI
 
         private void UpdateHealthBar()
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || entity == default)
                 return;
 
-            var statsController = entity.Value.GetOrCreateController<StatsController>();
+            var statsController = entity.GetOrCreateController<StatsController>();
 
             if (!statsController.TryGetMaxStat(StatsConstants.Health, out var maxHealth))
                 return;

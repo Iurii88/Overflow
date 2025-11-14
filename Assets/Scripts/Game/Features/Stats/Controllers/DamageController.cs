@@ -1,5 +1,6 @@
 using Game.Core.EntityControllers;
 using Game.Core.Logging;
+using Game.Core.UI.Blackboard;
 using Game.Features.Stats.Consts;
 using UnsafeEcs.Core.Entities;
 
@@ -8,11 +9,27 @@ namespace Game.Features.Stats.Controllers
     public class DamageController : EntityController
     {
         private StatsController m_statsController;
+        private EntityBlackboard m_blackboard;
 
         public override void OnAwake(Entity entity)
         {
             base.OnAwake(entity);
             m_statsController = entity.GetController<StatsController>();
+
+            if (entity.TryGetReference(out EntityBlackboard blackboard))
+            {
+                m_blackboard = blackboard;
+                UpdateHealthInBlackboard();
+            }
+        }
+
+        private void UpdateHealthInBlackboard()
+        {
+            if (m_blackboard == null || m_statsController == null)
+                return;
+
+            var health = m_statsController.GetStat(StatsConstants.Health);
+            m_blackboard.Set(StatsConstants.Health, (int)health);
         }
 
         public float GetHealth()
@@ -63,6 +80,7 @@ namespace Game.Features.Stats.Controllers
             m_statsController.ResetToMax(StatsConstants.Health);
             var newHealth = m_statsController.GetStat(StatsConstants.Health);
 
+            UpdateHealthInBlackboard();
             GameLogger.Log($"Entity {Entity.id} health reset to max. Health: {currentHealth} -> {newHealth}");
         }
 
@@ -81,6 +99,7 @@ namespace Game.Features.Stats.Controllers
             m_statsController.ModifyStat(StatsConstants.Health, -amount);
             var newHealth = m_statsController.GetStat(StatsConstants.Health);
 
+            UpdateHealthInBlackboard();
             GameLogger.Log($"Entity {Entity.id} took {amount} damage. Health: {currentHealth} -> {newHealth}");
 
             if (newHealth <= 0f && currentHealth > 0f)
@@ -104,6 +123,7 @@ namespace Game.Features.Stats.Controllers
             m_statsController.ModifyStat(StatsConstants.Health, amount);
             var newHealth = m_statsController.GetStat(StatsConstants.Health);
 
+            UpdateHealthInBlackboard();
             GameLogger.Log($"Entity {Entity.id} healed {amount}. Health: {currentHealth} -> {newHealth}");
         }
 
@@ -115,6 +135,8 @@ namespace Game.Features.Stats.Controllers
             var currentHealth = m_statsController.GetStat(StatsConstants.Health);
             m_statsController.SetStat(StatsConstants.Health, value);
             var newHealth = m_statsController.GetStat(StatsConstants.Health);
+
+            UpdateHealthInBlackboard();
 
             if (newHealth <= 0f && currentHealth > 0f)
             {
