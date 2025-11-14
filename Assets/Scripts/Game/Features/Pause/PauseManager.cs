@@ -1,12 +1,18 @@
 using System;
+using Game.Core.Extensions;
 using Game.Core.Logging;
 using Game.Core.Reflection.Attributes;
+using Game.Features.Pause.Extensions;
+using VContainer;
 
 namespace Game.Features.Pause
 {
     [AutoRegister]
     public class PauseManager : IPauseManager
     {
+        [Inject]
+        private IExtensionExecutor m_extensionExecutor;
+
         public bool IsPaused { get; private set; }
 
         public event Action OnPaused;
@@ -20,6 +26,7 @@ namespace Game.Features.Pause
             IsPaused = true;
             GameLogger.Log("Game paused");
             OnPaused?.Invoke();
+            m_extensionExecutor?.Execute<IGamePausedExtension>(ext => ext.OnGamePaused());
         }
 
         public void Resume()
@@ -30,6 +37,7 @@ namespace Game.Features.Pause
             IsPaused = false;
             GameLogger.Log("Game resumed");
             OnResumed?.Invoke();
+            m_extensionExecutor?.Execute<IGameResumedExtension>(ext => ext.OnGameResumed());
         }
 
         public void TogglePause()

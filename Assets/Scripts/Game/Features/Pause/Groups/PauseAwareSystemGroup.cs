@@ -1,4 +1,3 @@
-using Game.Features.Pause;
 using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap;
 using UnsafeEcs.Core.Bootstrap.Attributes;
