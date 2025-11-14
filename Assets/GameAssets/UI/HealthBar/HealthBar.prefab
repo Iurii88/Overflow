@@ -218,7 +218,7 @@ MonoBehaviour:
       data:
         guid: e316c5f2-4998-47fd-8ed7-8bf33c053abe
         key: HEALTH
-        value: 0
+        value: 5
 --- !u!114 &6593395631761526890
 MonoBehaviour:
   m_ObjectHideFlags: 0

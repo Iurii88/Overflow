@@ -1,8 +1,10 @@
+using System;
 using Game.Core.EntityControllers;
 using Game.Core.UI;
 using Game.Core.UI.Blackboard;
 using Game.Features.Stats.Consts;
 using Game.Features.Stats.Controllers;
+using R3;
 using UnityEngine;
 using UnityEngine.UI;
 using UnsafeEcs.Core.Entities;
@@ -15,17 +17,22 @@ namespace Game.Features.Stats.UI
         private Image fillImage;
 
         [SerializeField]
-        private float updateSpeed = 5f;
+        private float animationDuration = 0.3f;
 
         public BlackboardViewParameter<Entity> entity;
         public BlackboardViewParameter<int> health;
 
-        private float m_currentFillAmount;
-        private float m_targetFillAmount;
+        private IDisposable m_animationDisposable;
 
         protected override void Subscribe()
         {
             health.OnVariableChanged += HealthOnOnVariableChanged;
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            m_animationDisposable?.Dispose();
         }
 
         private void HealthOnOnVariableChanged(BlackboardVariable<int> healthVariable)
@@ -51,24 +58,28 @@ namespace Game.Features.Stats.UI
                 return;
 
             var statsController = entity.Value.GetOrCreateController<StatsController>();
-            if (!statsController.TryGetStat(StatsConstants.Health, out var currentHealth))
-                return;
 
             if (!statsController.TryGetMaxStat(StatsConstants.Health, out var maxHealth))
                 return;
 
-            if (maxHealth <= 0f)
-            {
-                m_targetFillAmount = 0f;
-                return;
-            }
+            var targetFillAmount = maxHealth <= 0f ? 0f : health.Value / maxHealth;
 
-            m_targetFillAmount = currentHealth / maxHealth;
-            if (!(Mathf.Abs(m_currentFillAmount - m_targetFillAmount) > 0.001f))
+            m_animationDisposable?.Dispose();
+
+            if (Mathf.Abs(fillImage.fillAmount - targetFillAmount) < 0.001f)
                 return;
 
-            m_currentFillAmount = Mathf.Lerp(m_currentFillAmount, m_targetFillAmount, Time.deltaTime * updateSpeed);
-            fillImage.fillAmount = m_currentFillAmount;
+            var startFillAmount = fillImage.fillAmount;
+
+            m_animationDisposable = Observable.EveryUpdate()
+                .Select(_ => Time.deltaTime)
+                .Scan(0f, (elapsed, deltaTime) => elapsed + deltaTime)
+                .TakeWhile(elapsed => elapsed < animationDuration)
+                .Subscribe(elapsed =>
+                {
+                    var t = Mathf.Clamp01(elapsed / animationDuration);
+                    fillImage.fillAmount = Mathf.Lerp(startFillAmount, targetFillAmount, t);
+                });
         }
     }
 }
