@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Game.Core.Extensions;
 using Game.Core.Extensions.Filters;
 using Game.Core.Lifecycle.Extensions;
 using Game.Core.Reflection.Attributes;
@@ -11,6 +12,7 @@ using UnsafeEcs.Core.Entities;
 namespace Game.Core.UI.Extensions
 {
     [AutoRegister]
+    [ExtensionPriority(-100)]
     public class EntityBlackboardExtension : IEntityCreatedExtension, IEntityDestroyedExtension
     {
         public IReadOnlyList<IExtensionFilter> Filters { get; } = Array.Empty<IExtensionFilter>();

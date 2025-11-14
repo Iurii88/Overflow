@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Game.Core.Reflection.Attributes;
 using Game.Features.Entities.Content;
@@ -79,11 +80,25 @@ namespace Game.Core.Extensions
 
             if (!m_extensionCache.TryGetValue(extensionType, out var cachedExtensions))
             {
-                cachedExtensions = m_resolver.Resolve<IReadOnlyList<TExtension>>();
-                m_extensionCache[extensionType] = cachedExtensions;
+                var resolvedExtensions = m_resolver.Resolve<IReadOnlyList<TExtension>>();
+                var sortedExtensions = resolvedExtensions
+                    .OrderBy(ext => GetExtensionPriority(ext))
+                    .ToArray();
+
+                m_extensionCache[extensionType] = sortedExtensions;
+                cachedExtensions = sortedExtensions;
             }
 
             return (IReadOnlyList<TExtension>)cachedExtensions;
+        }
+
+        private static int GetExtensionPriority(IExtension extension)
+        {
+            var priorityAttribute = extension.GetType().GetCustomAttributes(typeof(ExtensionPriorityAttribute), false);
+            if (priorityAttribute.Length > 0)
+                return ((ExtensionPriorityAttribute)priorityAttribute[0]).Priority;
+
+            return 0;
         }
 
         private static bool ShouldExecute(IExtension extension, Entity entity, ContentEntity contentEntity)

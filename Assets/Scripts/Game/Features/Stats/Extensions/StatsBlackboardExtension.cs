@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Game.Core.Content.Properties.Filters;
 using Game.Core.EntityControllers;
+using Game.Core.Extensions;
 using Game.Core.Extensions.Filters;
 using Game.Core.Lifecycle.Extensions;
 using Game.Core.Reflection.Attributes;
@@ -15,6 +16,7 @@ using UnsafeEcs.Core.Entities;
 namespace Game.Features.Stats.Extensions
 {
     [AutoRegister]
+    [ExtensionPriority(100)]
     public class StatsBlackboardExtension : IEntityCreatedExtension
     {
         public IReadOnlyList<IExtensionFilter> Filters { get; } = new List<IExtensionFilter>
