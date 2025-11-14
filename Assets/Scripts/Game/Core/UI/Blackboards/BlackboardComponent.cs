@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game.Core.UI.Blackboard
+namespace Game.Core.UI.Blackboards
 {
     [ExecuteAlways]
-    public class Blackboard : MonoBehaviour
+    public class BlackboardComponent : MonoBehaviour
     {
         [SerializeReference]
         private List<BlackboardVariable> values = new();

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Game.Core.UI.Blackboard
+namespace Game.Core.UI.Blackboards
 {
-    public class EntityBlackboard
+    public class Blackboard
     {
         private readonly Dictionary<string, object> m_values = new();
 
@@ -14,6 +14,24 @@ namespace Game.Core.UI.Blackboard
             if (m_values.TryGetValue(key, out var existingValue))
             {
                 if (existingValue is T typedValue && EqualityComparer<T>.Default.Equals(typedValue, value))
+                    return;
+            }
+
+            m_values[key] = value;
+            OnVariableChanged?.Invoke(key, value);
+        }
+
+        public void Set(string key, object value)
+        {
+            if (value == null)
+            {
+                Remove(key);
+                return;
+            }
+
+            if (m_values.TryGetValue(key, out var existingValue))
+            {
+                if (existingValue != null && existingValue.Equals(value))
                     return;
             }
 
@@ -59,6 +77,11 @@ namespace Game.Core.UI.Blackboard
         {
             m_values.Clear();
             OnVariableChanged?.Invoke(null, null);
+        }
+
+        public IReadOnlyDictionary<string, object> GetAll()
+        {
+            return m_values;
         }
     }
 }

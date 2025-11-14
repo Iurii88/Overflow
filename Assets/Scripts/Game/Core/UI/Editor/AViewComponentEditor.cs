@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Game.Core.UI.Blackboard;
+using Game.Core.UI.Blackboards;
 using UnityEditor;
 using UnityEngine;
 using ZLinq;
@@ -60,7 +60,7 @@ namespace Game.Core.UI.Editor
             {
                 if (viewComponent != null)
                 {
-                    var blackboard = viewComponent.GetComponentInParent<Blackboard.Blackboard>();
+                    var blackboard = viewComponent.GetComponentInParent<BlackboardComponent>();
                     if (blackboard != null)
                     {
                         var blackboardProperty = serializedObject.FindProperty("blackboard");
@@ -81,7 +81,7 @@ namespace Game.Core.UI.Editor
             {
                 if (viewComponent != null)
                 {
-                    var blackboard = viewComponent.gameObject.AddComponent<Blackboard.Blackboard>();
+                    var blackboard = viewComponent.gameObject.AddComponent<BlackboardComponent>();
                     var blackboardProperty = serializedObject.FindProperty("blackboard");
                     if (blackboardProperty != null)
                     {
@@ -233,14 +233,14 @@ namespace Game.Core.UI.Editor
             if (string.IsNullOrWhiteSpace(newKey))
                 return;
 
-            var rebuildCacheMethod = typeof(Blackboard.Blackboard).GetMethod("RebuildCache",
+            var rebuildCacheMethod = typeof(BlackboardComponent).GetMethod("RebuildCache",
                 BindingFlags.NonPublic | BindingFlags.Instance);
             rebuildCacheMethod?.Invoke(viewComponent.blackboard, null);
 
             var valueType = field.FieldType.GetGenericArguments()[0];
             var defaultValue = GetDefaultValue(valueType);
 
-            var setMethod = typeof(Blackboard.Blackboard).GetMethod("Set").MakeGenericMethod(valueType);
+            var setMethod = typeof(BlackboardComponent).GetMethod("Set").MakeGenericMethod(valueType);
             setMethod.Invoke(viewComponent.blackboard, new[] { newKey, defaultValue });
 
             // Get the newly created variable's GUID
@@ -293,7 +293,7 @@ namespace Game.Core.UI.Editor
             return valueStr;
         }
 
-        private static (List<string> names, List<BlackboardVariable> variables) GetBlackboardVariables(Blackboard.Blackboard blackboard, Type parameterType)
+        private static (List<string> names, List<BlackboardVariable> variables) GetBlackboardVariables(BlackboardComponent blackboard, Type parameterType)
         {
             var names = new List<string> { "(None)" };
             var variables = new List<BlackboardVariable>();

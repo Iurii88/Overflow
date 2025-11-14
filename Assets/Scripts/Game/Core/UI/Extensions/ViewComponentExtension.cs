@@ -6,6 +6,7 @@ using Game.Core.Lifecycle.Extensions;
 using Game.Core.Logging;
 using Game.Core.Pooling;
 using Game.Core.Reflection.Attributes;
+using Game.Core.UI.Blackboards;
 using Game.Core.UI.Content;
 using Game.Core.UI.Data;
 using Game.Core.UI.Layers;
@@ -70,7 +71,7 @@ namespace Game.Core.UI.Extensions
                 }
                 else
                 {
-                    var blackboard = viewObject.GetComponent<Blackboard.Blackboard>();
+                    var blackboard = viewObject.GetComponent<BlackboardComponent>();
                     if (blackboard != null)
                     {
                         blackboard.Set("ENTITY", entity);

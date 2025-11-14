@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Game.Core.UI.Blackboard
+namespace Game.Core.UI.Blackboards
 {
     [Serializable]
     public abstract class BlackboardVariable

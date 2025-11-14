@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Game.Core.UI.Blackboard
+namespace Game.Core.UI.Blackboards
 {
     [Serializable]
     public class BlackboardViewParameter<T>
@@ -15,11 +15,11 @@ namespace Game.Core.UI.Blackboard
             set => boundGuid = value;
         }
 
-        private Blackboard m_blackboard;
+        private BlackboardComponent m_blackboard;
 
         public event Action<BlackboardVariable<T>> OnVariableChanged;
 
-        public void Initialize(Blackboard bb)
+        public void Initialize(BlackboardComponent bb)
         {
             m_blackboard = bb;
 

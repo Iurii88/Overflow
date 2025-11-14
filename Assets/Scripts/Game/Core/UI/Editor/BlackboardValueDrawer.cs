@@ -1,5 +1,5 @@
 ﻿using System;
-using Game.Core.UI.Blackboard;
+using Game.Core.UI.Blackboards;
 using UnityEditor;
 using UnityEngine;
 
@@ -14,17 +14,16 @@ namespace Game.Core.UI.Editor
 
             // Get the actual object
             var targetObject = GetTargetObjectOfProperty(property);
-            if (targetObject == null)
+            switch (targetObject)
             {
-                EditorGUI.LabelField(position, label.text, "Null");
-                EditorGUI.EndProperty();
-                return;
-            }
-
-            // Ensure GUID is generated for this variable
-            if (targetObject is BlackboardVariable bbVar)
-            {
-                bbVar.EnsureGuid();
+                case null:
+                    EditorGUI.LabelField(position, label.text, "Null");
+                    EditorGUI.EndProperty();
+                    return;
+                // Ensure GUID is generated for this variable
+                case BlackboardVariable bbVar:
+                    bbVar.EnsureGuid();
+                    break;
             }
 
             var targetType = targetObject.GetType();
@@ -60,7 +59,7 @@ namespace Game.Core.UI.Editor
                         property.serializedObject.ApplyModifiedProperties();
 
                         // Notify the Blackboard component using GUID
-                        var blackboard = property.serializedObject.targetObject as Blackboard.Blackboard;
+                        var blackboard = property.serializedObject.targetObject as BlackboardComponent;
                         if (blackboard != null && targetObject is BlackboardVariable variable)
                         {
                             blackboard.NotifyValueChangedInEditor(variable.Guid);
@@ -91,7 +90,7 @@ namespace Game.Core.UI.Editor
                                 EditorUtility.SetDirty(property.serializedObject.targetObject);
 
                                 // Notify the Blackboard component using GUID
-                                var blackboard = property.serializedObject.targetObject as Blackboard.Blackboard;
+                                var blackboard = property.serializedObject.targetObject as BlackboardComponent;
                                 if (blackboard != null && targetObject is BlackboardVariable variable)
                                 {
                                     blackboard.NotifyValueChangedInEditor(variable.Guid);

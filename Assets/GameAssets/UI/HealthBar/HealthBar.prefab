@@ -159,7 +159,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5965215393464303296}
-  - component: {fileID: 8052684156502656732}
+  - component: {fileID: 7655225890919264101}
   - component: {fileID: 6593395631761526890}
   - component: {fileID: 2672447999029579609}
   m_Layer: 5
@@ -190,7 +190,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &8052684156502656732
+--- !u!114 &7655225890919264101
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -199,26 +199,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 5081804261430915263}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0da08b07f6194670804dafe2bcdfb5e7, type: 3}
+  m_Script: {fileID: 11500000, guid: 365c4e3702f80b245a3ebfebb35a3b14, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Core::Game.Core.UI.Blackboard
+  m_EditorClassIdentifier: Core::Game.Core.UI.Blackboards.BlackboardComponent
   values:
-  - rid: 6357717345532116992
-  - rid: 6357717345532116993
+  - rid: 6357717406217928780
+  - rid: 6357717406217928779
   references:
     version: 2
     RefIds:
-    - rid: 6357717345532116992
-      type: {class: 'BlackboardVariable`1[[UnsafeEcs.Core.Entities.Entity, UnsafeEcs]]', ns: Game.Core.UI.Blackboard, asm: Core}
+    - rid: 6357717406217928779
+      type: {class: 'BlackboardVariable`1[[System.Int32, mscorlib]]', ns: Game.Core.UI.Blackboards, asm: Core}
       data:
-        guid: fb857611-970e-492d-864e-8e6246a3a2bd
-        key: ENTITY
-    - rid: 6357717345532116993
-      type: {class: 'BlackboardVariable`1[[System.Int32, mscorlib]]', ns: Game.Core.UI.Blackboard, asm: Core}
-      data:
-        guid: e316c5f2-4998-47fd-8ed7-8bf33c053abe
+        guid: bc0e5d0b-3d7b-4823-a895-314b224caa1a
         key: HEALTH
         value: 5
+    - rid: 6357717406217928780
+      type: {class: 'BlackboardVariable`1[[UnsafeEcs.Core.Entities.Entity, UnsafeEcs]]', ns: Game.Core.UI.Blackboards, asm: Core}
+      data:
+        guid: 74e87d2c-fbfb-42c6-b482-c81d964c299e
+        key: ENTITY
 --- !u!114 &6593395631761526890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231,13 +231,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13106789c259531408e1af01de520e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::Game.Features.Stats.UI.HealthBarViewComponent
-  blackboard: {fileID: 8052684156502656732}
+  blackboard: {fileID: 7655225890919264101}
   fillImage: {fileID: 8337379393856549509}
-  updateSpeed: 5
-  entity:
-    boundGuid: fb857611-970e-492d-864e-8e6246a3a2bd
+  animationDuration: 0.3
   health:
-    boundGuid: e316c5f2-4998-47fd-8ed7-8bf33c053abe
+    boundGuid: bc0e5d0b-3d7b-4823-a895-314b224caa1a
 --- !u!114 &2672447999029579609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -250,7 +248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d7360b83ebe85c43b31e2dbdb2a9307, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::Game.Core.UI.ViewModules.WorldPositionSyncViewComponent
-  blackboard: {fileID: 8052684156502656732}
+  blackboard: {fileID: 7655225890919264101}
   entity:
-    boundGuid: fb857611-970e-492d-864e-8e6246a3a2bd
+    boundGuid: 74e87d2c-fbfb-42c6-b482-c81d964c299e
   worldOffset: {x: 0, y: 0.7}

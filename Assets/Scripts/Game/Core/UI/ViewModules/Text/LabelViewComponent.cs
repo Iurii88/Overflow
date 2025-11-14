@@ -1,5 +1,5 @@
 ﻿using Cysharp.Text;
-using Game.Core.UI.Blackboard;
+using Game.Core.UI.Blackboards;
 using TMPro;
 using UnityEngine;
 

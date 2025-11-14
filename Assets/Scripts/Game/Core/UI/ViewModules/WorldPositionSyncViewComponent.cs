@@ -1,5 +1,5 @@
 using Game.Core.Camera;
-using Game.Core.UI.Blackboard;
+using Game.Core.UI.Blackboards;
 using UnityEngine;
 using UnsafeEcs.Core.Entities;
 using VContainer;

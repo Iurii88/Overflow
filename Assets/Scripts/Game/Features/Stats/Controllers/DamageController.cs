@@ -1,6 +1,6 @@
 using Game.Core.EntityControllers;
 using Game.Core.Logging;
-using Game.Core.UI.Blackboard;
+using Game.Core.UI.Blackboards;
 using Game.Features.Stats.Consts;
 using UnsafeEcs.Core.Entities;
 
@@ -9,14 +9,14 @@ namespace Game.Features.Stats.Controllers
     public class DamageController : EntityController
     {
         private StatsController m_statsController;
-        private EntityBlackboard m_blackboard;
+        private Blackboard m_blackboard;
 
         public override void OnAwake(Entity entity)
         {
             base.OnAwake(entity);
             m_statsController = entity.GetController<StatsController>();
 
-            if (entity.TryGetReference(out EntityBlackboard blackboard))
+            if (entity.TryGetReference(out Blackboard blackboard))
             {
                 m_blackboard = blackboard;
                 UpdateHealthInBlackboard();

@@ -1,7 +1,7 @@
 using System;
 using Game.Core.EntityControllers;
 using Game.Core.UI;
-using Game.Core.UI.Blackboard;
+using Game.Core.UI.Blackboards;
 using Game.Features.Stats.Consts;
 using Game.Features.Stats.Controllers;
 using R3;
@@ -52,7 +52,7 @@ namespace Game.Features.Stats.UI
 
         private void UpdateHealthBar()
         {
-            if (!Application.isPlaying || entity == default)
+            if (!Application.isPlaying || entity.IsAlive())
                 return;
 
             var statsController = entity.GetOrCreateController<StatsController>();

@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using Game.Core.Extensions.Filters;
 using Game.Core.Lifecycle.Extensions;
 using Game.Core.Reflection.Attributes;
-using Game.Core.UI.Blackboard;
+using Game.Core.UI.Blackboards;
 using Game.Features.Entities.Content;
 using UnsafeEcs.Core.Entities;
 
@@ -17,16 +17,16 @@ namespace Game.Core.UI.Extensions
 
         public UniTask OnEntityCreated(Entity entity, ContentEntity contentEntity)
         {
-            var entityBlackboard = new EntityBlackboard();
-            entityBlackboard.Set("ENTITY", entity);
-            entity.AddReference(entityBlackboard);
+            var blackboard = new Blackboard();
+            blackboard.Set("ENTITY", entity);
+            entity.AddReference(blackboard);
 
             return UniTask.CompletedTask;
         }
 
         public UniTask OnEntityDestroyed(Entity entity, ContentEntity contentEntity)
         {
-            entity.RemoveReference<EntityBlackboard>();
+            entity.RemoveReference<Blackboard>();
             return UniTask.CompletedTask;
         }
     }

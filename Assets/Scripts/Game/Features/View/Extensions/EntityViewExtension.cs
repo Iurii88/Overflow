@@ -6,7 +6,6 @@ using Game.Core.Lifecycle.Extensions;
 using Game.Core.Logging;
 using Game.Core.Pooling;
 using Game.Core.Reflection.Attributes;
-using Game.Core.UI;
 using Game.Features.Entities.Content;
 using Game.Features.View.Content;
 using UnityEngine;
@@ -44,13 +43,6 @@ namespace Game.Features.View.Extensions
 
             var container = m_containerManager.GetOrCreateEntityContainer();
             gameObject.transform.SetParent(container, false);
-
-            var entityViewComponent = gameObject.GetComponent<AEntityViewComponent>();
-            if (entityViewComponent != null)
-            {
-                entityViewComponent.entity = entity;
-            }
-
             entity.AddReference(gameObject);
             entity.AddReference(gameObject.transform);
         }
