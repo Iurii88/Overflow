@@ -23,6 +23,7 @@ namespace Game.Features.Stats.UI
         protected override void Subscribe()
         {
             current.OnVariableChanged += OnVariableChanged;
+            max.OnVariableChanged += OnVariableChanged;
         }
 
         protected override void OnDestroy()
@@ -50,9 +51,6 @@ namespace Game.Features.Stats.UI
 
         private void UpdateHealthBar()
         {
-            if (!Application.isPlaying)
-                return;
-
             var targetProgress = max.Value <= 0f ? 0f : (float)current.Value / max.Value;
 
             m_animationDisposable?.Dispose();
@@ -62,15 +60,20 @@ namespace Game.Features.Stats.UI
 
             var startProgress = fillImage.fillAmount;
 
-            m_animationDisposable = Observable.EveryUpdate()
-                .Select(_ => Time.deltaTime)
-                .Scan(0f, (elapsed, deltaTime) => elapsed + deltaTime)
-                .TakeWhile(elapsed => elapsed < animationDuration)
-                .Subscribe(elapsed =>
-                {
-                    var t = Mathf.Clamp01(elapsed / animationDuration);
-                    fillImage.fillAmount = Mathf.Lerp(startProgress, targetProgress, t);
-                });
+            if (Application.isPlaying)
+            {
+                m_animationDisposable = Observable.EveryUpdate()
+                    .Select(_ => Time.deltaTime)
+                    .Scan(0f, (elapsed, deltaTime) => elapsed + deltaTime)
+                    .TakeWhile(elapsed => elapsed < animationDuration)
+                    .Subscribe(elapsed =>
+                    {
+                        var t = Mathf.Clamp01(elapsed / animationDuration);
+                        fillImage.fillAmount = Mathf.Lerp(startProgress, targetProgress, t);
+                    });
+            }
+            else
+                fillImage.fillAmount = targetProgress;
         }
     }
 }

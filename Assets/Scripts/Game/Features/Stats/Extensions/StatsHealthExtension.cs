@@ -17,7 +17,7 @@ namespace Game.Features.Stats.Extensions
 {
     [AutoRegister]
     [ExtensionPriority(100)]
-    public class StatsBlackboardExtension : IEntityCreatedExtension
+    public class StatsHealthExtension : IEntityCreatedExtension
     {
         public IReadOnlyList<IExtensionFilter> Filters { get; } = new List<IExtensionFilter>
         {

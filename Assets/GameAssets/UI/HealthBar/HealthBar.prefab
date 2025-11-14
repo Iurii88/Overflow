@@ -70,7 +70,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0.571
+  m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -214,7 +214,7 @@ MonoBehaviour:
       data:
         guid: bc0e5d0b-3d7b-4823-a895-314b224caa1a
         key: HEALTH
-        value: 5
+        value: 1
     - rid: 6357717406217928780
       type: {class: 'BlackboardVariable`1[[UnsafeEcs.Core.Entities.Entity, UnsafeEcs]]', ns: Game.Core.UI.Blackboards, asm: Core}
       data:
@@ -225,7 +225,7 @@ MonoBehaviour:
       data:
         guid: a0b4f4cc-fb36-4030-b878-5bee0fde1b50
         key: MAX_HEALTH
-        value: 0
+        value: 1
 --- !u!114 &6593395631761526890
 MonoBehaviour:
   m_ObjectHideFlags: 0
