@@ -1,13 +1,27 @@
 ﻿using Cysharp.Threading.Tasks;
-using UnityEngine;
+using Game.Core.UI;
 using VContainer;
 
 namespace Game.Features.Pause.UI
 {
-    public class PauseMenu : MonoBehaviour
+    public class PauseMenu : AWindowViewComponent
     {
         [Inject]
         private IGameManager m_gameManager;
+
+        protected override void Subscribe()
+        {
+        }
+
+        protected override void OnWindowOpen()
+        {
+            base.OnWindowOpen();
+        }
+
+        protected override void OnWindowClose()
+        {
+            base.OnWindowClose();
+        }
 
         public void ToMainMenu()
         {

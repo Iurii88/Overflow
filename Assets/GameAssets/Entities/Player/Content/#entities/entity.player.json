@@ -26,6 +26,12 @@
       "identifier": "VIEW_COMPONENT",
       "assetPath": "Assets/GameAssets/UI/HealthBar/HealthBar.prefab",
       "layer": "LOWER"
+    },
+    {
+      "identifier": "VIEW_COMPONENT",
+      "assetPath": "Assets/GameAssets/UI/Pause/PauseMenu.prefab",
+      "layer": "WINDOWS",
+      "activeOnStart": false
     }
   ]
 }

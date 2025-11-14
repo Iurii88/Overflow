@@ -1,6 +1,5 @@
 using Game.Core.Content.Attributes;
 using Game.Core.Content.Properties;
-using Game.Core.UI.Layers;
 
 namespace Game.Core.UI.Content
 {
@@ -9,5 +8,7 @@ namespace Game.Core.UI.Content
     {
         public string assetPath;
         public string layer;
+        public bool enabled = true;
+        public bool activeOnStart = true;
     }
 }

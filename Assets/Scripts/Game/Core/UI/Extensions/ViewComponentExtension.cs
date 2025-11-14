@@ -37,6 +37,9 @@ namespace Game.Core.UI.Extensions
 
             foreach (var property in viewComponentProperties.AsValueEnumerable())
             {
+                if (!property.enabled)
+                    continue;
+
                 if (string.IsNullOrEmpty(property.assetPath))
                 {
                     GameLogger.Warning($"ViewComponentContentProperty has empty assetPath on entity {contentEntity.id}");
@@ -57,8 +60,8 @@ namespace Game.Core.UI.Extensions
                     continue;
                 }
 
-                viewObject.name = $"{contentEntity.id}_ViewComponent_{property.layer}";
                 viewObject.transform.SetParent(layerTransform, false);
+                viewObject.SetActive(property.activeOnStart);
 
                 var blackboard = viewObject.GetComponent<Blackboard.Blackboard>();
                 if (blackboard != null)

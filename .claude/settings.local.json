@@ -14,7 +14,16 @@
       "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Lifecycle\\GameShutdownService.cs\")",
       "Bash(else echo \"File not found\")",
       "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Lifecycle\\GameShutdownService.cs.meta\" ])",
-      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Lifecycle\\GameShutdownService.cs.meta\")"
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Lifecycle\\GameShutdownService.cs.meta\")",
+      "Bash(\"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\UI\\WindowManager.cs.meta\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Input\\PauseInputHandler.cs\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Input\\PauseInputHandler.cs\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Input\\PauseInputHandler.cs.meta\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Input\\PauseInputHandler.cs.meta\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Systems\\PauseInputSystem.cs\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Systems\\PauseInputSystem.cs\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Systems\\PauseInputSystem.cs.meta\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Systems\\PauseInputSystem.cs.meta\")"
     ],
     "deny": [],
     "ask": []
