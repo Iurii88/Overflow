@@ -1,0 +1,7 @@
+{
+  "id": "inputmode.game",
+  "actionMaps": [
+    "Player",
+    "UI"
+  ]
+}

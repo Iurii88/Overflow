@@ -72,6 +72,9 @@ namespace Game.Core.Content.Properties
             m_propertiesByType = new Dictionary<Type, List<AContentProperty>>();
             m_propertiesByIdentifier = new Dictionary<string, AContentProperty>();
 
+            if (properties == null)
+                return;
+
             foreach (var property in properties.AsValueEnumerable())
             {
                 var type = property.GetType();
