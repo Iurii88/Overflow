@@ -1,7 +1,8 @@
 ﻿using Game.Core.Factories;
 using Game.Features.Movement.Components;
+using Game.Features.Pause;
+using Game.Features.Pause.Groups;
 using UnityEngine;
-using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap.Attributes;
 using UnsafeEcs.Core.Entities;
 using UnsafeEcs.Core.Systems;
@@ -9,13 +10,16 @@ using VContainer;
 
 namespace Game.Features.Movement.System
 {
-    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    [UpdateInGroup(typeof(PauseAwareSystemGroup))]
     public class MovementSystem : SystemBase
     {
         private EntityQuery m_movementQuery;
 
         [Inject]
         private IEntityFactory m_entityFactory;
+
+        [Inject]
+        private IGameDeltaTime m_gameDeltaTime;
 
         public override void OnAwake()
         {
@@ -30,7 +34,7 @@ namespace Game.Features.Movement.System
                     return;
 
                 var transform = gameObject.transform;
-                var movement = new Vector3(velocity.value.x, velocity.value.y, 0) * world.deltaTime;
+                var movement = new Vector3(velocity.value.x, velocity.value.y, 0) * m_gameDeltaTime.DeltaTime;
                 transform.position += movement;
             });
         }

@@ -1,4 +1,6 @@
+using Game.Core.Logging;
 using Game.Core.UI;
+using Game.Features.Pause;
 using UnityEngine.InputSystem;
 using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap.Attributes;
@@ -16,22 +18,54 @@ namespace Game.Features.Pause.Systems
         private IWindowManager m_windowManager;
 
         [Inject]
+        private IPauseManager m_pauseManager;
+
+        [Inject]
         private InputActionAsset m_inputActionAsset;
 
         private InputAction m_cancelAction;
         private UI.PauseMenu m_pauseMenu;
         private bool m_wasPressedLastFrame;
+        private bool m_eventsSubscribed;
 
         public override void OnAwake()
         {
             m_cancelAction = m_inputActionAsset.FindAction("UI/Cancel");
             m_cancelAction?.Enable();
+
+            TrySubscribeToPauseMenu();
+        }
+
+        private void TrySubscribeToPauseMenu()
+        {
+            if (m_eventsSubscribed)
+                return;
+
+            if (m_pauseMenu == null)
+            {
+                m_pauseMenu = m_windowManager.GetWindowInstance<UI.PauseMenu>();
+            }
+
+            if (m_pauseMenu != null)
+            {
+                m_pauseMenu.OnWindowOpened += HandlePauseMenuOpened;
+                m_pauseMenu.OnWindowClosed += HandlePauseMenuClosed;
+                m_eventsSubscribed = true;
+                GameLogger.Log("[PauseInputSystem] Successfully subscribed to pause menu events");
+            }
         }
 
         public override void OnDestroy()
         {
             base.OnDestroy();
             m_cancelAction?.Disable();
+
+            if (m_pauseMenu != null && m_eventsSubscribed)
+            {
+                m_pauseMenu.OnWindowOpened -= HandlePauseMenuOpened;
+                m_pauseMenu.OnWindowClosed -= HandlePauseMenuClosed;
+                m_eventsSubscribed = false;
+            }
         }
 
         public override void OnUpdate()
@@ -51,10 +85,7 @@ namespace Game.Features.Pause.Systems
 
         private void HandleCancelInput()
         {
-            if (m_pauseMenu == null)
-            {
-                m_pauseMenu = m_windowManager.GetWindowInstance<UI.PauseMenu>();
-            }
+            TrySubscribeToPauseMenu();
 
             if (m_pauseMenu != null && m_pauseMenu.IsOpen)
             {
@@ -72,6 +103,18 @@ namespace Game.Features.Pause.Systems
             {
                 m_pauseMenu.Open();
             }
+        }
+
+        private void HandlePauseMenuOpened(AWindowViewComponent _)
+        {
+            GameLogger.Log("[PauseInputSystem] Pause menu opened - pausing game");
+            m_pauseManager.Pause();
+        }
+
+        private void HandlePauseMenuClosed(AWindowViewComponent _)
+        {
+            GameLogger.Log("[PauseInputSystem] Pause menu closed - resuming game");
+            m_pauseManager.Resume();
         }
     }
 }

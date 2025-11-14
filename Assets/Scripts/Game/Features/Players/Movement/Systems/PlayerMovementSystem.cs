@@ -1,11 +1,11 @@
 ﻿using Game.Core.Factories;
 using Game.Features.Movement.Components;
 using Game.Features.Movement.System;
+using Game.Features.Pause.Groups;
 using Game.Features.Players.Common.Components;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap.Attributes;
 using UnsafeEcs.Core.Entities;
 using UnsafeEcs.Core.Systems;
@@ -13,7 +13,7 @@ using VContainer;
 
 namespace Game.Features.Players.Movement.Systems
 {
-    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    [UpdateInGroup(typeof(PauseAwareSystemGroup))]
     [UpdateAfter(typeof(MovementSystem))]
     public class PlayerMovementSystem : SystemBase
     {
@@ -55,10 +55,7 @@ namespace Game.Features.Players.Movement.Systems
             if (math.lengthsq(input) > 0)
                 input = math.normalize(input);
 
-            m_playerQuery.ForEach((ref Entity _, ref Velocity velocity, ref Speed speed) =>
-            {
-                velocity.value = input * speed.value;
-            });
+            m_playerQuery.ForEach((ref Entity _, ref Velocity velocity, ref Speed speed) => { velocity.value = input * speed.value; });
         }
     }
 }
