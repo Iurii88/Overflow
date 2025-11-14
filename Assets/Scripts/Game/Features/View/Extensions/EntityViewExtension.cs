@@ -20,6 +20,9 @@ namespace Game.Features.View.Extensions
         [Inject]
         private IAsyncPoolManager m_poolManager;
 
+        [Inject]
+        private EntityContainerManager m_containerManager;
+
         public IReadOnlyList<IExtensionFilter> Filters { get; } = new List<IExtensionFilter>
         {
             new HasPropertyFilter<ViewContentProperty>()
@@ -37,6 +40,10 @@ namespace Game.Features.View.Extensions
             }
 
             gameObject.name = contentEntity.id;
+
+            var container = m_containerManager.GetOrCreateEntityContainer();
+            gameObject.transform.SetParent(container, false);
+
             entity.AddReference(gameObject);
             entity.AddReference(gameObject.transform);
         }
