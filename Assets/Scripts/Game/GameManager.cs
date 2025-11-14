@@ -15,6 +15,7 @@ using Game.Features.LoadingScreen.Extensions;
 using Game.Features.Maps;
 using Game.Features.Maps.Content;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VContainer;
 using VContainer.Unity;
 
@@ -23,6 +24,7 @@ namespace Game
     public interface IGameManager
     {
         UniTask RestartAsync(CancellationToken cancellationToken = default);
+        UniTask GoToMainMenuAsync(CancellationToken cancellationToken = default);
     }
 
     public class GameManager : MonoBehaviour, IGameManager, IAsyncStartable
@@ -61,6 +63,7 @@ namespace Game
                 .LoadAsync(cancellation, OnLoadProgress);
 
             await m_extensionExecutor.ExecuteAsync<IGameFinishLoadingExtension>(extension => extension.OnGameFinishLoading());
+            await m_extensionExecutor.ExecuteAsync<ISessionStartExtension>(extension => extension.OnSessionStart());
         }
 
         public async UniTask RestartAsync(CancellationToken cancellationToken = default)
@@ -72,6 +75,28 @@ namespace Game
 
             m_childScope.Dispose();
             await StartAsync(cancellationToken);
+        }
+
+        public async UniTask GoToMainMenuAsync(CancellationToken cancellationToken = default)
+        {
+            if (m_extensionExecutor != null)
+                await m_extensionExecutor.ExecuteAsync<ISessionEndExtension>(extension => extension.OnSessionEnd());
+
+            if (m_childScope != null)
+            {
+                var asyncDisposables = m_childScope.Container.Resolve<IEnumerable<IUniTaskAsyncDisposable>>();
+
+                foreach (var disposable in asyncDisposables)
+                    await disposable.DisposeAsync();
+
+                m_childScope.Dispose();
+                m_childScope = null;
+            }
+
+            m_extensionExecutor = null;
+            Configuration = null;
+
+            await SceneManager.LoadSceneAsync("MainMenu");
         }
 
         private string GetMapId()
