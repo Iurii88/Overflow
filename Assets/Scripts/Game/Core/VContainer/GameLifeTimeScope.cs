@@ -1,4 +1,5 @@
-﻿using Game.Core.UI.Layers;
+﻿using Game.Core.Input.Joysticks;
+using Game.Core.UI.Layers;
 using Game.Features.LoadingScreen;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -18,6 +19,7 @@ namespace Game.Core.VContainer
             builder.RegisterComponentInHierarchy<GameManager>().AsImplementedInterfaces();
             builder.RegisterComponentInHierarchy<LoadingScreen>();
             builder.RegisterComponentInHierarchy<UILayerManager>();
+            builder.RegisterComponentInHierarchy<FloatingJoystick>();
         }
     }
 }
