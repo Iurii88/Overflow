@@ -27,7 +27,7 @@ namespace Game.Core.UI
             m_windowInstances.Remove(window);
         }
 
-        public void RegisterWindow(AWindowViewComponent window)
+        public void OpenWindow(AWindowViewComponent window)
         {
             if (m_openWindows.Contains(window))
                 return;
@@ -37,7 +37,7 @@ namespace Game.Core.UI
             OnWindowStackChanged();
         }
 
-        public void UnregisterWindow(AWindowViewComponent window)
+        public void CloseWindow(AWindowViewComponent window)
         {
             m_openWindows.Remove(window);
 

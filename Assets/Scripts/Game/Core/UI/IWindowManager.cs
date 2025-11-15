@@ -10,8 +10,8 @@ namespace Game.Core.UI
 
         void RegisterWindowInstance(AWindowViewComponent window);
         void UnregisterWindowInstance(AWindowViewComponent window);
-        void RegisterWindow(AWindowViewComponent window);
-        void UnregisterWindow(AWindowViewComponent window);
+        void OpenWindow(AWindowViewComponent window);
+        void CloseWindow(AWindowViewComponent window);
         void CloseTopWindow();
         void CloseAllWindows();
         UniTask CloseAllWindowsAsync();

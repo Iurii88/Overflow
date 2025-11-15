@@ -11,8 +11,6 @@ namespace Game.Features.Pause.Systems
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class PauseInputSystem : SystemBase
     {
-        public override SystemUpdateMask UpdateMask => SystemUpdateMask.Update;
-
         [Inject]
         private IWindowManager m_windowManager;
 
@@ -24,68 +22,55 @@ namespace Game.Features.Pause.Systems
 
         private InputAction m_cancelAction;
         private UI.PauseMenu m_pauseMenu;
-        private bool m_wasPressedLastFrame;
-        private bool m_eventsSubscribed;
 
         public override void OnAwake()
         {
             m_cancelAction = m_inputActionAsset.FindAction("UI/Cancel");
-            m_cancelAction?.Enable();
-
-            TrySubscribeToPauseMenu();
-        }
-
-        private void TrySubscribeToPauseMenu()
-        {
-            if (m_eventsSubscribed)
-                return;
-
-            if (m_pauseMenu == null)
-            {
-                m_pauseMenu = m_windowManager.GetWindowInstance<UI.PauseMenu>();
-            }
-
-            if (m_pauseMenu != null)
-            {
-                m_pauseMenu.OnWindowOpened += HandlePauseMenuOpened;
-                m_pauseMenu.OnWindowClosed += HandlePauseMenuClosed;
-                m_eventsSubscribed = true;
-                GameLogger.Log("[PauseInputSystem] Successfully subscribed to pause menu events");
-            }
+            m_cancelAction.performed += OnCancelPerformed;
+            m_cancelAction.Enable();
         }
 
         public override void OnDestroy()
         {
             base.OnDestroy();
-            m_cancelAction?.Disable();
 
-            if (m_pauseMenu != null && m_eventsSubscribed)
-            {
-                m_pauseMenu.OnWindowOpened -= HandlePauseMenuOpened;
-                m_pauseMenu.OnWindowClosed -= HandlePauseMenuClosed;
-                m_eventsSubscribed = false;
-            }
+            m_cancelAction.performed -= OnCancelPerformed;
+            m_cancelAction.Disable();
+
+            CancelSubscription();
         }
 
-        public override void OnUpdate()
+        private void EnsureSubscription()
         {
-            if (m_cancelAction == null)
+            if (m_pauseMenu != null)
                 return;
 
-            var isPressed = m_cancelAction.ReadValue<float>() > 0.5f;
+            m_pauseMenu = m_windowManager.GetWindowInstance<UI.PauseMenu>();
+            if (m_pauseMenu == null)
+                return;
 
-            if (isPressed && !m_wasPressedLastFrame)
-            {
-                HandleCancelInput();
-            }
+            m_pauseMenu.OnWindowOpened += HandlePauseMenuOpened;
+            m_pauseMenu.OnWindowClosed += HandlePauseMenuClosed;
+            GameLogger.Log("[PauseInputSystem] Successfully subscribed to pause menu events");
+        }
 
-            m_wasPressedLastFrame = isPressed;
+        private void CancelSubscription()
+        {
+            if (m_pauseMenu == null)
+                return;
+
+            m_pauseMenu.OnWindowOpened -= HandlePauseMenuOpened;
+            m_pauseMenu.OnWindowClosed -= HandlePauseMenuClosed;
+        }
+
+        private void OnCancelPerformed(InputAction.CallbackContext context)
+        {
+            EnsureSubscription();
+            HandleCancelInput();
         }
 
         private void HandleCancelInput()
         {
-            TrySubscribeToPauseMenu();
-
             if (m_pauseMenu != null && m_pauseMenu.IsOpen)
             {
                 m_pauseMenu.Close();
@@ -99,9 +84,7 @@ namespace Game.Features.Pause.Systems
             }
 
             if (m_pauseMenu != null)
-            {
                 m_pauseMenu.Open();
-            }
         }
 
         private void HandlePauseMenuOpened(AWindowViewComponent _)

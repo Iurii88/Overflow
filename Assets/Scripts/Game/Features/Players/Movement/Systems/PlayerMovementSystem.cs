@@ -19,6 +19,7 @@ namespace Game.Features.Players.Movement.Systems
     {
         private EntityQuery m_playerQuery;
         private InputAction m_moveAction;
+        private bool m_isInputActive;
 
         [Inject]
         private IEntityFactory m_entityFactory;
@@ -34,16 +35,41 @@ namespace Game.Features.Players.Movement.Systems
                 .With<Speed>();
 
             m_moveAction = m_inputActionAsset.FindAction("Player/Move");
-            m_moveAction.Enable();
+
+            if (m_moveAction != null)
+            {
+                m_moveAction.started += OnMoveStarted;
+                m_moveAction.canceled += OnMoveCanceled;
+                m_moveAction.Enable();
+            }
         }
 
         public override void OnDestroy()
         {
-            m_moveAction?.Disable();
+            if (m_moveAction != null)
+            {
+                m_moveAction.started -= OnMoveStarted;
+                m_moveAction.canceled -= OnMoveCanceled;
+                m_moveAction.Disable();
+            }
+        }
+
+        private void OnMoveStarted(InputAction.CallbackContext context)
+        {
+            m_isInputActive = true;
+        }
+
+        private void OnMoveCanceled(InputAction.CallbackContext context)
+        {
+            m_isInputActive = false;
+            ResetPlayerVelocity();
         }
 
         public override void OnUpdate()
         {
+            if (!m_isInputActive)
+                return;
+
             HandlePlayerInput();
         }
 
@@ -56,6 +82,11 @@ namespace Game.Features.Players.Movement.Systems
                 input = math.normalize(input);
 
             m_playerQuery.ForEach((ref Entity _, ref Velocity velocity, ref Speed speed) => { velocity.value = input * speed.value; });
+        }
+
+        private void ResetPlayerVelocity()
+        {
+            m_playerQuery.ForEach((ref Entity _, ref Velocity velocity) => { velocity.value = float2.zero; });
         }
     }
 }

@@ -90,7 +90,7 @@ namespace Game.Core.UI
                 return;
 
             IsOpen = true;
-            m_windowManager?.RegisterWindow(this);
+            m_windowManager?.OpenWindow(this);
             OnWindowOpen();
             OnWindowOpened?.Invoke(this);
         }
@@ -101,7 +101,7 @@ namespace Game.Core.UI
                 return;
 
             IsOpen = false;
-            m_windowManager?.UnregisterWindow(this);
+            m_windowManager?.CloseWindow(this);
             OnWindowClose();
             OnWindowClosed?.Invoke(this);
         }
