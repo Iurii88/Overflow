@@ -25,7 +25,7 @@ namespace Game.Core.Content
         private JsonConverterRegistry m_jsonConvertersRegistry;
 
         [Inject]
-        private IAddressableManager m_addressableManager;
+        private IGlobalAddressableManager m_addressableManager;
 
         private readonly Dictionary<Type, Dictionary<string, object>> m_contentCache = new();
         private readonly Dictionary<string, Type> m_schemaTypeMapping = new();

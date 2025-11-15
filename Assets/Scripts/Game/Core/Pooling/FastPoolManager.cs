@@ -74,13 +74,13 @@ namespace Game.Core.Pooling
         }
 
         [Inject]
-        private IAddressableManager m_addressableManager;
+        private ISessionAddressableManager m_addressableManager;
 
         private readonly Dictionary<PoolKey, PoolBase> m_pools = new();
         private readonly Dictionary<int, PoolKey> m_objectToPoolKey = new();
         private GameObject m_rootPoolObject;
 
-        public IAddressableManager AddressableManager => m_addressableManager;
+        //public ISessionAddressableManager AddressableManager => m_addressableManager;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private GameObject GetOrCreateRootPool()
@@ -210,7 +210,7 @@ namespace Game.Core.Pooling
                 assetPath,
                 async () =>
                 {
-                    var prefab = await AddressableManager.LoadAssetAsync<GameObject>(assetPath);
+                    var prefab = await m_addressableManager.LoadAssetAsync<GameObject>(assetPath);
                     prefab.SetActive(false);
                     return prefab;
                 },

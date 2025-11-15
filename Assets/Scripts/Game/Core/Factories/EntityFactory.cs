@@ -20,7 +20,7 @@ namespace Game.Core.Factories
         private IContentManager m_contentManager;
 
         [Inject]
-        private IAddressableManager m_addressableManager;
+        private ISessionAddressableManager m_addressableManager;
 
         [Inject]
         private IReflectionManager m_reflectionManager;

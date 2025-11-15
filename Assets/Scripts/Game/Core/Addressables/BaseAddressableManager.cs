@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace Game.Core.Addressables
 {
-    public class AddressableManager : IAddressableManager
+    public abstract class BaseAddressableManager : IAddressableManager
     {
         private readonly Dictionary<string, AsyncOperationHandle> m_loadedHandles = new();
         private readonly Dictionary<string, object> m_cachedAssets = new();

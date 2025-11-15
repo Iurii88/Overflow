@@ -19,7 +19,7 @@ namespace Game.Features.View.Systems
         private IContentManager m_contentManager;
 
         [Inject]
-        private IAddressableManager m_addressableManager;
+        private ISessionAddressableManager m_addressableManager;
 
         public override void OnAwake()
         {

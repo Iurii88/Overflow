@@ -35,7 +35,11 @@
       "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Enemies\\Triangle\\Content\\#entities.meta\" ])",
       "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Enemies\\Triangle\\Content\\#entities.meta\")",
       "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Enemies\\Triangle\\Content.meta\" ])",
-      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Enemies\\Triangle\\Content.meta\")"
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Enemies\\Triangle\\Content.meta\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Addressables\\AddressableManager.cs\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Addressables\\AddressableManager.cs\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Addressables\\AddressableManager.cs.meta\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Addressables\\AddressableManager.cs.meta\")"
     ],
     "deny": [],
     "ask": []

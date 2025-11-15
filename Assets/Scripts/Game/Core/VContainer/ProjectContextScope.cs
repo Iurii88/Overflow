@@ -16,7 +16,7 @@ namespace Game.Core.VContainer
             builder.Register<RuntimeSettingsLoader>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<JsonConverterRegistry>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<ContentManager>(Lifetime.Singleton).AsImplementedInterfaces();
-            builder.Register<AddressableManager>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<GlobalAddressableManager>(Lifetime.Singleton).AsImplementedInterfaces();
         }
     }
 }
