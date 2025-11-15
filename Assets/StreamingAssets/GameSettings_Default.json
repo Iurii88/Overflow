@@ -1,0 +1,42 @@
+{
+  "moduleSettings": {
+    "LoggerSettings": {
+      "$type": "Game.Core.Logging.Settings.LoggerSettings, Core",
+      "minimumLogLevel": 0,
+      "modules": [
+        {
+          "$type": "Game.Core.Logging.Modules.ColorModule, Core",
+          "debugColor": {
+            "r": 0.53,
+            "g": 0.53,
+            "b": 0.53,
+            "a": 1.0
+          },
+          "logColor": {
+            "r": 0.0,
+            "g": 1.0,
+            "b": 0.0,
+            "a": 1.0
+          },
+          "warningColor": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 0.0,
+            "a": 1.0
+          },
+          "errorColor": {
+            "r": 1.0,
+            "g": 0.0,
+            "b": 0.0,
+            "a": 1.0
+          },
+          "enabled": true
+        },
+        {
+          "$type": "Game.Core.Logging.Modules.LevelModule, Core",
+          "enabled": true
+        }
+      ]
+    }
+  }
+}
