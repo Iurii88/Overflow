@@ -1,6 +1,5 @@
 using Game.Core.Logging;
 using Game.Core.UI;
-using Game.Features.Pause;
 using UnityEngine.InputSystem;
 using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap.Attributes;
