@@ -9,7 +9,7 @@ namespace Game.Core.Settings
     public static class GameSettingsManager
     {
         private static readonly string EditorPresetPath = Path.Combine(Application.dataPath, "..", "ProjectSettings", "GameSettings_EditorPreset.json");
-        private static readonly string StandalonePresetPath = Path.Combine(Application.dataPath, "..", "ProjectSettings", "GameSettings_StandalonePreset.json");
+        private static readonly string StandalonePresetPath = Path.Combine(Application.persistentDataPath, "GameSettings.json");
 
         private static readonly JsonSerializerSettings SerializerSettings = new()
         {
