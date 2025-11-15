@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Game.Core.Reflection.Attributes;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Object = UnityEngine.Object;
 
 namespace Game.Core.Addressables
 {
-    [AutoRegister]
     public class AddressableManager : IAddressableManager
     {
         private readonly Dictionary<string, AsyncOperationHandle> m_loadedHandles = new();

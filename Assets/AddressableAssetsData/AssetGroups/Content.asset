@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Content
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Content
+  m_GUID: e6d432eaa18f94a47b05c858a33208a9
+  m_SerializeEntries:
+  - m_GUID: 2b810874dd9441dd9db031f4718bb42b
+    m_Address: Content/maps/map.default
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f30fae35f44d5d4084f35bbf9deed22
+    m_Address: Content/inputmodes/inputmode.ui
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 84f1932214fa90e4ab3bc3e20cf1cc88
+    m_Address: Content/inputmodes/inputmode.game
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 939cdf25c72b405c8a682d3376239924
+    m_Address: Content/entities/entity.player
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: acf154474b966f840851c85f23de50b6
+    m_Address: ContentIndex
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c3449dcd8be64f94b04610b0d65b0465
+    m_Address: Content/entities/entity.enemy.triangle
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 69f45dde55261de4ca8e617e37108c72, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: ae004435f72b3f047ba3f0578266bf26, type: 2}
+    - {fileID: 11400000, guid: 2ae76053863e1c14da0f050c8f676588, type: 2}

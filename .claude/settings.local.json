@@ -23,7 +23,19 @@
       "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Systems\\PauseInputSystem.cs\" ])",
       "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Systems\\PauseInputSystem.cs\")",
       "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Systems\\PauseInputSystem.cs.meta\" ])",
-      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Systems\\PauseInputSystem.cs.meta\")"
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Features\\Pause\\Systems\\PauseInputSystem.cs.meta\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Player\\Content\\#entities\\entity.player.json.meta\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Player\\Content\\#entities\\entity.player.json.meta\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Player\\Content\\#entities.meta\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Player\\Content\\#entities.meta\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Player\\Content.meta\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Player\\Content.meta\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Enemies\\Triangle\\Content\\#entities\\entity.enemy.triangle.json.meta\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Enemies\\Triangle\\Content\\#entities\\entity.enemy.triangle.json.meta\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Enemies\\Triangle\\Content\\#entities.meta\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Enemies\\Triangle\\Content\\#entities.meta\")",
+      "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Enemies\\Triangle\\Content.meta\" ])",
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\GameAssets\\Entities\\Enemies\\Triangle\\Content.meta\")"
     ],
     "deny": [],
     "ask": []

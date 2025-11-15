@@ -24,9 +24,9 @@ namespace Game.Core.Content.Editor
             if (schemaAttribute == null)
                 return Array.Empty<string>();
 
-            var folderName = ContentManager.ContentFolderPrefix + schemaAttribute.schema;
+            var folderName = ContentConstants.ContentFolderPrefix + schemaAttribute.schema;
             var contentFolders = Directory.GetDirectories(
-                ContentManager.ContentRootPath,
+                ContentConstants.ContentRootPath,
                 folderName,
                 SearchOption.AllDirectories
             );

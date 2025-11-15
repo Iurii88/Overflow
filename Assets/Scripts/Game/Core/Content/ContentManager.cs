@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Game.Core.Addressables;
 using Game.Core.Content.Attributes;
 using Game.Core.Content.Converters.Registry;
 using Game.Core.Logging;
 using Game.Core.Reflection;
 using Newtonsoft.Json;
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 using ZLinq;
@@ -23,26 +24,22 @@ namespace Game.Core.Content
         [Inject]
         private JsonConverterRegistry m_jsonConvertersRegistry;
 
+        [Inject]
+        private IAddressableManager m_addressableManager;
+
         private readonly Dictionary<Type, Dictionary<string, object>> m_contentCache = new();
         private readonly Dictionary<string, Type> m_schemaTypeMapping = new();
         private readonly Dictionary<Type, Array> m_getAllCache = new();
 
         public bool IsInitialized { get; private set; }
 
-        public const string ContentRootPath = "Assets/GameAssets";
-        public const string ContentFolderPrefix = "#";
-        private const string IDFieldName = "id";
-
         public async UniTask LoadAsync(CancellationToken cancellation = new())
         {
             if (IsInitialized)
                 return;
 
-            await UniTask.RunOnThreadPool(() => 
-            {
-                RegisterContentSchemas();
-                return LoadAllContentAsync(cancellation);
-            }, cancellationToken: cancellation);
+            RegisterContentSchemas();
+            await LoadAllContentAsync(cancellation);
 
             IsInitialized = true;
         }
@@ -56,7 +53,7 @@ namespace Game.Core.Content
                 if (attribute == null)
                     continue;
 
-                m_schemaTypeMapping[ContentFolderPrefix + attribute.schema] = type;
+                m_schemaTypeMapping[ContentConstants.ContentFolderPrefix + attribute.schema] = type;
                 m_contentCache[type] = new Dictionary<string, object>();
 
                 GameLogger.Log($"[ContentManager] Registered schema: {attribute.schema} -> {type.Name}");
@@ -65,43 +62,38 @@ namespace Game.Core.Content
 
         private async UniTask LoadAllContentAsync(CancellationToken cancellationToken)
         {
-            if (!Directory.Exists(ContentRootPath))
+            try
             {
-                GameLogger.Warning($"[ContentManager] Content root path does not exist: {ContentRootPath}");
-                return;
-            }
-
-            var searchPattern = $"{ContentFolderPrefix}*";
-            var contentFolders = Directory.GetDirectories(
-                ContentRootPath,
-                searchPattern,
-                SearchOption.AllDirectories
-            );
-
-            if (contentFolders.Length == 0)
-            {
-                GameLogger.Warning($"[ContentManager] No content folders found with pattern '{searchPattern}' in: {ContentRootPath}");
-                return;
-            }
-
-            GameLogger.Log($"[ContentManager] Found {contentFolders.Length} content folders to load");
-
-            var loadTasks = new List<UniTask>(contentFolders.Length);
-            foreach (var folder in contentFolders)
-            {
-                if (cancellationToken.IsCancellationRequested)
+                var indexAsset = await m_addressableManager.LoadAssetAsync<TextAsset>(ContentConstants.ContentIndexAddressablePath, cancellationToken);
+                if (indexAsset == null)
                 {
-                    GameLogger.Log("[ContentManager] Loading cancelled");
+                    GameLogger.Error("[ContentManager] Failed to load ContentIndex from addressables");
                     return;
                 }
 
-                loadTasks.Add(LoadContentFromFolderAsync(folder, cancellationToken));
-            }
+                var contentIndex = JsonConvert.DeserializeObject<ContentIndex>(indexAsset.text);
+                if (contentIndex == null || contentIndex.entries.Count == 0)
+                {
+                    GameLogger.Warning("[ContentManager] ContentIndex is empty or invalid");
+                    return;
+                }
 
-            try
-            {
+                GameLogger.Log($"[ContentManager] Loading {contentIndex.entries.Count} content entries from index");
+
+                var loadTasks = new List<UniTask>(contentIndex.entries.Count);
+                foreach (var entry in contentIndex.entries)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        GameLogger.Log("[ContentManager] Loading cancelled");
+                        return;
+                    }
+
+                    loadTasks.Add(LoadContentFromIndexAsync(entry, cancellationToken));
+                }
+
                 await UniTask.WhenAll(loadTasks);
-                GameLogger.Log($"[ContentManager] Successfully loaded content from {loadTasks.Count} folders");
+                GameLogger.Log($"[ContentManager] Successfully loaded {contentIndex.entries.Count} content entries");
             }
             catch (OperationCanceledException)
             {
@@ -115,38 +107,32 @@ namespace Game.Core.Content
             }
         }
 
-        private async UniTask LoadContentFromFolderAsync(string folderPath, CancellationToken cancellationToken)
+        private async UniTask LoadContentFromIndexAsync(ContentIndexEntry entry, CancellationToken cancellationToken)
         {
-            var folderName = Path.GetFileName(folderPath);
-            if (!m_schemaTypeMapping.TryGetValue(folderName, out var contentType))
+            var schemaKey = ContentConstants.ContentFolderPrefix + entry.schema;
+            if (!m_schemaTypeMapping.TryGetValue(schemaKey, out var contentType))
             {
-                GameLogger.Warning($"[ContentManager] No schema registered for folder: {folderName}");
+                GameLogger.Warning($"[ContentManager] No schema registered for: {entry.schema}");
                 return;
             }
 
-            var jsonFiles = Directory.GetFiles(folderPath, "*.json", SearchOption.AllDirectories);
-            foreach (var jsonFile in jsonFiles)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                    break;
-
-                await LoadJsonFileAsync(jsonFile, contentType);
-            }
-        }
-
-        private async UniTask LoadJsonFileAsync(string filePath, Type contentType)
-        {
             try
             {
-                var json = await ReadFileAsync(filePath);
-                if (string.IsNullOrEmpty(json))
+                var textAsset = await m_addressableManager.LoadAssetAsync<TextAsset>(entry.addressablePath, cancellationToken);
+                if (textAsset == null)
+                {
+                    GameLogger.Error($"[ContentManager] Failed to load content asset: {entry.addressablePath}");
                     return;
+                }
 
-                var content = JsonConvert.DeserializeObject(json, contentType, m_jsonConvertersRegistry.GetSettings());
+                var content = JsonConvert.DeserializeObject(textAsset.text, contentType, m_jsonConvertersRegistry.GetSettings());
                 if (content == null)
+                {
+                    GameLogger.Error($"[ContentManager] Failed to deserialize content: {entry.id}");
                     return;
+                }
 
-                var idField = contentType.GetField(IDFieldName);
+                var idField = contentType.GetField(ContentConstants.IDFieldName);
                 if (idField == null)
                 {
                     GameLogger.Error($"[ContentManager] Content type {contentType.Name} must have an 'id' property");
@@ -156,32 +142,25 @@ namespace Game.Core.Content
                 var id = idField.GetValue(content) as string;
                 if (string.IsNullOrEmpty(id))
                 {
-                    GameLogger.Error($"[ContentManager] Content in file {filePath} has no valid id");
+                    GameLogger.Error($"[ContentManager] Content {entry.addressablePath} has no valid id");
                     return;
+                }
+
+                if (id != entry.id)
+                {
+                    GameLogger.Warning($"[ContentManager] Content ID mismatch: index={entry.id}, content={id}");
                 }
 
                 m_contentCache[contentType][id] = content;
 
                 if (content is IInitializable initializable)
                     initializable.Initialize();
-            }
-            catch (Exception e)
-            {
-                GameLogger.Error($"[ContentManager] Failed to load {filePath}: {e}");
-            }
-        }
 
-        private static async UniTask<string> ReadFileAsync(string filePath)
-        {
-            try
-            {
-                using var reader = new StreamReader(filePath);
-                return await reader.ReadToEndAsync();
+                GameLogger.Log($"[ContentManager] Loaded content: {id} ({entry.schema})");
             }
             catch (Exception e)
             {
-                GameLogger.Error($"[ContentManager] Error reading file {filePath}: {e}");
-                return null;
+                GameLogger.Error($"[ContentManager] Failed to load content {entry.id}: {e}");
             }
         }
 

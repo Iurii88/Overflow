@@ -1,0 +1,29 @@
+{
+  "entries": [
+    {
+      "schema": "entities",
+      "id": "entity.enemy.triangle",
+      "addressablePath": "Content/entities/entity.enemy.triangle"
+    },
+    {
+      "schema": "entities",
+      "id": "entity.player",
+      "addressablePath": "Content/entities/entity.player"
+    },
+    {
+      "schema": "inputmodes",
+      "id": "inputmode.game",
+      "addressablePath": "Content/inputmodes/inputmode.game"
+    },
+    {
+      "schema": "inputmodes",
+      "id": "inputmode.ui",
+      "addressablePath": "Content/inputmodes/inputmode.ui"
+    },
+    {
+      "schema": "maps",
+      "id": "map.default",
+      "addressablePath": "Content/maps/map.default"
+    }
+  ]
+}
