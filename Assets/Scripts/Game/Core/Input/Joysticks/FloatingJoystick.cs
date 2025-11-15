@@ -17,25 +17,12 @@ namespace Game.Core.Input.Joysticks
         protected override void Start()
         {
             base.Start();
-
-            if (!IsMobilePlatform())
-            {
-                gameObject.SetActive(false);
-                return;
-            }
-
             background.gameObject.SetActive(false);
 
             m_moveAction = m_inputActionAsset.FindAction("Player/Move");
             m_moveAction?.Enable();
 
             m_virtualGamepad = (Gamepad)InputSystem.AddDevice("Gamepad");
-        }
-
-        private bool IsMobilePlatform()
-        {
-            return Application.platform == RuntimePlatform.Android ||
-                   Application.platform == RuntimePlatform.IPhonePlayer;
         }
 
         private void OnDestroy()
