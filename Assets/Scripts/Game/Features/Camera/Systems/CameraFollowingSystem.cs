@@ -21,7 +21,7 @@ namespace Game.Features.Camera.Systems
         private ICameraManager m_cameraManager;
 
         [Inject]
-        private IGameDeltaTime m_deltaTime;
+        private IGameTime time;
 
         public override void OnAwake()
         {
@@ -38,7 +38,7 @@ namespace Game.Features.Camera.Systems
             {
                 var transform = transformRef.Get(world);
                 var targetPosition = (float3)transform.position + cameraTarget.offset;
-                var smoothedPosition = math.lerp(camera.transform.position, targetPosition, cameraTarget.smoothSpeed * m_deltaTime.DeltaTime);
+                var smoothedPosition = math.lerp(camera.transform.position, targetPosition, cameraTarget.smoothSpeed * time.DeltaTime);
                 camera.transform.position = smoothedPosition;
             });
         }

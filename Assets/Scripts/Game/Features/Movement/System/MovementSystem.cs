@@ -19,7 +19,7 @@ namespace Game.Features.Movement.System
         private IEntityFactory m_entityFactory;
 
         [Inject]
-        private IGameDeltaTime m_gameDeltaTime;
+        private IGameTime gameTime;
 
         public override void OnAwake()
         {
@@ -34,7 +34,7 @@ namespace Game.Features.Movement.System
                     return;
 
                 var transform = gameObject.transform;
-                var movement = new Vector3(velocity.value.x, velocity.value.y, 0) * m_gameDeltaTime.DeltaTime;
+                var movement = new Vector3(velocity.value.x, velocity.value.y, 0) * gameTime.DeltaTime;
                 transform.position += movement;
             });
         }

@@ -23,14 +23,14 @@ namespace Game.Features.Stats.Systems
         private IDisposable m_damageSubscription;
 
         [Inject]
-        private IGameDeltaTime m_gameDeltaTime;
+        private IGameTime gameTime;
 
         public override void OnAwake()
         {
             m_playerQuery = CreateQuery().With<PlayerTag>();
 
             m_damageSubscription = Observable.EveryUpdate()
-                .Select(_ => m_gameDeltaTime.DeltaTime)
+                .Select(_ => gameTime.DeltaTime)
                 .Scan((elapsed: 0f, shouldFire: false), (state, deltaTime) =>
                 {
                     var newElapsed = state.elapsed + deltaTime;

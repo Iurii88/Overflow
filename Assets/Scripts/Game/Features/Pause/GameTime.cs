@@ -5,7 +5,7 @@ using VContainer;
 namespace Game.Features.Pause
 {
     [AutoRegister]
-    public class GameDeltaTime : IGameDeltaTime
+    public class GameTime : IGameTime
     {
         [Inject]
         private readonly IPauseManager m_pauseManager;

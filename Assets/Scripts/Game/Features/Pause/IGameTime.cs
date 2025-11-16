@@ -1,6 +1,6 @@
 namespace Game.Features.Pause
 {
-    public interface IGameDeltaTime
+    public interface IGameTime
     {
         float DeltaTime { get; }
         float FixedDeltaTime { get; }
