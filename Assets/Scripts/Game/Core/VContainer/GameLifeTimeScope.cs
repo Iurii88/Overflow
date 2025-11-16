@@ -13,13 +13,25 @@ namespace Game.Core.VContainer
         [SerializeField]
         private InputActionAsset playerInput;
 
+        [SerializeField]
+        private GameManager gameManager;
+
+        [SerializeField]
+        private LoadingScreen loadingScreen;
+
+        [SerializeField]
+        private UILayerManager uiLayerManager;
+
+        [SerializeField]
+        private FloatingJoystick floatingJoystick;
+
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterInstance(playerInput);
-            builder.RegisterComponentInHierarchy<GameManager>().AsImplementedInterfaces();
-            builder.RegisterComponentInHierarchy<LoadingScreen>();
-            builder.RegisterComponentInHierarchy<UILayerManager>();
-            builder.RegisterComponentInHierarchy<FloatingJoystick>();
+            builder.RegisterComponent(gameManager).AsImplementedInterfaces();
+            builder.RegisterComponent(loadingScreen);
+            builder.RegisterComponent(uiLayerManager);
+            builder.RegisterComponent(floatingJoystick);
         }
     }
 }

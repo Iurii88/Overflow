@@ -43,30 +43,63 @@ The project uses VContainer with an auto-registration system:
 
 ### Content System
 
-Game data is defined in JSON files using a schema-based content system:
+Game data is defined in JSON files using a schema-based content system with automatic indexing and addressables integration.
 
 **Content Structure:**
-- Content files live in `Assets/GameAssets/Content/` or `Assets/GameAssets/Entities/`
+- All content JSON files are in `Assets/GameAssets/Content/` organized by schema folders
 - Folders prefixed with `#` are content schemas (e.g., `#entities`, `#maps`, `#inputmodes`)
 - Each content type has a corresponding C# class with `[ContentSchema("name")]` attribute
 - Content objects have an `id` field and optional `properties` array
+- Related assets (prefabs, sprites) are stored in `Assets/GameAssets/Entities/` or `Assets/GameAssets/UI/`
+
+**Content Loading Pipeline:**
+1. `ContentIndexGenerator` (editor tool) scans all `#*` folders and auto-generates `ContentIndex.json`
+2. JSON files are automatically added to the "Content" addressables group
+3. `ContentManager.LoadAsync()` loads the index and deserializes all content via addressables
+4. Content is cached by type and ID for fast retrieval via `contentManager.Get<T>(id)`
 
 **Content Properties:**
-- Properties use an identifier-based system
-- Each property inherits from `AContentProperty`
-- Properties are deserialized based on the `identifier` field
+- Properties use an identifier-based system for polymorphic deserialization
+- Each property inherits from `AContentProperty` with `[Identifier("NAME")]` attribute
+- Properties are deserialized based on the `identifier` field in JSON
 - Retrieved via `content.GetProperty<T>()` or `content.GetProperty<T>("IDENTIFIER")`
+- Extension filters can target entities with specific properties using `HasPropertyFilter<T>`
 
-**Example:**
+**Example Content File** (`Assets/GameAssets/Content/#entities/entity.player.json`):
 ```json
 {
   "id": "entity.player",
   "properties": [
-    { "identifier": "VIEW", "assetPath": "..." },
-    { "identifier": "MOVABLE", "baseSpeed": 5 }
+    {
+      "identifier": "VIEW",
+      "assetPath": "Assets/GameAssets/Entities/Player/Prefabs/Player.prefab"
+    },
+    {
+      "identifier": "MOVABLE",
+      "baseSpeed": 5
+    },
+    {
+      "identifier": "STATS",
+      "stats": [
+        { "id": "HEALTH", "value": 100, "max": 100 }
+      ]
+    }
   ]
 }
 ```
+
+**Available Content Schemas:**
+- `ContentEntity` (schema: "entities") - Entity definitions with properties
+- `ContentMap` (schema: "maps") - Map/level definitions with scene and spawn position
+- `ContentInputMode` (schema: "inputmodes") - Input configuration with action maps
+
+**Available Content Properties:**
+- `ViewContentProperty` ("VIEW") - Prefab asset path for entity visuals
+- `MovableContentProperty` ("MOVABLE") - Movement speed configuration
+- `StatsContentProperty` ("STATS") - Health and other stat definitions
+- `ViewComponentContentProperty` ("VIEW_COMPONENT") - UI components with layer and state
+- `PlayerContentProperty` ("PLAYER") - Marker for player entities
+- `WavesGeneratorContentProperty` ("WAVES_GENERATOR") - Marker for wave spawners
 
 ### ECS Architecture
 
@@ -118,10 +151,17 @@ The project uses UnsafeEcs with custom system groups:
 Since this is a Unity project, most operations happen within the Unity Editor. There are no build scripts or test runners in this repository.
 
 ### Working with Content
-- Content files are JSON files in `Assets/GameAssets/`
-- Content is loaded at game start via `ContentManager.LoadAsync()`
-- Content root path: `Assets/GameAssets` (defined in `ContentManager.ContentRootPath`)
-- Folder prefix for schemas: `#` (e.g., `#entities`, `#maps`)
+- Content files are JSON files in `Assets/GameAssets/Content/` organized by schema folders
+- Schema folders are prefixed with `#` (e.g., `#entities`, `#maps`, `#inputmodes`)
+- The `ContentIndexGenerator` automatically generates `ContentIndex.json` when content files change
+- Manual regeneration: Unity menu → Tools/Content/Generate Content Index
+- Content is loaded at game start via `ContentManager.LoadAsync()` using addressables
+- Retrieve content via `contentManager.Get<ContentType>("content.id")` or `contentManager.GetAll<ContentType>()`
+
+**Adding New Content:**
+1. Create JSON file in appropriate schema folder (e.g., `#entities/entity.newenemy.json`)
+2. ContentIndexGenerator automatically updates `ContentIndex.json` and addressables
+3. Content becomes available after next game start
 
 ### Working with Extensions
 When creating a new extension:
@@ -168,14 +208,17 @@ Assets/Scripts/Game/
 └── InitializationSystem.cs        # Initial entity spawning
 
 Assets/GameAssets/
-├── Content/                       # Global content (maps, input modes)
-│   ├── #inputmodes/
-│   └── #maps/
-└── Entities/                      # Entity-specific content and prefabs
-    ├── Enemies/
-    └── Player/
-        ├── Content/#entities/     # Player entity JSON
-        └── Prefabs/               # Player prefabs
+├── Content/                       # All content JSON files
+│   ├── #entities/                 # Entity definitions (player, enemies)
+│   ├── #inputmodes/               # Input mode configurations
+│   ├── #maps/                     # Map/level definitions
+│   └── ContentIndex.json          # Auto-generated content index
+├── Entities/                      # Entity-related assets (prefabs, sprites)
+│   ├── Enemies/
+│   │   └── Triangle/Prefabs/
+│   └── Player/Prefabs/
+└── UI/                            # UI prefabs and assets
+    └── HealthBar/
 ```
 
 ## Important Conventions
@@ -185,6 +228,6 @@ Assets/GameAssets/
 - **Content-Driven**: Entity behavior is defined in JSON content files, not hardcoded
 - **Async/UniTask**: Heavy use of UniTask for async operations (loading, entity lifecycle)
 - **Reference Wrappers**: ECS uses `ReferenceWrapper<EntityManager>` for entity manager references
-- **Logging**: Use `GameLogger` for consistent logging throughout the codebase
+- **Logging**: Use `GameLogger.Log()`, `GameLogger.Warning()`, and `GameLogger.Error()` for all logging.
 - **Early Returns**: Use early return approach for guard clauses and validation to reduce nesting
 - **No Comments**: Code should be self-documenting through clear naming and structure; avoid comments in implementation

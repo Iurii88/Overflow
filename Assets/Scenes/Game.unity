@@ -501,6 +501,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8170153791668043268, guid: 0d230cc8be529a542a08cb878ab14b18, type: 3}
   m_PrefabInstance: {fileID: 388964588}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &569942892 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8170153791668043265, guid: 0d230cc8be529a542a08cb878ab14b18, type: 3}
+  m_PrefabInstance: {fileID: 388964588}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 569942890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a47f546fc70ec8428172694e78e4288, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &689450440
 GameObject:
   m_ObjectHideFlags: 0
@@ -1510,6 +1521,10 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects: []
   playerInput: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+  gameManager: {fileID: 538104746}
+  loadingScreen: {fileID: 295962373}
+  uiLayerManager: {fileID: 2015570116}
+  floatingJoystick: {fileID: 569942892}
 --- !u!4 &1830856171
 Transform:
   m_ObjectHideFlags: 0
