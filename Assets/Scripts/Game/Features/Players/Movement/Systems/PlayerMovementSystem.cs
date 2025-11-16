@@ -14,7 +14,7 @@ using VContainer;
 namespace Game.Features.Players.Movement.Systems
 {
     [UpdateInGroup(typeof(TimeSystemGroup))]
-    [UpdateAfter(typeof(MovementSystem))]
+    [UpdateBefore(typeof(MovementSystem))]
     public class PlayerMovementSystem : SystemBase
     {
         private EntityQuery m_playerQuery;

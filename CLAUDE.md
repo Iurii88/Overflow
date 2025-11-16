@@ -122,6 +122,85 @@ The project uses UnsafeEcs with custom system groups:
 - Game systems should be in `PauseAwareSystemGroup` to respect pause
 - Initialization and cleanup systems typically stay in their respective groups
 
+**EntityQuery.ForEach Pattern:**
+- ALWAYS use `EntityQuery.ForEach` instead of manual `foreach (var entity in query)` loops
+- Pass context data as parameters to avoid closure allocations
+- Example:
+```csharp
+// CORRECT - Pass dt as parameter, no closure allocation
+var dt = m_sessionTime.DeltaTime;
+m_query.ForEach(dt, (float deltaTime, ref Entity entity, ref Velocity velocity, ref Position position) =>
+{
+    position.value += velocity.value * deltaTime;
+});
+
+// INCORRECT - Captures dt in closure, causes allocation every frame
+var dt = m_sessionTime.DeltaTime;
+m_query.ForEach((ref Entity entity, ref Velocity velocity, ref Position position) =>
+{
+    position.value += velocity.value * dt; // Closure allocation!
+});
+```
+
+**Unmanaged/Managed Separation:**
+- Unmanaged components (structs implementing `IComponent`) store ECS data
+- Managed components (`ManagedRef<T>`) bridge to Unity objects
+- Process unmanaged data in one system, sync to managed in another
+- Example: `MovementSystem` processes `Velocity → Position`, `TransformSyncSystem` syncs `Position → Transform`
+- This separation keeps ECS logic pure and enables job/burst optimization
+
+**Job-Based Systems Pattern:**
+For performance-critical systems, use Unity Jobs + Burst with UnsafeEcs integration:
+
+1. **Job Structure** (see `MovementJob.cs`):
+```csharp
+[BurstCompile]
+public struct MovementJob : IJobParallelFor
+{
+    [ReadOnly]
+    public UnsafeList<Entity> entities;
+
+    [ReadOnly]
+    public ComponentArray<Velocity> velocities;
+
+    public ComponentArray<Position> positions;
+    public float deltaTime;
+
+    public void Execute(int index)
+    {
+        var entity = entities[index];
+        ref var velocity = ref velocities.Get(entity);
+        ref var position = ref positions.Get(entity);
+        position.value += velocity.value * deltaTime;
+    }
+}
+```
+
+2. **System Scheduling** (see `MovementSystem.cs`):
+```csharp
+public override void OnUpdate()
+{
+    var entities = m_movementQuery.Fetch();
+    var positions = GetComponentArray<Position>();
+    var velocities = GetComponentArray<Velocity>();
+    new MovementJob
+    {
+        entities = entities,
+        positions = positions,
+        velocities = velocities,
+        deltaTime = m_sessionTime.DeltaTime
+    }.Schedule(entities.Length, 64).Complete();
+}
+```
+
+3. **Key Points:**
+- Use `EntityQuery.Fetch()` to get `UnsafeList<Entity>` directly
+- Use `GetComponentArray<T>()` to get direct component access
+- Jobs use `ComponentArray<T>.Get(entity)` for ref access
+- Mark read-only fields with `[ReadOnly]` for job safety
+- No manual copying to NativeList required
+- Schedule with batch size (64 is typical) for parallelization
+
 ### Time Management
 
 The project uses `ISessionTime` for pause-aware and scalable time tracking:
@@ -199,6 +278,8 @@ When creating a new ECS system:
 3. Use `[Inject]` for dependencies (resolved via VContainer)
 4. Override `UpdateMask` to control when system updates
 5. System will be auto-discovered by UnsafeEcs bootstrap
+6. Use `EntityQuery.ForEach` and pass context as parameters to avoid closures
+7. For performance-critical systems, use job-based pattern with `EntityQuery.Fetch()` and `GetComponentArray<T>()`
 
 ## Code Organization
 
@@ -252,6 +333,9 @@ Assets/GameAssets/
 - **Async/UniTask**: Heavy use of UniTask for async operations (loading, entity lifecycle)
 - **Reference Wrappers**: ECS uses `ReferenceWrapper<EntityManager>` for entity manager references
 - **Time Management**: Use `ISessionTime` (injected via VContainer) instead of Unity's `Time` class in ECS systems for pause-aware and scalable time tracking
-- **Logging**: Use `GameLogger.Log()`, `GameLogger.Warning()`, and `GameLogger.Error()` for all logging.
+- **EntityQuery Iteration**: ALWAYS use `EntityQuery.ForEach` and pass context as parameters to avoid closure allocations
+- **Job-Based Systems**: For performance-critical systems, use `EntityQuery.Fetch()` + `GetComponentArray<T>()` with Burst-compiled `IJobParallelFor`
+- **Unmanaged/Managed Separation**: Separate unmanaged ECS logic from managed Unity object synchronization into different systems
+- **Logging**: Use `GameLogger.Log()`, `GameLogger.Warning()`, and `GameLogger.Error()` for all logging
 - **Early Returns**: Use early return approach for guard clauses and validation to reduce nesting
 - **No Comments**: Code should be self-documenting through clear naming and structure; avoid comments in implementation

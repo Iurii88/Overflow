@@ -29,6 +29,7 @@ namespace Game.Features.Movement.Extensions
             var movableContentProperty = contentEntity.GetProperty<MovableContentProperty>();
             entity.SetComponent(new Speed { value = movableContentProperty.baseSpeed });
             entity.SetComponent<Velocity>();
+            entity.SetComponent<Position>();
             return UniTask.CompletedTask;
         }
     }
