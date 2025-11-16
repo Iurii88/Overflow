@@ -94,11 +94,12 @@ Game data is defined in JSON files using a schema-based content system with auto
 - `ContentInputMode` (schema: "inputmodes") - Input configuration with action maps
 
 **Available Content Properties:**
-- `ViewContentProperty` ("VIEW") - Prefab asset path for entity visuals
+- `CameraFollowingContentProperty` ("CAMERA_FOLLOWING") - Camera following with offset and smooth speed
 - `MovableContentProperty` ("MOVABLE") - Movement speed configuration
-- `StatsContentProperty` ("STATS") - Health and other stat definitions
-- `ViewComponentContentProperty` ("VIEW_COMPONENT") - UI components with layer and state
 - `PlayerContentProperty` ("PLAYER") - Marker for player entities
+- `StatsContentProperty` ("STATS") - Health and other stat definitions
+- `ViewContentProperty` ("VIEW") - Prefab asset path for entity visuals
+- `ViewComponentContentProperty` ("VIEW_COMPONENT") - UI components with layer and state
 - `WavesGeneratorContentProperty` ("WAVES_GENERATOR") - Marker for wave spawners
 
 ### ECS Architecture
@@ -120,6 +121,27 @@ The project uses UnsafeEcs with custom system groups:
 - `PauseAwareSystemGroup` skips execution when `IPauseManager.IsPaused` is true
 - Game systems should be in `PauseAwareSystemGroup` to respect pause
 - Initialization and cleanup systems typically stay in their respective groups
+
+### Time Management
+
+The project uses `ISessionTime` for pause-aware and scalable time tracking:
+
+**Available Time Properties:**
+- `DeltaTime` - Pause-aware, time-scaled delta time (use this for gameplay)
+- `FixedDeltaTime` - Pause-aware, time-scaled fixed delta time (for physics)
+- `UnscaledDeltaTime` - Real-time delta, ignores pause and time scale (for UI animations)
+- `UnscaledFixedDeltaTime` - Real-time fixed delta, ignores pause and time scale
+- `ElapsedTime` - Total gameplay time since session start (respects pause and time scale)
+- `UnscaledElapsedTime` - Total real time since session start (always runs)
+- `TimeScale` - Multiplier for game speed (1.0 = normal, 0.5 = slow-mo, 2.0 = fast-forward)
+- `FrameCount` - Total frames since session start
+
+**Usage:**
+- Inject `ISessionTime` into systems via `[Inject]`
+- Use `DeltaTime` for movement, animations, and gameplay logic
+- Use `UnscaledDeltaTime` for UI or effects that should run during pause
+- Use `ElapsedTime` for session timers, speedrun tracking, etc.
+- Modify `TimeScale` for bullet-time or fast-forward effects
 
 ### Game Lifecycle
 
@@ -195,12 +217,13 @@ Assets/Scripts/Game/
 │   └── VContainer/                # VContainer setup
 ├── Features/                      # Game features
 │   ├── Bootstraps/                # ECS bootstrap
+│   ├── Camera/                    # Camera following system
 │   ├── Entities/                  # Entity content definitions
 │   ├── LoadingScreen/             # Loading screen and progress
 │   ├── MainMenu/                  # Main menu scene
 │   ├── Maps/                      # Map loading and content
 │   ├── Movement/                  # Movement systems
-│   ├── Pause/                     # Pause system and input
+│   ├── Pause/                     # Pause system and time management
 │   ├── Players/                   # Player-specific logic
 │   ├── Stats/                     # Stats system (health, etc.)
 │   └── View/                      # View/rendering systems
@@ -228,7 +251,7 @@ Assets/GameAssets/
 - **Content-Driven**: Entity behavior is defined in JSON content files, not hardcoded
 - **Async/UniTask**: Heavy use of UniTask for async operations (loading, entity lifecycle)
 - **Reference Wrappers**: ECS uses `ReferenceWrapper<EntityManager>` for entity manager references
-- **Delta Time**: Use `IGameDeltaTime` (injected via VContainer) instead of `Time.deltaTime` in ECS systems for pause-aware time tracking
+- **Time Management**: Use `ISessionTime` (injected via VContainer) instead of Unity's `Time` class in ECS systems for pause-aware and scalable time tracking
 - **Logging**: Use `GameLogger.Log()`, `GameLogger.Warning()`, and `GameLogger.Error()` for all logging.
 - **Early Returns**: Use early return approach for guard clauses and validation to reduce nesting
 - **No Comments**: Code should be self-documenting through clear naming and structure; avoid comments in implementation

@@ -10,7 +10,7 @@ using VContainer;
 
 namespace Game.Features.Movement.System
 {
-    [UpdateInGroup(typeof(PauseAwareSystemGroup))]
+    [UpdateInGroup(typeof(TimeSystemGroup))]
     public class MovementSystem : SystemBase
     {
         private EntityQuery m_movementQuery;
@@ -19,7 +19,7 @@ namespace Game.Features.Movement.System
         private IEntityFactory m_entityFactory;
 
         [Inject]
-        private IGameTime gameTime;
+        private ISessionTime sessionTime;
 
         public override void OnAwake()
         {
@@ -34,7 +34,7 @@ namespace Game.Features.Movement.System
                     return;
 
                 var transform = gameObject.transform;
-                var movement = new Vector3(velocity.value.x, velocity.value.y, 0) * gameTime.DeltaTime;
+                var movement = new Vector3(velocity.value.x, velocity.value.y, 0) * sessionTime.DeltaTime;
                 transform.position += movement;
             });
         }

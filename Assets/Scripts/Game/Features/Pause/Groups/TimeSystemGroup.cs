@@ -8,7 +8,7 @@ namespace Game.Features.Pause.Groups
 {
     [UpdateInWorld(WorldBootstrap.AllWorldsIndex)]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    public class PauseAwareSystemGroup : SystemGroup
+    public class TimeSystemGroup : SystemGroup
     {
         [Inject]
         private IPauseManager m_pauseManager;

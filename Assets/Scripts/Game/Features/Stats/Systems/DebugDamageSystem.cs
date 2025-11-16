@@ -13,7 +13,7 @@ using VContainer;
 
 namespace Game.Features.Stats.Systems
 {
-    [UpdateInGroup(typeof(PauseAwareSystemGroup))]
+    [UpdateInGroup(typeof(TimeSystemGroup))]
     public class DebugDamageSystem : SystemBase
     {
         private const float DamageInterval = 1f;
@@ -23,14 +23,14 @@ namespace Game.Features.Stats.Systems
         private IDisposable m_damageSubscription;
 
         [Inject]
-        private IGameTime gameTime;
+        private ISessionTime sessionTime;
 
         public override void OnAwake()
         {
             m_playerQuery = CreateQuery().With<PlayerTag>();
 
             m_damageSubscription = Observable.EveryUpdate()
-                .Select(_ => gameTime.DeltaTime)
+                .Select(_ => sessionTime.DeltaTime)
                 .Scan((elapsed: 0f, shouldFire: false), (state, deltaTime) =>
                 {
                     var newElapsed = state.elapsed + deltaTime;

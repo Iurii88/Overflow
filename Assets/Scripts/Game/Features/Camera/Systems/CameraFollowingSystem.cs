@@ -12,7 +12,7 @@ using VContainer;
 
 namespace Game.Features.Camera.Systems
 {
-    [UpdateInGroup(typeof(PauseAwareSystemGroup))]
+    [UpdateInGroup(typeof(TimeSystemGroup))]
     public class CameraFollowingSystem : SystemBase
     {
         private EntityQuery m_cameraTargetQuery;
@@ -21,7 +21,7 @@ namespace Game.Features.Camera.Systems
         private ICameraManager m_cameraManager;
 
         [Inject]
-        private IGameTime time;
+        private ISessionTime time;
 
         public override void OnAwake()
         {

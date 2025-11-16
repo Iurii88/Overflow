@@ -13,7 +13,7 @@ using VContainer;
 
 namespace Game.Features.Players.Movement.Systems
 {
-    [UpdateInGroup(typeof(PauseAwareSystemGroup))]
+    [UpdateInGroup(typeof(TimeSystemGroup))]
     [UpdateAfter(typeof(MovementSystem))]
     public class PlayerMovementSystem : SystemBase
     {
