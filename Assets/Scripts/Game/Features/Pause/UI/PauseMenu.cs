@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using Game.Core.UI;
+using Game.Features.Sessions;
 using VContainer;
 
 namespace Game.Features.Pause.UI
@@ -11,16 +12,6 @@ namespace Game.Features.Pause.UI
 
         protected override void Subscribe()
         {
-        }
-
-        protected override void OnWindowOpen()
-        {
-            base.OnWindowOpen();
-        }
-
-        protected override void OnWindowClose()
-        {
-            base.OnWindowClose();
         }
 
         public void ToMainMenu()

@@ -3,10 +3,10 @@ using Cysharp.Threading.Tasks;
 using Game.Core.Content.Properties.Filters;
 using Game.Core.Extensions.Filters;
 using Game.Core.Lifecycle.Extensions;
-using Game.Core.Reflection.Attributes;
 using Game.Features.Camera.Components;
 using Game.Features.Camera.Content;
 using Game.Features.Entities.Content;
+using Game.Features.Sessions.Attributes;
 using UnsafeEcs.Core.Entities;
 
 namespace Game.Features.Camera.Extensions

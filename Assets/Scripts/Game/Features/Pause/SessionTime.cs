@@ -1,5 +1,4 @@
-using Game.Core.Logging;
-using Game.Core.Reflection.Attributes;
+using Game.Features.Sessions.Attributes;
 using UnityEngine;
 using VContainer;
 
@@ -40,8 +39,6 @@ namespace Game.Features.Pause
             ElapsedTime += DeltaTime;
             UnscaledElapsedTime += UnscaledDeltaTime;
             FrameCount++;
-
-            GameLogger.Log($"ElapsedTime: {ElapsedTime}, FrameCount: {FrameCount}");
         }
     }
 }

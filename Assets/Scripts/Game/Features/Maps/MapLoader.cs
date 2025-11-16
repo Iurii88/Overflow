@@ -1,11 +1,10 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Core.Content;
-using Game.Core.Initialization;
 using Game.Core.Logging;
-using Game.Core.Reflection.Attributes;
 using Game.Core.VContainer;
 using Game.Features.Maps.Content;
+using Game.Features.Sessions.Attributes;
 using UnityEngine.SceneManagement;
 using VContainer;
 using VContainer.Unity;
@@ -13,7 +12,7 @@ using VContainer.Unity;
 namespace Game.Features.Maps
 {
     [AutoRegister]
-    public class MapLoader : IAsyncLoader, IUniTaskAsyncDisposable
+    public class MapLoader : IMapLoader
     {
         [Inject]
         private IContentManager m_contentManager;
@@ -21,28 +20,32 @@ namespace Game.Features.Maps
         [Inject]
         private GameLifeTimeScope m_gameScope;
 
-        public string mapId;
-
+        private string m_mapId;
         private string m_loadedSceneName;
+
+        public void SetMapId(string mapId)
+        {
+            m_mapId = mapId;
+        }
 
         public async UniTask LoadAsync(CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(mapId))
+            if (string.IsNullOrEmpty(m_mapId))
             {
                 GameLogger.Warning("[MapLoader] No map ID specified, skipping scene load");
                 return;
             }
 
-            var map = m_contentManager.Get<ContentMap>(mapId);
+            var map = m_contentManager.Get<ContentMap>(m_mapId);
             if (map == null)
             {
-                GameLogger.Error($"[MapLoader] Map not found: {mapId}");
+                GameLogger.Error($"[MapLoader] Map not found: {m_mapId}");
                 return;
             }
 
             if (string.IsNullOrEmpty(map.scene))
             {
-                GameLogger.Warning($"[MapLoader] Map '{mapId}' has no scene specified");
+                GameLogger.Warning($"[MapLoader] Map '{m_mapId}' has no scene specified");
                 return;
             }
 

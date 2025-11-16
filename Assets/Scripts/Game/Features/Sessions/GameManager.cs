@@ -7,19 +7,19 @@ using Game.Core.Extensions;
 using Game.Core.Initialization;
 using Game.Core.Logging;
 using Game.Core.Reflection;
-using Game.Core.Reflection.Attributes;
 using Game.Core.SceneLoading;
 using Game.Core.VContainer;
 using Game.Features.Bootstraps;
 using Game.Features.LoadingScreen.Extensions;
 using Game.Features.Maps;
 using Game.Features.Maps.Content;
+using Game.Features.Sessions.Attributes;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer;
 using VContainer.Unity;
 
-namespace Game
+namespace Game.Features.Sessions
 {
     public interface IGameManager
     {
@@ -52,9 +52,9 @@ namespace Game
             await m_extensionExecutor.ExecuteAsync<IGameStartLoadingExtension>(extension => extension.OnGameStartLoading());
 
             var contentManager = m_childScope.Container.Resolve<IContentManager>();
-            var ecsBootstrap = m_childScope.Container.Resolve<EcsBootstrap>();
-            var mapLoader = m_childScope.Container.Resolve<MapLoader>();
-            mapLoader.mapId = GetMapId();
+            var ecsBootstrap = m_childScope.Container.Resolve<IEcsBootstrap>();
+            var mapLoader = m_childScope.Container.Resolve<IMapLoader>();
+            mapLoader.SetMapId(GetMapId());
 
             await new LoaderConfiguration()
                 .Register(contentManager)
@@ -127,7 +127,7 @@ namespace Game
                 if (attribute.Length > 0 && attribute[0] is AutoRegisterAttribute autoRegister)
                     lifetime = autoRegister.Lifetime;
 
-                builder.Register(typeInfo, lifetime).AsImplementedInterfaces().AsSelf();
+                builder.Register(typeInfo, lifetime).AsImplementedInterfaces();
             }
         }
     }

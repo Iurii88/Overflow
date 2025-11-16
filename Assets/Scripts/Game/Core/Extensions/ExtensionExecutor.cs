@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using Game.Core.Reflection.Attributes;
 using Game.Features.Entities.Content;
+using Game.Features.Sessions.Attributes;
 using UnsafeEcs.Core.Entities;
 using VContainer;
 
@@ -15,9 +15,10 @@ namespace Game.Core.Extensions
         [Inject]
         private readonly IObjectResolver m_resolver;
 
-        private readonly Dictionary<Type, object> m_extensionCache = new();
+        private readonly Dictionary<Type, object> m_extensionCache = new Dictionary<Type, object>();
 
-        public async UniTask ExecuteAsync<TExtension>(
+        public async UniTask ExecuteAsync<TExtension>
+        (
             Entity entity,
             ContentEntity contentEntity,
             Func<TExtension, UniTask> action)

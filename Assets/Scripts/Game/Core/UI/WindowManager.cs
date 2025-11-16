@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using Game.Core.Reflection.Attributes;
+using Game.Features.Sessions.Attributes;
 
 namespace Game.Core.UI
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Cysharp.Threading.Tasks;
 using Game.Core.Addressables;
-using Game.Core.Reflection.Attributes;
+using Game.Features.Sessions.Attributes;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -76,8 +76,8 @@ namespace Game.Core.Pooling
         [Inject]
         private ISessionAddressableManager m_addressableManager;
 
-        private readonly Dictionary<PoolKey, PoolBase> m_pools = new();
-        private readonly Dictionary<int, PoolKey> m_objectToPoolKey = new();
+        private readonly Dictionary<PoolKey, PoolBase> m_pools = new Dictionary<PoolKey, PoolBase>();
+        private readonly Dictionary<int, PoolKey> m_objectToPoolKey = new Dictionary<int, PoolKey>();
         private GameObject m_rootPoolObject;
 
         //public ISessionAddressableManager AddressableManager => m_addressableManager;

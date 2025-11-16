@@ -4,9 +4,9 @@ using Cysharp.Threading.Tasks;
 using Game.Core.Extensions;
 using Game.Core.Extensions.Filters;
 using Game.Core.Lifecycle.Extensions;
-using Game.Core.Reflection.Attributes;
 using Game.Core.UI.Blackboards;
 using Game.Features.Entities.Content;
+using Game.Features.Sessions.Attributes;
 using UnsafeEcs.Core.Entities;
 
 namespace Game.Core.UI.Extensions

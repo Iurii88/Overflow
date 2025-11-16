@@ -1,7 +1,8 @@
 ﻿using System;
+using Game.Core.Reflection.Attributes;
 using VContainer;
 
-namespace Game.Core.Reflection.Attributes
+namespace Game.Features.Sessions.Attributes
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class AutoRegisterAttribute : ReflectionInjectAttribute

@@ -3,9 +3,8 @@ using System.Reflection;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Core.Factories;
-using Game.Core.Initialization;
 using Game.Core.Logging;
-using Game.Core.Reflection.Attributes;
+using Game.Features.Sessions.Attributes;
 using UnsafeEcs.Core.Bootstrap;
 using UnsafeEcs.Core.Worlds;
 using VContainer;
@@ -13,7 +12,7 @@ using VContainer;
 namespace Game.Features.Bootstraps
 {
     [AutoRegister]
-    public class EcsBootstrap : IAsyncLoader, IUniTaskAsyncDisposable
+    public class EcsBootstrap : IEcsBootstrap
     {
         [Inject]
         private readonly IObjectResolver m_resolver;

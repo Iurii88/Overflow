@@ -36,22 +36,22 @@ namespace Game.Features.Players.Movement.Systems
 
             m_moveAction = m_inputActionAsset.FindAction("Player/Move");
 
-            if (m_moveAction != null)
-            {
-                m_moveAction.started += OnMoveStarted;
-                m_moveAction.canceled += OnMoveCanceled;
-                m_moveAction.Enable();
-            }
+            if (m_moveAction == null)
+                return;
+
+            m_moveAction.started += OnMoveStarted;
+            m_moveAction.canceled += OnMoveCanceled;
+            m_moveAction.Enable();
         }
 
         public override void OnDestroy()
         {
-            if (m_moveAction != null)
-            {
-                m_moveAction.started -= OnMoveStarted;
-                m_moveAction.canceled -= OnMoveCanceled;
-                m_moveAction.Disable();
-            }
+            if (m_moveAction == null)
+                return;
+
+            m_moveAction.started -= OnMoveStarted;
+            m_moveAction.canceled -= OnMoveCanceled;
+            m_moveAction.Disable();
         }
 
         private void OnMoveStarted(InputAction.CallbackContext context)
@@ -81,12 +81,18 @@ namespace Game.Features.Players.Movement.Systems
             if (math.lengthsq(input) > 0)
                 input = math.normalize(input);
 
-            m_playerQuery.ForEach((ref Entity _, ref Velocity velocity, ref Speed speed) => { velocity.value = input * speed.value; });
+            m_playerQuery.ForEach(input, (float2 inp, ref Entity _, ref Velocity velocity, ref Speed speed) =>
+            {
+                velocity.value = inp * speed.value;
+            });
         }
 
         private void ResetPlayerVelocity()
         {
-            m_playerQuery.ForEach((ref Entity _, ref Velocity velocity) => { velocity.value = float2.zero; });
+            m_playerQuery.ForEach((ref Entity _, ref Velocity velocity) =>
+            {
+                velocity.value = float2.zero;
+            });
         }
     }
 }

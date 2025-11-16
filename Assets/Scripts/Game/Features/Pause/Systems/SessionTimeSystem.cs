@@ -1,5 +1,4 @@
 using Game.Features.Pause.Groups;
-using UnsafeEcs.Additions.Groups;
 using UnsafeEcs.Core.Bootstrap.Attributes;
 using UnsafeEcs.Core.Systems;
 using VContainer;
@@ -10,7 +9,7 @@ namespace Game.Features.Pause.Systems
     public class SessionTimeSystem : SystemBase
     {
         [Inject]
-        private SessionTime m_sessionTime;
+        private ISessionTime m_sessionTime;
 
         public override void OnUpdate()
         {

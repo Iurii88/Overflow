@@ -5,8 +5,8 @@ using Game.Core.Extensions.Filters;
 using Game.Core.Lifecycle.Extensions;
 using Game.Core.Logging;
 using Game.Core.Pooling;
-using Game.Core.Reflection.Attributes;
 using Game.Features.Entities.Content;
+using Game.Features.Sessions.Attributes;
 using Game.Features.View.Content;
 using UnityEngine;
 using UnsafeEcs.Core.Entities;
@@ -21,7 +21,7 @@ namespace Game.Features.View.Extensions
         private IAsyncPoolManager m_poolManager;
 
         [Inject]
-        private EntityContainerManager m_containerManager;
+        private IEntityContainerManager m_containerManager;
 
         public IReadOnlyList<IExtensionFilter> Filters { get; } = new List<IExtensionFilter>
         {

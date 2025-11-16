@@ -1,11 +1,10 @@
-using System;
-using Game.Core.Reflection.Attributes;
+using Game.Features.Sessions.Attributes;
 using UnityEngine;
 
 namespace Game.Features.View
 {
     [AutoRegister]
-    public class EntityContainerManager : IDisposable
+    public class EntityContainerManager : IEntityContainerManager
     {
         private Transform m_entitiesRoot;
 
@@ -25,7 +24,7 @@ namespace Game.Features.View
             if (m_entitiesRoot == null)
                 return;
 
-            UnityEngine.Object.Destroy(m_entitiesRoot.gameObject);
+            Object.Destroy(m_entitiesRoot.gameObject);
             m_entitiesRoot = null;
         }
     }

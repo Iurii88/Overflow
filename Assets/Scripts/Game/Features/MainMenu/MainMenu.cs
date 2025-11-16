@@ -4,6 +4,7 @@ using Game.Core.Content.Attributes;
 using Game.Core.Logging;
 using Game.Core.SceneLoading;
 using Game.Features.Maps.Content;
+using Game.Features.Sessions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 

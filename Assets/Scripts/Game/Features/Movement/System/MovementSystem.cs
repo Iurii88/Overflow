@@ -4,6 +4,7 @@ using Game.Features.Pause;
 using Game.Features.Pause.Groups;
 using UnityEngine;
 using UnsafeEcs.Core.Bootstrap.Attributes;
+using UnsafeEcs.Core.Components.Managed;
 using UnsafeEcs.Core.Entities;
 using UnsafeEcs.Core.Systems;
 using VContainer;
@@ -23,19 +24,15 @@ namespace Game.Features.Movement.System
 
         public override void OnAwake()
         {
-            m_movementQuery = CreateQuery().With<Velocity>();
+            m_movementQuery = CreateQuery().With<Velocity, ManagedRef<Transform>>();
         }
 
         public override void OnUpdate()
         {
-            m_movementQuery.ForEach((ref Entity entity, ref Velocity velocity) =>
+            m_movementQuery.ForEach(sessionTime.DeltaTime, (float dt, ref Entity _, ref Velocity velocity, ref ManagedRef<Transform> transformRef) =>
             {
-                if (!entity.TryGetReference(out GameObject gameObject))
-                    return;
-
-                var transform = gameObject.transform;
-                var movement = new Vector3(velocity.value.x, velocity.value.y, 0) * sessionTime.DeltaTime;
-                transform.position += movement;
+                var movement = new Vector3(velocity.value.x, velocity.value.y, 0) * dt;
+                transformRef.Get().position += movement;
             });
         }
     }

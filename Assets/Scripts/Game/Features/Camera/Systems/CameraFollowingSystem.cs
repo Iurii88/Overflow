@@ -34,13 +34,15 @@ namespace Game.Features.Camera.Systems
             if (camera == null)
                 return;
 
-            m_cameraTargetQuery.ForEach((ref Entity entity, ref CameraTarget cameraTarget, ref ManagedRef<Transform> transformRef) =>
-            {
-                var transform = transformRef.Get(world);
-                var targetPosition = (float3)transform.position + cameraTarget.offset;
-                var smoothedPosition = math.lerp(camera.transform.position, targetPosition, cameraTarget.smoothSpeed * time.DeltaTime);
-                camera.transform.position = smoothedPosition;
-            });
+            m_cameraTargetQuery.ForEach((time.DeltaTime, camera),
+                ((float deltaTime, UnityEngine.Camera cam) context,
+                    ref Entity _, ref CameraTarget cameraTarget, ref ManagedRef<Transform> transformRef) =>
+                {
+                    var transform = transformRef.Get();
+                    var targetPosition = (float3)transform.position + cameraTarget.offset;
+                    var smoothedPosition = math.lerp(context.cam.transform.position, targetPosition, cameraTarget.smoothSpeed * context.deltaTime);
+                    context.cam.transform.position = smoothedPosition;
+                });
         }
     }
 }

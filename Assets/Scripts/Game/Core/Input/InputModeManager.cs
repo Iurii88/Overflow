@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Game.Core.Content;
 using Game.Core.Input.Content;
 using Game.Core.Logging;
-using Game.Core.Reflection.Attributes;
+using Game.Features.Sessions.Attributes;
 using UnityEngine.InputSystem;
 using VContainer;
 using ZLinq;
@@ -14,8 +14,8 @@ namespace Game.Core.Input
     {
         private readonly InputActionAsset m_inputActionAsset;
         private readonly IContentManager m_contentManager;
-        private readonly Stack<ContentInputMode> m_modeStack = new();
-        private readonly Dictionary<string, InputActionMap> m_actionMaps = new();
+        private readonly Stack<ContentInputMode> m_modeStack = new Stack<ContentInputMode>();
+        private readonly Dictionary<string, InputActionMap> m_actionMaps = new Dictionary<string, InputActionMap>();
 
         public ContentInputMode CurrentMode => m_modeStack.Count > 0 ? m_modeStack.Peek() : null;
 

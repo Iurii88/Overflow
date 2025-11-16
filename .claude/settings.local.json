@@ -39,7 +39,8 @@
       "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Addressables\\AddressableManager.cs\" ])",
       "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Addressables\\AddressableManager.cs\")",
       "Bash(if [ -f \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Addressables\\AddressableManager.cs.meta\" ])",
-      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Addressables\\AddressableManager.cs.meta\")"
+      "Bash(then rm \"C:\\Developer\\Overflow\\Assets\\Scripts\\Game\\Core\\Addressables\\AddressableManager.cs.meta\")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

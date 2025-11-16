@@ -1,8 +1,8 @@
 using System;
 using Game.Core.Extensions;
 using Game.Core.Logging;
-using Game.Core.Reflection.Attributes;
 using Game.Features.Pause.Extensions;
+using Game.Features.Sessions.Attributes;
 using VContainer;
 
 namespace Game.Features.Pause

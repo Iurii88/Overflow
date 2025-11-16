@@ -1485,6 +1485,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TouchCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 3628735698333893017, guid: 61aae92467210e44b92e7bebaa6d3440, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

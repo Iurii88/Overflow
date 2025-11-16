@@ -4,14 +4,14 @@ namespace Game.Features.Pause
     {
         float DeltaTime { get; }
         float FixedDeltaTime { get; }
-        float UnscaledDeltaTime { get; }
-        float UnscaledFixedDeltaTime { get; }
-
         float ElapsedTime { get; }
-        float UnscaledElapsedTime { get; }
+        int FrameCount { get; }
 
         float TimeScale { get; set; }
+        float UnscaledDeltaTime { get; }
+        float UnscaledFixedDeltaTime { get; }
+        float UnscaledElapsedTime { get; }
 
-        int FrameCount { get; }
+        void Update();
     }
 }
