@@ -5,6 +5,7 @@ using Game.Features.Pause.Groups;
 using Unity.Mathematics;
 using UnityEngine;
 using UnsafeEcs.Core.Bootstrap.Attributes;
+using UnsafeEcs.Core.Components.Managed;
 using UnsafeEcs.Core.Entities;
 using UnsafeEcs.Core.Systems;
 using VContainer;
@@ -24,7 +25,7 @@ namespace Game.Features.Camera.Systems
 
         public override void OnAwake()
         {
-            m_cameraTargetQuery = CreateQuery().With<CameraTarget>();
+            m_cameraTargetQuery = CreateQuery().With<CameraTarget>().With<ManagedRef<Transform>>();
         }
 
         public override void OnUpdate()
@@ -33,12 +34,9 @@ namespace Game.Features.Camera.Systems
             if (camera == null)
                 return;
 
-            m_cameraTargetQuery.ForEach((ref Entity entity, ref CameraTarget cameraTarget) =>
+            m_cameraTargetQuery.ForEach((ref Entity entity, ref CameraTarget cameraTarget, ref ManagedRef<Transform> transformRef) =>
             {
-                var transform = entity.GetReference<Transform>();
-                if (transform == null)
-                    return;
-
+                var transform = transformRef.Get(world);
                 var targetPosition = (float3)transform.position + cameraTarget.offset;
                 var smoothedPosition = math.lerp(camera.transform.position, targetPosition, cameraTarget.smoothSpeed * m_deltaTime.DeltaTime);
                 camera.transform.position = smoothedPosition;
