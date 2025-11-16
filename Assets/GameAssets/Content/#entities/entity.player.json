@@ -23,6 +23,15 @@
       ]
     },
     {
+      "identifier": "CAMERA_FOLLOWING",
+      "offset": {
+        "x": 0,
+        "y": 0,
+        "z": -10
+      },
+      "smoothSpeed": 5
+    },
+    {
       "identifier": "VIEW_COMPONENT",
       "assetPath": "Assets/GameAssets/UI/HealthBar/HealthBar.prefab",
       "layer": "LOWER"

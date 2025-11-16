@@ -21,11 +21,6 @@ namespace Game.Core.UI.ViewModules
 
         protected override void Subscribe()
         {
-            entity.OnVariableChanged += EntityOnOnVariableChanged;
-        }
-
-        private void EntityOnOnVariableChanged(BlackboardVariable<Entity> entityVariable)
-        {
         }
 
         protected override void Awake()
@@ -41,9 +36,6 @@ namespace Game.Core.UI.ViewModules
 
         private void UpdatePosition()
         {
-            if (!Application.isPlaying)
-                return;
-
             if (!entity.Value.IsAlive())
                 return;
 

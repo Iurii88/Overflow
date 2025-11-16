@@ -228,6 +228,7 @@ Assets/GameAssets/
 - **Content-Driven**: Entity behavior is defined in JSON content files, not hardcoded
 - **Async/UniTask**: Heavy use of UniTask for async operations (loading, entity lifecycle)
 - **Reference Wrappers**: ECS uses `ReferenceWrapper<EntityManager>` for entity manager references
+- **Delta Time**: Use `IGameDeltaTime` (injected via VContainer) instead of `Time.deltaTime` in ECS systems for pause-aware time tracking
 - **Logging**: Use `GameLogger.Log()`, `GameLogger.Warning()`, and `GameLogger.Error()` for all logging.
 - **Early Returns**: Use early return approach for guard clauses and validation to reduce nesting
 - **No Comments**: Code should be self-documenting through clear naming and structure; avoid comments in implementation
