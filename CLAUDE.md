@@ -143,11 +143,73 @@ m_query.ForEach((ref Entity entity, ref Velocity velocity, ref Position position
 ```
 
 **Unmanaged/Managed Separation:**
-- Unmanaged components (structs implementing `IComponent`) store ECS data
-- Managed components (`ManagedRef<T>`) bridge to Unity objects
+- **Components MUST be unmanaged** (structs implementing `IComponent` with only unmanaged fields)
+- **ManagedRef<T> bridges managed objects** - unmanaged struct that stores reference to managed object
+- **Controllers hold complex state** (classes extending `EntityController` for dictionaries, lists, etc.)
 - Process unmanaged data in one system, sync to managed in another
 - Example: `MovementSystem` processes `Velocity → Position`, `TransformSyncSystem` syncs `Position → Transform`
 - This separation keeps ECS logic pure and enables job/burst optimization
+
+**ManagedRef<T> Pattern:**
+`ManagedRef<T>` is an unmanaged struct component that can be queried and holds a reference to a managed object:
+```csharp
+// Add managed reference (e.g., Unity Transform)
+entity.AddReference(transform); // Creates ManagedRef<Transform> component
+
+// Query for entities with managed references (ManagedRef<T> IS queryable!)
+var query = CreateQuery().With<Position, ManagedRef<Transform>>();
+
+// Access in ForEach
+query.ForEach((ref Entity _, ref Position position, ref ManagedRef<Transform> transformRef) =>
+{
+    var transform = transformRef.Get(); // Get managed object
+    transform.position = new Vector3(position.value.x, position.value.y, 0);
+});
+
+// Or access directly
+if (entity.HasComponent<ManagedRef<Transform>>())
+{
+    var transform = entity.GetReference<Transform>();
+}
+```
+
+**EntityController Pattern:**
+Controllers are managed classes for complex state (dictionaries, lists, callbacks):
+```csharp
+// Define controller
+public class StatsController : EntityController
+{
+    private Dictionary<string, float> m_stats = new();
+    public void InitializeStats(Stat[] stats) { /* ... */ }
+}
+
+// Attach (creates ManagedRef<StatsController> component internally)
+var controller = entity.AddController<StatsController>();
+controller.InitializeStats(statsData);
+
+// Query for entities with controllers (YES, you can query ManagedRef<Controller>!)
+var query = CreateQuery().With<ManagedRef<StatsController>>();
+
+// Access in systems
+query.ForEach((ref Entity entity, ref ManagedRef<StatsController> controllerRef) =>
+{
+    var controller = controllerRef.Get();
+    var health = controller.GetStat("HEALTH");
+});
+
+// Or without query
+if (entity.TryGetReference(out StatsController controller))
+{
+    var health = controller.GetStat("HEALTH");
+}
+```
+
+**Key Points:**
+- `ManagedRef<T>` is an unmanaged struct (objectId, version, storageId) that implements `IComponent`
+- `ManagedRef<T>` CAN be used in queries (`.With<ManagedRef<T>>()`) and ForEach loops
+- `entity.AddReference<T>(obj)` creates `ManagedRef<T>` component automatically
+- `entity.AddController<T>()` also creates `ManagedRef<T>` component automatically
+- Use `managedRef.Get()` to retrieve the actual managed object
 
 **Job-Based Systems Pattern:**
 For performance-critical systems, use Unity Jobs + Burst with UnsafeEcs integration:
@@ -281,6 +343,15 @@ When creating a new ECS system:
 6. Use `EntityQuery.ForEach` and pass context as parameters to avoid closures
 7. For performance-critical systems, use job-based pattern with `EntityQuery.Fetch()` and `GetComponentArray<T>()`
 
+**IMPORTANT**: If you're unsure about UnsafeEcs API usage:
+- Check the UnsafeEcs package source code: `Library/PackageCache/com.iurii88.unsafeecs@4720080b6a36/`
+- Look at existing systems in the codebase for patterns
+- Key files to reference:
+  - `Runtime/Core/Entities/Entity.cs` - Entity API
+  - `Runtime/Core/Entities/EntityComponents.cs` - Component operations
+  - `Runtime/Core/Components/Managed/ManagedRef.cs` - Managed references
+  - `Runtime/Core/Systems/SystemBase.cs` - System base class
+
 ## Code Organization
 
 ```
@@ -339,3 +410,68 @@ Assets/GameAssets/
 - **Logging**: Use `GameLogger.Log()`, `GameLogger.Warning()`, and `GameLogger.Error()` for all logging
 - **Early Returns**: Use early return approach for guard clauses and validation to reduce nesting
 - **No Comments**: Code should be self-documenting through clear naming and structure; avoid comments in implementation
+
+### Using Statements
+
+**CRITICAL**: Always include ONLY the necessary using statements. Do NOT add unused imports.
+
+**Common Namespaces:**
+- `Cysharp.Threading.Tasks` - For UniTask, async operations
+- `UnsafeEcs.Core.Components` - For IComponent
+- `UnsafeEcs.Core.Entities` - For Entity
+- `UnsafeEcs.Core.Systems` - For SystemBase
+- `UnsafeEcs.Core.Bootstrap.Attributes` - For [UpdateInGroup], [UpdateBefore], etc.
+- `UnsafeEcs.Additions.Groups` - For InitializationSystemGroup, CleanUpSystemGroup
+- `UnsafeEcs.Core.Utils` - For ReferenceWrapper<T>
+- `Unity.Mathematics` - For float2, float3, math functions
+- `VContainer` - For [Inject]
+- `Game.Core.Reflection.Attributes` - For [AutoRegister]
+- `Game.Core.Content.Attributes` - For [Identifier], [ContentSchema]
+- `Game.Core.EntityControllers` - For EntityController, extension methods
+- `Game.Features.Sessions.Attributes` - For session-scoped auto-registration
+- `Game.Features.Pause.Groups` - For TimeSystemGroup (pause-aware)
+
+**Using Alias Example:**
+```csharp
+using Random = Unity.Mathematics.Random; // When Unity.Mathematics.Random conflicts with System.Random
+```
+
+### Async and Ref Variables
+
+**CRITICAL**: C# does NOT allow `ref` variables in async methods. You MUST copy ref values to local variables before using them in async contexts.
+
+**INCORRECT:**
+```csharp
+public async UniTask SpawnEnemyAsync()
+{
+    ref var position = ref entity.GetComponent<Position>(); // ERROR in async method!
+    await SomeAsyncOperation();
+    position.value = newValue; // Will not compile
+}
+```
+
+**CORRECT:**
+```csharp
+public async UniTask SpawnEnemyAsync()
+{
+    // Copy component data to local variable BEFORE async
+    var position = entity.GetComponent<Position>();
+    await SomeAsyncOperation();
+
+    // Set component after async (creates new struct instance)
+    entity.SetComponent(new Position { value = newValue });
+}
+```
+
+**Pattern for Modifying Components After Async:**
+```csharp
+private async UniTask SpawnEnemyAsync(string entityId, float2 spawnPos)
+{
+    var enemyEntity = await m_entityFactory.CreateEntityAsync(m_entityManagerWrapper, entityId);
+    if (enemyEntity != default)
+    {
+        // CORRECT: Use SetComponent to modify after async operation
+        enemyEntity.SetComponent(new Position { value = spawnPos });
+    }
+}
+```
