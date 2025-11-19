@@ -1,7 +1,7 @@
-using System;
 using Game.Core.UI;
 using Game.Core.UI.Blackboards;
 using R3;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 

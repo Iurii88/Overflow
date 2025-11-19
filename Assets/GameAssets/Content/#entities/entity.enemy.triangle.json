@@ -4,6 +4,28 @@
     {
       "identifier": "VIEW",
       "assetPath": "Assets/GameAssets/Entities/Enemies/Triangle/Prefabs/Triangle.prefab"
+    },
+    {
+      "identifier": "ENEMY"
+    },
+    {
+      "identifier": "MOVABLE",
+      "baseSpeed": 3
+    },
+    {
+      "identifier": "STATS",
+      "stats": [
+        {
+          "id": "HEALTH",
+          "value": 50,
+          "max": 50
+        }
+      ]
+    },
+    {
+      "identifier": "VIEW_COMPONENT",
+      "assetPath": "Assets/GameAssets/UI/HealthBar/HealthBar.prefab",
+      "layer": "LOWER"
     }
   ]
 }
